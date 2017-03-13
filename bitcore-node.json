@@ -1,0 +1,17 @@
+{
+  "network": "testnet",
+  "port": 3001,
+  "services": [
+    "bitcoind",
+    "service",
+    "web"
+  ],
+  "servicesConfig": {
+    "bitcoind": {
+      "spawn": {
+        "datadir": "./data",
+        "exec": "./node_modules/bitcore-node/bin/bitcoind"
+      }
+    }
+  }
+}

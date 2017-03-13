@@ -1,0 +1,25 @@
+{
+  "name": "TrustIsRisk.js",
+  "version": "1.0.0",
+  "description": "A Javascript implementation of TrustIsRisk",
+  "main": "index.js",
+  "scripts": {
+    "typecheck": "flow check; test $? -eq 0 -o $? -eq 2"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "babel-polyfill": "^6.23.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.23.0",
+    "babel-plugin-transform-flow-strip-types": "^6.22.0",
+    "babel-preset-env": "^1.2.1",
+    "babel-preset-es2015": "^6.22.0",
+    "babel-preset-es2016": "^6.22.0",
+    "babel-preset-es2017": "^6.22.0",
+    "flow-bin": "^0.41.0",
+    "babel-polyfill": "^6.23.0",
+    "bitcore-lib": "^0.13.19"
+  }
+}
