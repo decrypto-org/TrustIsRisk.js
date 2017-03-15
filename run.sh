@@ -1,6 +1,6 @@
 #!/bin/bash
 
-babel src --out-dir build --copy-files
+node_modules/babel-cli/bin/babel.js src --out-dir build --copy-files
 
 if [ $? -ne 0 ]; then
   echo "Compilation failed, exiting."
