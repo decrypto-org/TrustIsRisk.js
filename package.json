@@ -1,0 +1,35 @@
+{
+  "name": "trust-is-risk",
+  "version": "0.0.1",
+  "description": "A full bitcoin node that implements the Trust Is Risk trust inference system.",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "flow-remove-types -d lib/ src/",
+    "test": "npm run build && mocha",
+    "prepublish": "npm run build",
+    "typecheck": "flow check"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/decrypto-org/TrustIsRisk.js.git"
+  },
+  "keywords": [
+    "trust",
+    "bitcoin",
+    "blockchain"
+  ],
+  "author": "Decrypto-org",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/decrypto-org/TrustIsRisk.js/issues"
+  },
+  "homepage": "https://github.com/decrypto-org/TrustIsRisk.js#readme",
+  "devDependencies": {
+    "flow-bin": "^0.45.0",
+    "flow-remove-types": "^1.2.0",
+    "should": "^11.2.1"
+  },
+  "dependencies": {
+    "bcoin": "^1.0.0-beta.12"
+  }
+}
