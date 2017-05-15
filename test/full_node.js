@@ -6,7 +6,7 @@ var sinon = require('sinon');
 var should = require('should');
 require('should-sinon');
 
-describe('TrustIsRisk.FullNode', () => {
+describe('FullNode', () => {
   var node = null;
   var walletDB = null;
   sinon.spy(Trust.TrustIsRisk.prototype, 'addTX');
