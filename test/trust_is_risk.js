@@ -7,18 +7,21 @@ var should = require('should');
 require('should-sinon');
 
 describe('TrustIsRisk', () => {
+  var sender = "17P8kCbDBPmqLDCCe9dYwbfiEDaRb5xDYE";
+  var receiver = "1P6NdQWeZTLrYCpQNbYeXsLeaEjn8h6UFx";
+
   var inputP2PKH = new bcoin.primitives.Input({
     prevout: {
       hash: 'v0pnhphaf4r5wz63j60vnh27s1bftl260qq621y458tn0g4x64u64yqz6d7qi6i8',
       index: 0xfffffffa
     }, script: bcoin.script.fromString(
-      // 17P8kCbDBPmqLDCCe9dYwbfiEDaRb5xDYE
+      // 17P8kCbDBPmqLDCCe9dYwbfiEDaRb5xDYE (sender)
       "0x47 0x3044022035e32834c6ee4db1696cc06762feca2809d865ca12a3b98c801f3f451341a2570220573bf3ffef55f2651e1563acc0a22f8056222f277f5ddf17dd583d4edd40fa6001 0x21 0x02b8f07a401eca4888039b1898f94db44c43ccc6d3aa8b27e9b6ed7b377b24c083")
   });
 
   var outputOneOfTwoMultsig = new bcoin.primitives.Output({
     script: bcoin.script.fromString(
-      // 1/{17P8kCbDBPmqLDCCe9dYwbfiEDaRb5xDYE, 1P6NdQWeZTLrYCpQNbYeXsLeaEjn8h6UFx}
+      // 1/{17P8kCbDBPmqLDCCe9dYwbfiEDaRb5xDYE (sender), 1P6NdQWeZTLrYCpQNbYeXsLeaEjn8h6UFx (receiver)}
       "OP_1 0x21 0x02b8f07a401eca4888039b1898f94db44c43ccc6d3aa8b27e9b6ed7b377b24c083 0x28 0x2437025954568a8273968aa7535dbfc444fd8f8d0f5237cd96ac7234c77810ada53054a3654e669b OP_2 OP_CHECKMULTISIG"),
     value: 42
   });
@@ -46,8 +49,8 @@ describe('TrustIsRisk', () => {
       var trustChange = tir.parseTXAsTrustIncrease(mtx.toTX());
 
       should(trustChange).deepEqual({
-        from: "17P8kCbDBPmqLDCCe9dYwbfiEDaRb5xDYE",
-        to: "1P6NdQWeZTLrYCpQNbYeXsLeaEjn8h6UFx",
+        from: sender,
+        to: receiver,
         amount: 42
       });
     });
@@ -68,8 +71,8 @@ describe('TrustIsRisk', () => {
       var trustChange = tir.parseTXAsTrustIncrease(mtx.toTX());
 
       should(trustChange).deepEqual({
-        from: "17P8kCbDBPmqLDCCe9dYwbfiEDaRb5xDYE",
-        to: "1P6NdQWeZTLrYCpQNbYeXsLeaEjn8h6UFx",
+        from: sender,
+        to: receiver,
         amount: 32
       });
     });
@@ -91,7 +94,7 @@ describe('TrustIsRisk', () => {
       mtx.outputs[0].value -= 10;
       mtx.outputs.push(new bcoin.primitives.Output({
         script: bcoin.script.fromString(
-          // Pays to 1JDfVQkZxMvRwM3Lc6LkDrpX55Ldk3JqND
+          // Pays to 1JDfVQkZxMvRwM3Lc6LkDrpX55Ldk3JqND (neither sender or receiver)
           "OP_DUP OP_HASH160 0x14 0xBCDF4271C6600E7D02E60F9206A9AD862FFBD4F0 OP_EQUALVERIFY OP_CHECKSIG"),
         value: 10
       }));
@@ -103,13 +106,36 @@ describe('TrustIsRisk', () => {
     it('rejects transactions with no trust outputs', () => {
       mtx.outputs[0] = new bcoin.primitives.Output({
         script: bcoin.script.fromString(
-          // Pays to 1JDfVQkZxMvRwM3Lc6LkDrpX55Ldk3JqND
+          // Pays to 1JDfVQkZxMvRwM3Lc6LkDrpX55Ldk3JqND (neither sender or receiver)
           "OP_DUP OP_HASH160 0x14 0xBCDF4271C6600E7D02E60F9206A9AD862FFBD4F0 OP_EQUALVERIFY OP_CHECKSIG"),
         value: 10
       });
       var trustChange = tir.parseTXAsTrustIncrease(mtx.toTX());
 
       should(trustChange).equal(null);
+    });
+  });
+
+  describe('.getDirect()', () => {
+    it('returns zero for two arbitary parties that do not trust each other', () => {
+      should(tir.getDirect(sender, receiver)).equal(0);
+      should(tir.getDirect(receiver, sender)).equal(0);
+      should(tir.getDirect("1JDfVQkZxMvRwM3Lc6LkDrpX55Ldk3JqND", sender)).equal(0);
+      should(tir.getDirect(sender, "1JDfVQkZxMvRwM3Lc6LkDrpX55Ldk3JqND")).equal(0);
+    });
+  });
+
+  describe('.addTX()', () => {
+    it('correctly increases direct trust when adding a trust-increasing transaction', () => {
+      mtx.outputs[0].value -= 10;
+      mtx.outputs.push(new bcoin.primitives.Output({
+        script: changeScript, 
+        value: 10
+      }));
+      tir.addTX(mtx.toTX());
+
+      should(tir.getDirect(sender, receiver)).equal(32);
+      should(tir.getDirect(receiver, sender)).equal(0); // Trust is not bi-directional
     });
   });
 });

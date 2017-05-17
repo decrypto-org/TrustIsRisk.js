@@ -12,16 +12,36 @@ type TrustChange = DirectTrust;
 
 class TrustIsRisk {
   node : bcoin$FullNode
+  
+  // Direct trust map
+  trust : {
+    [from : Entity] : ({
+      [to : Entity] : number
+    })
+  };
 
   constructor(node : bcoin$FullNode) {
     this.node = node;
+    this.trust = {};
 
     this.node.on('tx', this.addTX.bind(this));
   }
 
+  getDirect(from : Entity, to : Entity) : number {
+    if (!this.trust.hasOwnProperty(from)) return 0;
+    if (!this.trust[from].hasOwnProperty(to)) return 0;
+    return this.trust[from][to];
+  }
+
   addTX(tx : bcoin$TX) : boolean {
     var trustChange = this.parseTXAsTrustChange(tx);
-    if (trustChange === null) return false;
+    if (!trustChange) return false;
+
+    if (!this.trust.hasOwnProperty(trustChange.from)) this.trust[trustChange.from] = {}
+    if (!this.trust[trustChange.from].hasOwnProperty(trustChange.to)) {
+      this.trust[trustChange.from][trustChange.to] = 0
+    }
+    this.trust[trustChange.from][trustChange.to] += trustChange.amount;
     
     return true;
   }
