@@ -27,6 +27,7 @@
   "devDependencies": {
     "flow-bin": "^0.45.0",
     "flow-remove-types": "^1.2.0",
+    "mocha": "^3.4.2",
     "should": "^11.2.1",
     "should-sinon": "0.0.5",
     "sinon": "^2.2.0"

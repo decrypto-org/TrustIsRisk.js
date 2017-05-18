@@ -46,6 +46,15 @@ var testHelpers = {
     return new Promise((resolve, reject) => {
       setTimeout(resolve, milliseconds);
     });
+  },
+
+  P2PKHOutput: (to, value) => {
+    var address = bcoin.primitives.Address.fromBase58(to);
+    var script = bcoin.script.fromString(
+        `OP_DUP OP_HASH160 0x${Number(address.hash.length).toString(16)} ` 
+        + `0x${address.hash.toString('hex')} OP_EQUALVERIFY OP_CHECKSIG`);
+    
+    return new bcoin.primitives.Output({script, value});
   }
 }
 

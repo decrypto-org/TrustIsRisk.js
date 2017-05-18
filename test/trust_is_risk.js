@@ -7,135 +7,155 @@ var should = require('should');
 require('should-sinon');
 
 describe('TrustIsRisk', () => {
-  var sender = "17P8kCbDBPmqLDCCe9dYwbfiEDaRb5xDYE";
-  var receiver = "1P6NdQWeZTLrYCpQNbYeXsLeaEjn8h6UFx";
+  var alice = "17P8kCbDBPmqLDCCe9dYwbfiEDaRb5xDYE";
+  var bob = "1P6NdQWeZTLrYCpQNbYeXsLeaEjn8h6UFx";
+  var charlie = "1JDfVQkZxMvRwM3Lc6LkDrpX55Ldk3JqND";
 
-  var inputP2PKH = new bcoin.primitives.Input({
-    prevout: {
-      hash: 'v0pnhphaf4r5wz63j60vnh27s1bftl260qq621y458tn0g4x64u64yqz6d7qi6i8',
-      index: 0xfffffffa
-    }, script: bcoin.script.fromString(
-      // 17P8kCbDBPmqLDCCe9dYwbfiEDaRb5xDYE (sender)
-      "0x47 0x3044022035e32834c6ee4db1696cc06762feca2809d865ca12a3b98c801f3f451341a2570220573bf3ffef55f2651e1563acc0a22f8056222f277f5ddf17dd583d4edd40fa6001 0x21 0x02b8f07a401eca4888039b1898f94db44c43ccc6d3aa8b27e9b6ed7b377b24c083")
-  });
-
-  var outputOneOfTwoMultsig = new bcoin.primitives.Output({
-    script: bcoin.script.fromString(
-      // 1/{17P8kCbDBPmqLDCCe9dYwbfiEDaRb5xDYE (sender), 1P6NdQWeZTLrYCpQNbYeXsLeaEjn8h6UFx (receiver)}
-      "OP_1 0x21 0x02b8f07a401eca4888039b1898f94db44c43ccc6d3aa8b27e9b6ed7b377b24c083 0x28 0x2437025954568a8273968aa7535dbfc444fd8f8d0f5237cd96ac7234c77810ada53054a3654e669b OP_2 OP_CHECKMULTISIG"),
-    value: 42
-  });
-
-  var tir = null, mtx = null, changeScript = null;
+  var inputP2PKH, outputOneOfTwoMultisig, inputOneOfTwoMultisig;
+  var tir, trustIncreasingMTX, trustDecreasingMTX, trustIncreasingTX;
   beforeEach(() => {
     tir = new Trust.TrustIsRisk(new bcoin.fullnode({}));
 
-    mtx = new bcoin.primitives.MTX({
+    inputP2PKH = new bcoin.primitives.Input({
+      prevout: {
+        hash: 'v0pnhphaf4r5wz63j60vnh27s1bftl260qq621y458tn0g4x64u64yqz6d7qi6i8',
+        index: 2
+      },
+      script: bcoin.script.fromString(
+        // 17P8kCbDBPmqLDCCe9dYwbfiEDaRb5xDYE (alice)
+        "0x47 0x3044022035e32834c6ee4db1696cc06762feca2809d865ca12a3b98c801f3f451341a2570220573bf3ffef55f2651e1563acc0a22f8056222f277f5ddf17dd583d4edd40fa6001 0x21 0x02b8f07a401eca4888039b1898f94db44c43ccc6d3aa8b27e9b6ed7b377b24c083")
+    });
+
+    outputOneOfTwoMultisig = new bcoin.primitives.Output({
+      script: bcoin.script.fromString(
+        // 1/{17P8kCbDBPmqLDCCe9dYwbfiEDaRb5xDYE (alice), 1P6NdQWeZTLrYCpQNbYeXsLeaEjn8h6UFx (bob)}
+        "OP_1 0x21 0x02b8f07a401eca4888039b1898f94db44c43ccc6d3aa8b27e9b6ed7b377b24c083 0x28 0x2437025954568a8273968aa7535dbfc444fd8f8d0f5237cd96ac7234c77810ada53054a3654e669b OP_2 OP_CHECKMULTISIG"),
+      value: 42
+    });
+
+    trustIncreasingMTX = new bcoin.primitives.MTX({
       inputs: [
         inputP2PKH 
       ],
       outputs: [
-        outputOneOfTwoMultsig
+        outputOneOfTwoMultisig
       ]
     });
 
-    changeScript = bcoin.script.fromString(
-      // Pays to 17P8kCbDBPmqLDCCe9dYwbfiEDaRb5xDYE
-      "OP_DUP OP_HASH160 0x14 0x46005EF459C9E7C37AF8871D25BC39D0EA0534D1 OP_EQUALVERIFY OP_CHECKSIG");
+    trustIncreasingTX = trustIncreasingMTX.toTX();
+    inputOneOfTwoMultisig = new bcoin.primitives.Input({
+      prevout: {
+        hash: trustIncreasingTX.hash().toString('hex'),
+        index: 0
+      },
+      script: bcoin.script.fromString(
+        // 17P8kCbDBPmqLDCCe9dYwbfiEDaRb5xDYE
+        "0x47 0x3044022035e32834c6ee4db1696cc06762feca2809d865ca12a3b98c801f3f451341a2570220573bf3ffef55f2651e1563acc0a22f8056222f277f5ddf17dd583d4edd40fa6001 0x21 0x02b8f07a401eca4888039b1898f94db44c43ccc6d3aa8b27e9b6ed7b377b24c083")
+    });
+
+    trustDecreasingMTX = new bcoin.primitives.MTX({
+      inputs: [
+        inputOneOfTwoMultisig
+      ],
+      outputs: [
+        Object.assign(outputOneOfTwoMultisig.clone(), {value: 20}),
+        testHelpers.P2PKHOutput(alice, 22)
+      ]
+    });
+
   });
 
-  describe('.parseTXAsTrustIncrease', () => {
-    it('correctly parses trust increasing transactions', () => {
-      var trustChange = tir.parseTXAsTrustIncrease(mtx.toTX());
-
-      should(trustChange).deepEqual({
-        from: sender,
-        to: receiver,
-        amount: 42
-      });
-    });
-
-    it('rejects transactions with more than one input', () => {
-      mtx.inputs.push(inputP2PKH);
-      var trustChange = tir.parseTXAsTrustIncrease(mtx.toTX());
-
-      should(trustChange).equal(null);
-    });
-
-    it('correctly parses trust increasing transactions with change outputs', () => {
-      mtx.outputs[0].value -= 10;
-      mtx.outputs.push(new bcoin.primitives.Output({
-        script: changeScript, 
-        value: 10
-      }));
-      var trustChange = tir.parseTXAsTrustIncrease(mtx.toTX());
-
-      should(trustChange).deepEqual({
-        from: sender,
-        to: receiver,
-        amount: 32
-      });
-    });
-
-    it('rejects transactions with two change outputs', () => {
-      mtx.outputs[0].value -= 10;
-      for (var i = 0; i < 2; i++) {
-        mtx.outputs.push(new bcoin.primitives.Output({
-          script: changeScript, 
-          value: 5
-        }));
-      }
-      var trustChange = tir.parseTXAsTrustIncrease(mtx.toTX());
-
-      should(trustChange).equal(null);
-    });
-
-    it('rejects transactions with a second output that\'s not a change output', () => {
-      mtx.outputs[0].value -= 10;
-      mtx.outputs.push(new bcoin.primitives.Output({
-        script: bcoin.script.fromString(
-          // Pays to 1JDfVQkZxMvRwM3Lc6LkDrpX55Ldk3JqND (neither sender or receiver)
-          "OP_DUP OP_HASH160 0x14 0xBCDF4271C6600E7D02E60F9206A9AD862FFBD4F0 OP_EQUALVERIFY OP_CHECKSIG"),
-        value: 10
-      }));
-      var trustChange = tir.parseTXAsTrustIncrease(mtx.toTX());
-
-      should(trustChange).equal(null);
-    });
-
-    it('rejects transactions with no trust outputs', () => {
-      mtx.outputs[0] = new bcoin.primitives.Output({
-        script: bcoin.script.fromString(
-          // Pays to 1JDfVQkZxMvRwM3Lc6LkDrpX55Ldk3JqND (neither sender or receiver)
-          "OP_DUP OP_HASH160 0x14 0xBCDF4271C6600E7D02E60F9206A9AD862FFBD4F0 OP_EQUALVERIFY OP_CHECKSIG"),
-        value: 10
-      });
-      var trustChange = tir.parseTXAsTrustIncrease(mtx.toTX());
-
-      should(trustChange).equal(null);
-    });
-  });
-
-  describe('.getDirect()', () => {
+  describe('.getDirectTrust()', () => {
     it('returns zero for two arbitary parties that do not trust each other', () => {
-      should(tir.getDirect(sender, receiver)).equal(0);
-      should(tir.getDirect(receiver, sender)).equal(0);
-      should(tir.getDirect("1JDfVQkZxMvRwM3Lc6LkDrpX55Ldk3JqND", sender)).equal(0);
-      should(tir.getDirect(sender, "1JDfVQkZxMvRwM3Lc6LkDrpX55Ldk3JqND")).equal(0);
+      should(tir.getDirectTrust(alice, bob)).equal(0);
+      should(tir.getDirectTrust(bob, alice)).equal(0);
+      should(tir.getDirectTrust(charlie, alice)).equal(0);
+      should(tir.getDirectTrust(alice, charlie)).equal(0);
     });
   });
 
   describe('.addTX()', () => {
-    it('correctly increases direct trust when adding a trust-increasing transaction', () => {
-      mtx.outputs[0].value -= 10;
-      mtx.outputs.push(new bcoin.primitives.Output({
-        script: changeScript, 
-        value: 10
-      }));
-      tir.addTX(mtx.toTX());
+    describe('with a non-TIR transaction', () => {
+      it('does not change trust', () => {
+        trustIncreasingMTX.outputs[0] = new bcoin.primitives.Output({
+          script: bcoin.script.fromString(
+            // Pays to 1JDfVQkZxMvRwM3Lc6LkDrpX55Ldk3JqND (neither alice or bob)
+            "OP_DUP OP_HASH160 0x14 0xBCDF4271C6600E7D02E60F9206A9AD862FFBD4F0 OP_EQUALVERIFY OP_CHECKSIG"),
+          value: 10
+        });
+        tir.parseTXAsTrustIncrease(trustIncreasingMTX.toTX());
 
-      should(tir.getDirect(sender, receiver)).equal(32);
-      should(tir.getDirect(receiver, sender)).equal(0); // Trust is not bi-directional
+        should(tir.getDirectTrust(alice, bob)).equal(0);
+      });
+    });
+
+    describe('with a trust increasing transaction', () => {
+      it('correctly increases trust', () => {
+        tir.addTX(trustIncreasingTX);
+
+        should(tir.getDirectTrust(alice, bob)).equal(42);
+        should(tir.getDirectTrust(bob, alice)).equal(0);
+      });
+
+      it('which has more than one input does not change trust', () => {
+        trustIncreasingMTX.inputs.push(inputP2PKH);
+        tir.addTX(trustIncreasingMTX.toTX());
+
+        should(tir.getDirectTrust(alice, bob)).equal(0);
+      });
+
+      it('which has a change output correctly increases trust', () => {
+        trustIncreasingMTX.outputs[0].value -= 10;
+        trustIncreasingMTX.outputs.push(testHelpers.P2PKHOutput(alice, 10));
+        tir.addTX(trustIncreasingMTX.toTX());
+
+        should(tir.getDirectTrust(alice, bob)).equal(32);
+      });
+
+      it('which has two change outputs does not change trust', () => {
+        trustIncreasingMTX.outputs[0].value -= 10;
+        for (var i = 0; i < 2; i++) {
+          trustIncreasingMTX.outputs.push(testHelpers.P2PKHOutput(alice, 5));
+        }
+        tir.addTX(trustIncreasingMTX.toTX());
+
+        should(tir.getDirectTrust(alice, bob)).equal(0);
+      });
+
+      it('which has a second output that is not a change output does not change trust', () => {
+        trustIncreasingMTX.outputs[0].value -= 10;
+        trustIncreasingMTX.outputs.push(testHelpers.P2PKHOutput(charlie, 5));
+        tir.addTX(trustIncreasingMTX.toTX());
+
+        should(tir.getDirectTrust(alice, bob)).equal(0);
+      });
+
+    });
+
+    describe('with a trust decreasing transaction', () => {
+      beforeEach(() => {
+        tir.addTX(trustIncreasingTX);
+      });
+
+      it('correctly decreases trust', () => {
+        tir.addTX(trustDecreasingMTX.toTX());
+        should(tir.getDirectTrust(alice, bob)).equal(20);
+      });
+
+      it('which has a second input decreases trust to zero', () => {
+        trustDecreasingMTX.inputs.push(inputP2PKH);
+        tir.addTX(trustDecreasingMTX.toTX());
+
+        should(tir.getDirectTrust(alice, bob)).equal(0);
+      });
+
+      it('which has more than one trust outputs decreases trust to zero', () => {
+        trustDecreasingMTX.outputs[0].value -= 15;
+        trustDecreasingMTX.outputs.push(Object.assign(outputOneOfTwoMultisig.clone(), {value: 5}));
+        tir.addTX(trustDecreasingMTX.toTX());
+
+        should(tir.getDirectTrust(alice, bob)).equal(0);
+      });
     });
   });
 });

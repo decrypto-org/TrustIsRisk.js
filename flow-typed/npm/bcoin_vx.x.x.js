@@ -12,6 +12,8 @@ declare class bcoin$Address {
 declare class bcoin$TX {
   inputs : bcoin$Input[];
   outputs : bcoin$Output[];
+
+  hash(enc : ?'hex') : Buffer;
 }
 
 declare class bcoin$Output {
@@ -24,12 +26,18 @@ declare class bcoin$Output {
 
 declare class bcoin$Input {
   script : bcoin$Script;
+  prevout : bcoin$Outpoint;
   getType() : ('pubkeyhash' | 'multisig');
   getAddress() : bcoin$Address;
 }
 
 declare class bcoin$Script {
   get(n : number) : (Buffer);
+}
+
+declare class bcoin$Outpoint {
+  hash : Buffer;
+  index : number;
 }
 
 declare module 'bcoin' {
@@ -40,7 +48,8 @@ declare module 'bcoin' {
       Address : Class<bcoin$Address>,
       TX : Class<bcoin$TX>,
       Output : Class<bcoin$Output>,
-      Input : Class<bcoin$Input>
+      Input : Class<bcoin$Input>,
+      Outpoint : Class<bcoin$Outpoint>
     },
     crypto : {
       hash160(str : (string | Buffer)) : (string | Buffer)
