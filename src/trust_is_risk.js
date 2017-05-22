@@ -2,6 +2,9 @@
 var bcoin = require('bcoin');
 var assert = require('assert');
 var Address = bcoin.primitives.Address;
+var SortedSet = require('sorted-set');
+var maxFlow = require('graph-theory-ford-fulkerson');
+
 
 type Entity = string; // base58 bitcoin address
 type DirectTrust = {
@@ -27,15 +30,31 @@ class TrustIsRisk {
     [hash : TXHash] : DirectTrust
   }
 
+  entities : SortedSet
+
   constructor(node : bcoin$FullNode) {
     this.node = node;
     this.directTrust = {};
     this.TXToTrust = {};
+    this.entities = new SortedSet();
 
     this.node.on('tx', this.addTX.bind(this));
   }
 
+  getTrust(from : Entity, to : Entity) : number {
+    if (from === to) return Infinity;
+
+    // TODO: Optimize
+    var graph = this.getGraphWeightMatrix();
+    var fromIndex = this.getGraphWeightMatrixIndex(from);
+    var toIndex = this.getGraphWeightMatrixIndex(to);
+
+    if (fromIndex === -1 || toIndex === -1) return 0;
+    else return maxFlow(graph, fromIndex, toIndex);
+  }
+
   getDirectTrust(from : Entity, to : Entity) : number {
+    if (from === to) return Infinity;
     if (!this.directTrust.hasOwnProperty(from)) return 0;
     if (!this.directTrust[from].hasOwnProperty(to)) return 0;
     return this.directTrust[from][to];
@@ -49,7 +68,7 @@ class TrustIsRisk {
   addTX(tx : bcoin$TX) : boolean {
     var txHash = tx.hash().toString('hex');
     if (this.TXToTrust.hasOwnProperty(txHash)) {
-      throw new Error('Duplicate TX: Transaction with hash ' + txHash + ' has been seen again.');
+      throw new Error('Duplicate TX: Transaction with hash ' + txHash + ' has been seen before.');
     }
 
     var trustChanges = this.getTrustChanges(tx);
@@ -90,6 +109,9 @@ class TrustIsRisk {
         outputIndex: trustChange.outputIndex
       };
     }
+
+    this.entities.add(trustChange.from);
+    this.entities.add(trustChange.to);
   }
 
   parseTXAsTrustIncrease(tx : bcoin$TX) : (TrustChange | null) {
@@ -197,6 +219,16 @@ class TrustIsRisk {
     };
   }
 
+  getGraphWeightMatrix() : number[][] {
+    var entitiesArr = this.entities.slice(0, this.entities.length);
+    return entitiesArr.map((from) => {
+      return entitiesArr.map((to) => this.getDirectTrust(from, to));
+    });
+  }
+
+  getGraphWeightMatrixIndex(entity : Entity) : number {
+    return this.entities.rank(entity);
+  }
 }
 
 module.exports = TrustIsRisk;

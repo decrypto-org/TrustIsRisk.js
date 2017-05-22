@@ -1,0 +1,19 @@
+{
+  "alice": {
+    "bob": 3,
+    "dave": 1
+  },
+  "bob": {
+    "charlie": 3
+  },
+  "charlie": {
+    "frank": 2
+  },
+  "dave": {
+    "charlie": 5,
+    "eve": 4
+  },
+  "eve": {
+    "frank": 2
+  }
+}
