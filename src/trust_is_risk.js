@@ -1,7 +1,12 @@
 // @flow
 var bcoin = require('bcoin');
-var assert = require('assert');
 var Address = bcoin.primitives.Address;
+var KeyRing = bcoin.primitives.KeyRing;
+var MTX = bcoin.primitives.MTX;
+var Input = bcoin.primitives.Input;
+var Output = bcoin.primitives.Output;
+var Outpoint = bcoin.primitives.Outpoint;
+var assert = require('assert');
 var SortedSet = require('sorted-set');
 var maxFlow = require('graph-theory-ford-fulkerson');
 
@@ -16,6 +21,7 @@ type DirectTrust = {
 }
 type TrustChange = DirectTrust;
 type TXHash = string;
+type PubKey = Buffer;
 
 class TrustIsRisk {
   node : bcoin$FullNode
@@ -39,6 +45,33 @@ class TrustIsRisk {
     this.entities = new SortedSet();
 
     this.node.on('tx', this.addTX.bind(this));
+  }
+
+  async getTrustIncreasingMTX(from : PubKey, to : PubKey, outpoint : bcoin$Outpoint, trustAmount : number)
+      : Promise<bcoin$MTX> {
+    var prevTX = await this.node.getTX(outpoint.hash);
+    var prevOutput = prevTX.outputs[outpoint.index];
+
+    var mtx = new MTX({
+      inputs: [
+        Input.fromOutpoint(outpoint)
+      ],
+      outputs: [
+        new Output({ // Trust output
+          script: bcoin.script.fromMultisig(1, 2, [from, to]),
+          value: trustAmount
+        }),
+        new Output({ // Change output
+          script: bcoin.script.fromPubkeyhash(bcoin.crypto.hash160(from)),
+          value: prevOutput.value - trustAmount
+        })
+      ]
+    });
+
+    var success = mtx.scriptVector(prevOutput.script, mtx.inputs[0].script, KeyRing.fromPublic(from));
+    assert(success);
+
+    return mtx;
   }
 
   getTrust(from : Entity, to : Entity) : number {
@@ -200,7 +233,7 @@ class TrustIsRisk {
     var output = tx.outputs[outputIndex];
     if (output.getType() !== 'multisig') return null;
     
-    var addressA = Address.fromHash(bcoin.crypto.hash160(output.script.get(1))).toBase58()
+    var addressA = Address.fromHash(bcoin.crypto.hash160(output.script.get(1))).toBase58();
     var addressB = Address.fromHash(bcoin.crypto.hash160(output.script.get(2))).toBase58();
 
     if (addressA === addressB) return null;

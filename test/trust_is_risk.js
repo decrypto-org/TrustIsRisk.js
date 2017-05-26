@@ -6,6 +6,8 @@ var sinon = require('sinon');
 var should = require('should');
 require('should-sinon');
 
+var Address = bcoin.primitives.Address;
+
 describe('TrustIsRisk', () => {
   var addr = testHelpers.getAddressFixtures();
   // Add base58 address variables to scope.
@@ -13,9 +15,10 @@ describe('TrustIsRisk', () => {
     eval(`var ${name} = "${addr[name].base58}";`);
   }
 
-  var tir, trustIncreasingMTX, trustDecreasingMTX, trustIncreasingTX;
+  var node, tir, trustIncreasingMTX, trustDecreasingMTX, trustIncreasingTX;
   beforeEach(() => {
-    tir = new Trust.TrustIsRisk(new bcoin.fullnode({}));
+    node = new bcoin.fullnode({});
+    tir = new Trust.TrustIsRisk(node);
 
     trustIncreasingMTX = testHelpers.getTrustIncreasingMTX(addr.alice.pubkey, addr.bob.pubkey, 42);
     trustIncreasingTX = trustIncreasingMTX.toTX();
@@ -133,6 +136,50 @@ describe('TrustIsRisk', () => {
         tir.addTX(trustDecreasingMTX.toTX());
 
         should(tir.getDirectTrust(alice, bob)).equal(0);
+      });
+    });
+
+    describe('.getTrustIncreasingMTX()', () => {
+      it('creates valid trust-increasing transactions', async () => {
+        var getTXStub = sinon.stub(node, 'getTX');
+
+        var prevOutput = {
+          hash: 'v1pnhp2af4r5wz63j60vnh27s1bftl260qq621y458tn0g4x64u64yqz6d7qi6i8',
+          index: 1
+        };
+
+        getTXStub.withArgs(prevOutput.hash).returns(new bcoin.primitives.MTX({
+          inputs: [
+            testHelpers.getP2PKHInput(addr.alice.pubkey)
+          ],
+          outputs: [
+            testHelpers.getOneOfTwoMultisigOutput(addr.charlie.pubkey, addr.bob.pubkey, 40),
+            testHelpers.getP2PKHOutput(alice, 1000), // This is the P2PKH being used
+            testHelpers.getP2PKHOutput(dave, 200)
+          ]
+        }).toTX());
+
+        var mtx = await tir.getTrustIncreasingMTX(addr.alice.pubkey, addr.bob.pubkey, prevOutput, 100);
+
+        mtx.inputs.length.should.equal(1);
+        var input = mtx.inputs[0];
+        input.script.get(0).should.equal(0); // OP_0, because this is an unsigned bcoin input template.
+        input.script.get(1).should.equal(addr.alice.pubkey);
+
+        mtx.outputs.length.should.equal(2);
+
+        var trustOutput = mtx.outputs[0];
+        trustOutput.getType().should.equal('multisig');
+        var addressA = Address.fromHash(bcoin.crypto.hash160(trustOutput.script.get(1))).toBase58();
+        var addressB = Address.fromHash(bcoin.crypto.hash160(trustOutput.script.get(2))).toBase58();
+        addressA.should.equal(alice);
+        addressB.should.equal(bob);
+        trustOutput.value.should.equal(100);
+
+        var changeOutput = mtx.outputs[1];
+        changeOutput.getType().should.equal('pubkeyhash');
+        changeOutput.getAddress().toBase58().should.equal(alice);
+        changeOutput.value.should.equal(900);
       });
     });
 
