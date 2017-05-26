@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "flow-remove-types -d lib/ src/",
-    "test": "npm run build && mocha",
+    "test": "npm run build && mocha -t 5000",
     "prepublish": "npm run build",
     "typecheck": "flow check"
   },
@@ -27,7 +27,10 @@
   "devDependencies": {
     "flow-bin": "^0.45.0",
     "flow-remove-types": "^1.2.0",
-    "should": "^11.2.1"
+    "mocha": "^3.4.2",
+    "should": "^11.2.1",
+    "should-sinon": "0.0.5",
+    "sinon": "^2.2.0"
   },
   "dependencies": {
     "bcoin": "^1.0.0-beta.12"
