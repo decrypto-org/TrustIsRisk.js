@@ -23,7 +23,7 @@ describe('FullNode', () => {
   afterEach(() => node.close());
 
   it('should be a bcoin instance', () => {
-    should(node).be.an.instanceof(bcoin.fullnode);
+    node.should.be.an.instanceof(bcoin.fullnode);
   });
 
   it('should call trust.addTX() on every transaction', async function() {
