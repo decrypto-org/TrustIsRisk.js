@@ -1,4 +1,5 @@
 // @flow
+import type {Entity, TXHash, PubKey} from "./types"
 var bcoin = require('bcoin');
 var Address = bcoin.primitives.Address;
 var KeyRing = bcoin.primitives.KeyRing;
@@ -7,90 +8,27 @@ var Input = bcoin.primitives.Input;
 var Output = bcoin.primitives.Output;
 var Outpoint = bcoin.primitives.Outpoint;
 var assert = require('assert');
-var SortedSet = require('sorted-set');
-var maxFlow = require('graph-theory-ford-fulkerson');
-
-
-type Entity = string; // base58 bitcoin address
-type DirectTrust = {
-  from : Entity,
-  to: Entity,
-  amount: number,
-  txHash: string,
-  outputIndex: ?number, // Not set for nullifying trust changes
-}
-type TrustChange = DirectTrust;
-type TXHash = string;
-type PubKey = Buffer;
+var helpers = require('./helpers');
+var TrustDB = require('./trust_db');
+var DirectTrust = require('./direct_trust');
 
 class TrustIsRisk {
   node : bcoin$FullNode
-  
-  directTrust : {
-    [from : Entity] : ({
-      [to : Entity] : number
-    })
-  }
-
-  TXToTrust : {
-    [hash : TXHash] : DirectTrust
-  }
-
-  entities : SortedSet
+  trustDB : TrustDB
 
   constructor(node : bcoin$FullNode) {
     this.node = node;
-    this.directTrust = {};
-    this.TXToTrust = {};
-    this.entities = new SortedSet();
+    this.trustDB = new TrustDB();
 
     this.node.on('tx', this.addTX.bind(this));
   }
 
-  async getTrustIncreasingMTX(from : PubKey, to : PubKey, outpoint : bcoin$Outpoint, trustAmount : number)
-      : Promise<bcoin$MTX> {
-    var prevTX = await this.node.getTX(outpoint.hash);
-    var prevOutput = prevTX.outputs[outpoint.index];
-
-    var mtx = new MTX({
-      inputs: [
-        Input.fromOutpoint(outpoint)
-      ],
-      outputs: [
-        new Output({ // Trust output
-          script: bcoin.script.fromMultisig(1, 2, [from, to]),
-          value: trustAmount
-        }),
-        new Output({ // Change output
-          script: bcoin.script.fromPubkeyhash(bcoin.crypto.hash160(from)),
-          value: prevOutput.value - trustAmount
-        })
-      ]
-    });
-
-    var success = mtx.scriptVector(prevOutput.script, mtx.inputs[0].script, KeyRing.fromPublic(from));
-    assert(success);
-
-    return mtx;
+  getTrust(from : Entity, to : Entity) {
+    return this.trustDB.getTrustAmount(from, to);
   }
 
-  getTrust(from : Entity, to : Entity) : number {
-    if (from === to) return Infinity;
-
-    // TODO: Optimize
-    var graph = this.getGraphWeightMatrix();
-    var fromIndex = this.getGraphWeightMatrixIndex(from);
-    var toIndex = this.getGraphWeightMatrixIndex(to);
-
-    if (fromIndex === -1 || toIndex === -1) return 0;
-    else return maxFlow(graph, fromIndex, toIndex);
-  }
-
-  getDirectTrust(from : Entity, to : Entity) : number {
-    if (from === to) return Infinity;
-    if (!this.directTrust.hasOwnProperty(from)) return 0;
-    if (!this.directTrust[from].hasOwnProperty(to)) return 0;
-    return this.directTrust[from][to];
+  getDirectTrust(from : Entity, to : Entity) {
+    return this.trustDB.getDirectTrustAmount(from, to);
   }
 
   // Attempts to parse a bitcoin transaction as a trust change and adds it to the trust network
@@ -100,23 +38,23 @@ class TrustIsRisk {
   // Throws an error if the transaction was processed earlier.
   addTX(tx : bcoin$TX) : boolean {
     var txHash = tx.hash().toString('hex');
-    if (this.TXToTrust.hasOwnProperty(txHash)) {
-      throw new Error('Duplicate TX: Transaction with hash ' + txHash + ' has been seen before.');
+    if (this.trustDB.isTrustTX(txHash)) {
+      throw new Error(`Transaction already processed: Transaction ${txHash} already carries trust`);
     }
 
-    var trustChanges = this.getTrustChanges(tx);
-    if (trustChanges.length === 0) return false;
+    var directTrusts = this.getDirectTrusts(tx);
+    if (directTrusts.length === 0) return false;
     else {
-      trustChanges.map(this.applyTrustChange.bind(this));
+      directTrusts.map(this.trustDB.add.bind(this.trustDB));
       return true;
     }
   }
 
-  // Returns a list of trust changes that a transaction causes, which will be one of the following:
+  // Returns a list of trusts that a transaction contains, which will be one of the following:
   //   * An empty list (for non-TIR transactions).
   //   * A list containing a single trust increase (for trust-increasing transactions).
   //   * A list containing one or more trust decreases (for trust-decreasing transactions).
-  getTrustChanges(tx : bcoin$TX) : TrustChange[] {
+  getDirectTrusts(tx : bcoin$TX) : DirectTrust[] {
     var trustIncrease = this.parseTXAsTrustIncrease(tx);
     if (trustIncrease !== null) {
       return [trustIncrease];
@@ -125,32 +63,89 @@ class TrustIsRisk {
     }
   }
 
-  applyTrustChange(trustChange : TrustChange) {
-    if (!this.directTrust.hasOwnProperty(trustChange.from)) this.directTrust[trustChange.from] = {};
-    if (!this.directTrust[trustChange.from].hasOwnProperty(trustChange.to)) {
-      this.directTrust[trustChange.from][trustChange.to] = 0
+  async getTrustIncreasingMTX(from : PubKey, to : PubKey, outpoint : bcoin$Outpoint, trustAmount : number)
+      : Promise<bcoin$MTX> {
+    var prevTX = await this.node.getTX(outpoint.hash);
+    if (!prevTX) throw new Error('Could not find transaction');
+
+    var prevOutput = prevTX.outputs[outpoint.index];
+    if (!prevOutput) throw new Error('Could not find transaction output');
+
+    var mtx = new MTX({
+      inputs: [
+        Input.fromOutpoint(outpoint)
+      ],
+      outputs: [
+        new Output({
+          script: bcoin.script.fromMultisig(1, 2, [from, to]),
+          value: trustAmount
+        })
+      ]
+    });
+
+    var changeAmount = prevOutput.value - trustAmount;
+    if (changeAmount) {
+      mtx.addOutput(new Output({
+        script: bcoin.script.fromPubkeyhash(bcoin.crypto.hash160(from)),
+        value: changeAmount
+      }));
     }
 
-    this.directTrust[trustChange.from][trustChange.to] += trustChange.amount;
+    var success = mtx.scriptVector(prevOutput.script, mtx.inputs[0].script, KeyRing.fromPublic(from));
+    assert(success);
 
-    if (this.directTrust[trustChange.from][trustChange.to] > 0) {
-      this.TXToTrust[trustChange.txHash] = {
-        from: trustChange.from,
-        to: trustChange.to,
-        amount: this.directTrust[trustChange.from][trustChange.to],
-        txHash: trustChange.txHash,
-        outputIndex: trustChange.outputIndex
-      };
-    }
-
-    this.entities.add(trustChange.from);
-    this.entities.add(trustChange.to);
+    return mtx;
   }
 
-  parseTXAsTrustIncrease(tx : bcoin$TX) : (TrustChange | null) {
+  getTrustDecreasingMTXs(from : PubKey, to : PubKey, trustDecreaseAmount : number)
+    : bcoin$MTX[] {
+    var fromAddress = Address.fromHash(bcoin.crypto.hash160(from)).toBase58();
+    var toAddress = Address.fromHash(bcoin.crypto.hash160(to)).toBase58();
+    if (fromAddress === toAddress) throw new Error('Can\'t decrease self-trust');
+
+    var existingTrustAmount = this.trustDB.getDirectTrustAmount(fromAddress, toAddress);
+    if (existingTrustAmount < trustDecreaseAmount) throw new Error('Insufficient trust');
+    
+    var directTrusts = this.trustDB.getSpendableDirectTrusts(fromAddress, toAddress);
+    return directTrusts.map((directTrust) => {
+      var decrease = Math.min(trustDecreaseAmount, directTrust.amount);
+      if (decrease === 0) return null;
+      trustDecreaseAmount -= decrease;
+      return this.getTrustDecreasingMTX(directTrust, decrease);
+    }).filter(Boolean);
+  }
+
+  getTrustDecreasingMTX(directTrust : DirectTrust, decreaseAmount : number) {
+    var remainingTrustAmount = directTrust.amount - decreaseAmount;
+
+    var mtx = new MTX({
+      inputs: [
+        Input.fromOutpoint(new Outpoint(directTrust.txHash, directTrust.outputIndex))
+      ],
+      outputs: [new Output({
+        script: bcoin.script.fromPubkeyhash(bcoin.crypto.hash160(directTrust.from)),
+        value: decreaseAmount
+      })]
+    });
+
+    if (remainingTrustAmount > 0) {
+      mtx.addOutput(new Output({
+        script: bcoin.script.fromMultisig(1, 2, [directTrust.from, directTrust.to]),
+        value: remainingTrustAmount
+      }));
+    }
+
+    var success = mtx.scriptVector(((directTrust.script : any) : bcoin$Script),
+        mtx.inputs[0].script, KeyRing.fromPublic(directTrust.from));
+    assert(success);
+
+    return mtx;
+  }
+
+  parseTXAsTrustIncrease(tx : bcoin$TX) : (DirectTrust | null) {
     if (tx.inputs.length !== 1) return null;
     if (tx.inputs[0].getType() !== 'pubkeyhash') return null; // TODO: This is unreliable
-    if (this.TXToTrust[tx.inputs[0].prevout.hash.toString('hex')]) return null;
+    if (this.trustDB.isTrustTX(tx.inputs[0].prevout.hash.toString('hex'))) return null;
     var sender = tx.inputs[0].getAddress().toBase58();
 
     if (tx.outputs.length === 0 || tx.outputs.length > 2) return null;
@@ -164,50 +159,38 @@ class TrustIsRisk {
     return trustOutputs[0];
   }
 
-  getTrustDecreases(tx : bcoin$TX) : TrustChange[] {
+  getTrustDecreases(tx : bcoin$TX) : DirectTrust[] {
     var inputTrusts = this.getInputTrusts(tx.inputs);
     return inputTrusts.map(this.getTrustDecrease.bind(this, tx));
   }
 
   getInputTrusts(inputs : bcoin$Input[]) : DirectTrust[] {
     return inputs.map((input) => {
-      var trust = this.TXToTrust[input.prevout.hash.toString('hex')]
+      var trust = this.trustDB.getDirectTrustByOutpoint(input.prevout);
       if (trust && trust.outputIndex === input.prevout.index) return trust;
       else return null;
     }).filter(Boolean);
   }
 
-  getTrustDecrease(tx : bcoin$TX, prevTrust : DirectTrust) : TrustChange {
+  getTrustDecrease(tx : bcoin$TX, prevTrust : DirectTrust) : DirectTrust {
     var txHash = tx.hash().toString('hex');
-    var nullifyTrust = {
-      from: prevTrust.from,
-      to: prevTrust.to,
-      amount: -prevTrust.amount,
-      txHash,
-      outputIndex: null
-    };
+    var nullTrust = prevTrust.getNullifying(txHash);
 
-    if (tx.inputs.length !== 1) return nullifyTrust;
+    if (tx.inputs.length !== 1) return nullTrust;
 
-    var trustOutputs = this.searchForDirectTrustOutputs(tx, prevTrust.from, prevTrust.to);
-    if (trustOutputs.length != 1) return nullifyTrust;
+    var trustOutputs = this.searchForDirectTrustOutputs(tx, prevTrust.getFromEntity(),
+        prevTrust.getToEntity());
+    if (trustOutputs.length != 1) return nullTrust;
     var nextTrust = trustOutputs[0];
 
-    assert(nextTrust.from === prevTrust.from);
-    assert(nextTrust.to === prevTrust.to);
+    nextTrust.prev = prevTrust;
 
-    var trustAmountChange = nextTrust.amount - prevTrust.amount;
-    assert(trustAmountChange <= 0);
-    return {
-      from: nextTrust.from,
-      to: nextTrust.to,
-      amount: trustAmountChange,
-      txHash,
-      outputIndex: nextTrust.outputIndex
-    }
+    assert(nextTrust.amount - prevTrust.amount <= 0);
+    return nextTrust;
   }
-
+  
   // Looks for direct trust outputs that originate from a sender in an array of bitcoin outputs.
+  // Returns a list of the corresponding DirectTrust objects.
   // If the recipient parameter is set, it will limit the results only to the outputs being sent to
   // the recipient.
   searchForDirectTrustOutputs(tx : bcoin$TX, sender : Entity, recipient : ?Entity) : DirectTrust[] {
@@ -233,34 +216,29 @@ class TrustIsRisk {
     var output = tx.outputs[outputIndex];
     if (output.getType() !== 'multisig') return null;
     
-    var addressA = Address.fromHash(bcoin.crypto.hash160(output.script.get(1))).toBase58();
-    var addressB = Address.fromHash(bcoin.crypto.hash160(output.script.get(2))).toBase58();
+    var entities = [1, 2].map((i) => helpers.pubKeyToEntity(output.script.get(i)));
+    if (entities[0] === entities[1]) return null;
 
-    if (addressA === addressB) return null;
-
-    var recipient;
-    if (addressA === sender) recipient = addressB;
-    else if (addressB === sender) recipient = addressA;
+    var from, to;
+    if (entities[0] === sender) {
+      from = output.script.get(1);
+      to = output.script.get(2);
+    }
+    else if (entities[1] === sender) {
+      from = output.script.get(2);
+      to = output.script.get(1);
+    }
     else return null; 
 
-    return {
-      from: sender,
-      to: recipient,
+    return new DirectTrust({
+      from,
+      to,
       amount: Number(output.value),
+
       txHash,
-      outputIndex
-    };
-  }
-
-  getGraphWeightMatrix() : number[][] {
-    var entitiesArr = this.entities.slice(0, this.entities.length);
-    return entitiesArr.map((from) => {
-      return entitiesArr.map((to) => this.getDirectTrust(from, to));
+      outputIndex,
+      script: output.script
     });
-  }
-
-  getGraphWeightMatrixIndex(entity : Entity) : number {
-    return this.entities.rank(entity);
   }
 }
 

@@ -28,6 +28,7 @@ declare class bcoin$MTX {
   toTX : bcoin$TX;
   template(ring : bcoin$KeyRing) : number;
   scriptVector(outputScript : bcoin$Script, inputScript : bcoin$Script, ring : bcoin$KeyRing) : boolean;
+  addOutput(output : bcoin$Output) : void;
 }
 
 

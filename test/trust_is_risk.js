@@ -110,6 +110,11 @@ describe('TrustIsRisk', () => {
         should(tir.getDirectTrust(alice, bob)).equal(0);
       });
 
+      it('which has been processed before throws', () => {
+        var tx = trustIncreasingMTX.toTX();
+        tir.addTX(tx);
+        should.throws(() => tir.addTX(tx), /already processed/i);
+      });
     });
 
     describe('with a trust decreasing transaction', () => {
@@ -182,6 +187,66 @@ describe('TrustIsRisk', () => {
         changeOutput.value.should.equal(900);
       });
     });
+
+   describe('.getTrustDecreasingMTX()', () => {
+      var trustTXs = [];
+      beforeEach(() => {
+        var tx;
+
+        tx = trustIncreasingTX;
+        trustTXs.push(tx);
+        tir.addTX(tx);
+
+        trustIncreasingMTX.outputs[0].value = 100;
+        tx = trustIncreasingMTX.toTX();
+        trustTXs.push(tx);
+        tir.addTX(tx);
+
+        trustIncreasingMTX.outputs[0].value = 500;
+        tx = trustIncreasingMTX.toTX();
+        trustTXs.push(tx);
+        tir.addTX(tx);
+
+        // Total trust 642
+      });
+
+      it('creates correct trust decreasing transactions', () => {
+        // Should spend the entire first transaction and 40 from the second transaction
+        var mtxs = tir.getTrustDecreasingMTXs(addr.alice.pubkey, addr.bob.pubkey, 82);
+        mtxs.length.should.equal(2);
+        var mtx = mtxs[0];
+
+        mtx.inputs.length.should.equal(1);
+        mtx.inputs[0].prevout.should.have.properties({
+          hash: trustTXs[0].hash().toString('hex'),
+          index: 0
+        });
+
+        mtx.outputs.length.should.equal(1); // Single P2PKH output
+        mtx.outputs[0].getType().should.equal('pubkeyhash');
+        mtx.outputs[0].getAddress().toBase58().should.equal(alice);
+        mtx.outputs[0].value.should.equal(42);
+
+        mtx = mtxs[1];
+        mtx.outputs.length.should.equal(2); // One P2PKH output and one multisig trust output
+        mtx.outputs[1].script.toString().should.equal(trustTXs[1].outputs[0].script.toString());
+        mtx.outputs[1].value.should.equal(60);
+        mtx.outputs[0].getType().should.equal('pubkeyhash');
+        mtx.outputs[0].getAddress().toBase58().should.equal(alice);
+        mtx.outputs[0].value.should.equal(40);
+      });
+
+      it('throws when trying to decrease self-trust', () => {
+        should.throws(() => tir.getTrustDecreasingMTXs(addr.alice.pubkey, addr.alice.pubkey, 10)
+            , /self-trust/i);
+      });
+
+      it('throws when there is not enough trust', () => {
+        should.throws(() => tir.getTrustDecreasingMTXs(addr.alice.pubkey, addr.bob.pubkey, 700)
+          , /insufficient trust/i);
+        
+      });
+   });
 
     describe('.getTrust()', () => {
       it('returns zero for two arbitary parties that do not trust each other', () => {
