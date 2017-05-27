@@ -189,9 +189,10 @@ describe('TrustIsRisk', () => {
     });
 
    describe('.getTrustDecreasingMTX()', () => {
-      var trustTXs = [];
+      var trustTXs;
       beforeEach(() => {
         var tx;
+        trustTXs = [];
 
         tx = trustIncreasingTX;
         trustTXs.push(tx);
@@ -210,10 +211,13 @@ describe('TrustIsRisk', () => {
         // Total trust 642
       });
 
-      it('creates correct trust decreasing transactions', () => {
-        // Should spend the entire first transaction and 40 from the second transaction
-        var mtxs = tir.getTrustDecreasingMTXs(addr.alice.pubkey, addr.bob.pubkey, 82);
+      // Helper specific to the next couple of tests:
+      // Checks that mtxs is a list of two trust decreasing transactions. The first one spends the
+      // entire first trust increasing transaction, and the second spends part of the second.
+      // Also checks that the reduced trust is sent via P2PKH outputs to the correct recipient.
+      var checkMTXs = (mtxs, recipient) => {
         mtxs.length.should.equal(2);
+
         var mtx = mtxs[0];
 
         mtx.inputs.length.should.equal(1);
@@ -224,16 +228,33 @@ describe('TrustIsRisk', () => {
 
         mtx.outputs.length.should.equal(1); // Single P2PKH output
         mtx.outputs[0].getType().should.equal('pubkeyhash');
-        mtx.outputs[0].getAddress().toBase58().should.equal(alice);
+        mtx.outputs[0].getAddress().toBase58().should.equal(recipient);
         mtx.outputs[0].value.should.equal(42);
 
         mtx = mtxs[1];
+
+        mtx.inputs.length.should.equal(1);
+        mtx.inputs[0].prevout.should.have.properties({
+          hash: trustTXs[1].hash().toString('hex'),
+          index: 0
+        });
+
         mtx.outputs.length.should.equal(2); // One P2PKH output and one multisig trust output
         mtx.outputs[1].script.toString().should.equal(trustTXs[1].outputs[0].script.toString());
         mtx.outputs[1].value.should.equal(60);
         mtx.outputs[0].getType().should.equal('pubkeyhash');
-        mtx.outputs[0].getAddress().toBase58().should.equal(alice);
+        mtx.outputs[0].getAddress().toBase58().should.equal(recipient);
         mtx.outputs[0].value.should.equal(40);
+      };
+
+      it('creates correct trust decreasing transactions', () => {
+        var mtxs = tir.getTrustDecreasingMTXs(addr.alice.pubkey, addr.bob.pubkey, 82);
+        checkMTXs(mtxs, alice);
+      });
+
+      it('creates correct trust stealing transactions', () => {
+        var mtxs = tir.getTrustDecreasingMTXs(addr.alice.pubkey, addr.bob.pubkey, 82, charlie);
+        checkMTXs(mtxs, charlie);
       });
 
       it('throws when trying to decrease self-trust', () => {

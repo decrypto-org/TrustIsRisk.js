@@ -97,10 +97,11 @@ class TrustIsRisk {
     return mtx;
   }
 
-  getTrustDecreasingMTXs(from : PubKey, to : PubKey, trustDecreaseAmount : number)
+  getTrustDecreasingMTXs(from : PubKey, to : PubKey, trustDecreaseAmount : number, payTo : ?Entity)
     : bcoin$MTX[] {
-    var fromAddress = Address.fromHash(bcoin.crypto.hash160(from)).toBase58();
-    var toAddress = Address.fromHash(bcoin.crypto.hash160(to)).toBase58();
+    var fromAddress = helpers.pubKeyToEntity(from);
+    var toAddress = helpers.pubKeyToEntity(to);
+
     if (fromAddress === toAddress) throw new Error('Can\'t decrease self-trust');
 
     var existingTrustAmount = this.trustDB.getDirectTrustAmount(fromAddress, toAddress);
@@ -111,11 +112,12 @@ class TrustIsRisk {
       var decrease = Math.min(trustDecreaseAmount, directTrust.amount);
       if (decrease === 0) return null;
       trustDecreaseAmount -= decrease;
-      return this.getTrustDecreasingMTX(directTrust, decrease);
+      return this.getTrustDecreasingMTX(directTrust, decrease, payTo);
     }).filter(Boolean);
   }
 
-  getTrustDecreasingMTX(directTrust : DirectTrust, decreaseAmount : number) {
+  getTrustDecreasingMTX(directTrust : DirectTrust, decreaseAmount : number, payTo : ?Entity) {
+    if (!payTo) payTo = directTrust.getFromEntity();
     var remainingTrustAmount = directTrust.amount - decreaseAmount;
 
     var mtx = new MTX({
@@ -123,7 +125,7 @@ class TrustIsRisk {
         Input.fromOutpoint(new Outpoint(directTrust.txHash, directTrust.outputIndex))
       ],
       outputs: [new Output({
-        script: bcoin.script.fromPubkeyhash(bcoin.crypto.hash160(directTrust.from)),
+        script: bcoin.script.fromPubkeyhash(Address.fromBase58(payTo).hash),
         value: decreaseAmount
       })]
     });
