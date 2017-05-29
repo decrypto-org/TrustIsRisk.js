@@ -1,9 +1,9 @@
 {
-	"parser": "babel-eslint",
+  "parser": "babel-eslint",
   "plugins": [
     "eslint-plugin-flowtype"
   ],
-	"env": {
+  "env": {
 			"es6": true,
 			"node": true
 	},
