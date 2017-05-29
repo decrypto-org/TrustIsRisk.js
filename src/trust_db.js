@@ -1,5 +1,5 @@
 // @flow
-import type {Entity, TXHash, PubKey} from "./types"
+import type {Entity, TXHash, Key} from "./types"
 var assert = require('assert');
 var SortedSet = require('sorted-set');
 var maxFlow = require('graph-theory-ford-fulkerson');
@@ -85,6 +85,11 @@ class TrustDB {
 
   isTrustTX(txHash : string) : boolean {
     return this.txToDirectTrust.has(txHash);
+  }
+
+	isTrustOutput(txHash : string, outputIndex : number) : boolean {
+		var trust = this.txToDirectTrust.get(txHash);
+		return trust !== undefined && trust.outputIndex === outputIndex;
   }
 
   add(trust : DirectTrust) {

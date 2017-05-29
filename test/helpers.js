@@ -1,28 +1,34 @@
 var TrustIsRisk = require('../');
 var WalletDB = require('bcoin/lib/wallet/walletdb');
 var bcoin = require('bcoin');
+var KeyRing = bcoin.primitives.KeyRing;
 var assert = require('assert');
 
 var testHelpers = {
+  names: ['alice', 'bob', 'charlie', 'dave', 'eve', 'frank', 'george'],
+  rings: [
+    '02b8f07a401eca4888039b1898f94db44c43ccc6d3aa8b27e9b6ed7b377b24c0',
+    '2437025954568a8273968aa7535dbfc444fd8f8d0f5237cd96ac7234c77810ad',
+    '3BBA2AF9539D09B4FD2BDEA1D3A2CE4BF5D779831B8781EE2ACF9C03378B2AD7',
+    '19BD8D853FAEFDB9B01E4DE7F6096FF8F5F96D43E6564A5258307334A4AA59F3',
+    '0503054CF7EBB4E62191AF1D8DE97945178D3F465EE88EF1FB4E80A70CB4A49A',
+    '878DFE5B43AC858EA37B3A9EEBA9E244F1848A30F78B2E5AC5B3EBDE81AC7D45',
+    '1349A1318B1426E6F724CBFE7ECD2C46008A364A96C4BD20C83FC1C4EBB2EB4A'
+  ].map((key) => KeyRing.fromPrivate(new Buffer(key, 'hex'))),
+
   getAddressFixtures: () => {
-    var names = ['alice', 'bob', 'charlie', 'dave', 'eve', 'frank', 'george'];
-    var pubkeys = [
-      '02b8f07a401eca4888039b1898f94db44c43ccc6d3aa8b27e9b6ed7b377b24c083',
-      '2437025954568a8273968aa7535dbfc444fd8f8d0f5237cd96ac7234c77810ada53054a3654e669b',
-      '3BBA2AF9539D09B4FD2BDEA1D3A2CE4BF5D779831B8781EE2ACF9C03378B2AD782',
-      '19BD8D853FAEFDB9B01E4DE7F6096FF8F5F96D43E6564A5258307334A4AA59F351',
-      '0503054CF7EBB4E62191AF1D8DE97945178D3F465EE88EF1FB4E80A70CB4A49A84',
-      '878DFE5B43AC858EA37B3A9EEBA9E244F1848A30F78B2E5AC5B3EBDE81AC7D4516',
-      '1349A1318B1426E6F724CBFE7ECD2C46008A364A96C4BD20C83FC1C4EBB2EB4A93'
-    ];
-    assert(pubkeys.length === names.length);
+    assert(testHelpers.rings.length === testHelpers.names.length);
 
     var addr = {};
-    for (var i = 0; i < names.length; i++) {
-      var name = names[i];
+    for (var i = 0; i < testHelpers.names.length; i++) {
+      var name = testHelpers.names[i];
+      var pubKey = testHelpers.rings[i].getPublicKey();
+      var privKey = testHelpers.rings[i].getPrivateKey();
+
       addr[name] = {};
-      addr[name].pubkey = Buffer.from(pubkeys[i], 'hex');
-      addr[name].base58 = bcoin.primitives.Address.fromHash(bcoin.crypto.hash160(addr[name].pubkey)).toString();
+      addr[name].pubKey = pubKey;
+      addr[name].privKey = privKey;
+      addr[name].base58 = bcoin.primitives.Address.fromHash(bcoin.crypto.hash160(pubKey)).toString();
     }
 
     return addr;
@@ -65,6 +71,7 @@ var testHelpers = {
   mineBlock: async (node, rewardAddress) => {
     var block = await node.miner.mineBlock(node.chain.tip, rewardAddress);
     await node.chain.add(block);
+    return node.getBlock(node.chain.tip.hash);
   },
 
   time: async (milliseconds) => {
@@ -79,8 +86,7 @@ var testHelpers = {
 
   getP2PKHOutput: (to, value) => {
     var address = bcoin.primitives.Address.fromBase58(to);
-    var script = bcoin.script.fromString(
-        `OP_DUP OP_HASH160 ${testHelpers.bufferToScript(address.hash)} OP_EQUALVERIFY OP_CHECKSIG`);
+    var script = bcoin.script.fromPubkeyhash(address.hash);
     
     return new bcoin.primitives.Output({script, value});
   },
@@ -104,12 +110,8 @@ var testHelpers = {
 
   getOneOfTwoMultisigOutput: (pubKeyFrom, pubKeyTo, value) => {
     return new bcoin.primitives.Output({
-      value,
-      script: bcoin.script.fromString(
-          "OP_1 "
-          + testHelpers.bufferToScript(pubKeyFrom) + " "
-          + testHelpers.bufferToScript(pubKeyTo) + " "
-          + "OP_2 OP_CHECKMULTISIG")
+      script: bcoin.script.fromMultisig(1, 2, [pubKeyFrom, pubKeyTo]),
+      value
     });
   },
 
@@ -131,12 +133,10 @@ var testHelpers = {
       var neighbours = graph[from];
       for (var to in neighbours) {
         var value = neighbours[to];
-        tir.addTX(testHelpers.getTrustIncreasingMTX(addr[from].pubkey, addr[to].pubkey, value).toTX()); 
+        tir.addTX(testHelpers.getTrustIncreasingMTX(addr[from].pubKey, addr[to].pubKey, value).toTX()); 
       }
     }
   }
 };
-
-
 
 module.exports = testHelpers;

@@ -5,4 +5,4 @@ export type Entity = string;
 
 export type TXHash = string;
 
-export type PubKey = Buffer;
+export type Key = Buffer;

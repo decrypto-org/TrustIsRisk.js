@@ -1,12 +1,12 @@
 // @flow
-import type {Entity, TXHash, PubKey} from "./types"
+import type {Entity, TXHash, Key} from "./types"
 var bcoin = require('bcoin');
 var assert = require('assert');
 var helpers = require('./helpers');
 
 type DirectTrustOptions = {
-  from : PubKey,
-  to : PubKey,
+  from : Key,
+  to : Key,
   amount : number,
 
   txHash : string,
@@ -18,8 +18,8 @@ type DirectTrustOptions = {
 }
 
 class DirectTrust {
-  from : PubKey
-  to : PubKey
+  from : Key
+  to : Key
   amount : number
 
   // Every DT is associated with a transaction output, except for non-standard trust decreasing

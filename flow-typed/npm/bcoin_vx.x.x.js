@@ -6,11 +6,14 @@ type Network = any;
 declare class bcoin$FullNode {
   on(eventName : string, eventHandler : Function) : void;
   getTX(hash : Hash) : Promise<bcoin$TX>;
+  getCoin(hash : Hash, index : number) : bcoin$Coin;
 }
 
 declare class bcoin$Address {
   toBase58() : string;
+  hash : Buffer;
   static fromHash(Hash) : bcoin$Address;
+  static fromBase58(string) : bcoin$Address;
 }
 
 declare class bcoin$TX {
@@ -29,8 +32,10 @@ declare class bcoin$MTX {
   template(ring : bcoin$KeyRing) : number;
   scriptVector(outputScript : bcoin$Script, inputScript : bcoin$Script, ring : bcoin$KeyRing) : boolean;
   addOutput(output : bcoin$Output) : void;
+  addCoin(coin : bcoin$Coin) : void;
+  sign(ring : bcoin$KeyRing) : number;
+  signInput(index : number, coin : bcoin$Coin, keyRing : bcoin$KeyRing) : boolean;
 }
-
 
 declare class bcoin$Output {
   script : bcoin$Script;
@@ -65,6 +70,14 @@ declare class bcoin$Outpoint {
 declare class bcoin$KeyRing {
   static fromPrivate(key : Buffer, compressed : ?boolean, network : ?Network) : bcoin$KeyRing;
   static fromPublic(key : Buffer, network : ?Network) : bcoin$KeyRing;
+
+  getPublicKey() : Buffer;
+  getPrivateKey() : Buffer;
+}
+
+declare class bcoin$Coin extends bcoin$Output {
+  script : bcoin$Script;
+  value : number;
 }
 
 declare module 'bcoin' {
@@ -78,7 +91,8 @@ declare module 'bcoin' {
       Output : Class<bcoin$Output>,
       Input : Class<bcoin$Input>,
       Outpoint : Class<bcoin$Outpoint>,
-      KeyRing: Class<bcoin$KeyRing>
+      KeyRing : Class<bcoin$KeyRing>,
+      Coin : Class<bcoin$Coin>
     },
     crypto : {
       hash160(str : (string | Buffer)) : Hash
