@@ -19,10 +19,12 @@ const COIN = consensus.COIN;
 describe("FullNode", () => {
   var node = null;
   var walletDB = null;
+  var NodeWatcher = null;
   sinon.spy(Trust.TrustIsRisk.prototype, "addTX");
 
   beforeEach("get node", () => testHelpers.getNode().then((n) => {
     node = n;
+    watcher = new testHelpers.NodeWatcher(node);
   }));
 
   beforeEach("get walletDB", () => testHelpers.getWalletDB(node).then((w) => {
@@ -36,21 +38,22 @@ describe("FullNode", () => {
     var sender = await testHelpers.getWallet(walletDB, "sender");
     var receiver = await testHelpers.getWallet(walletDB, "receiver");
 
+    await testHelpers.time(1000);
     // Produce a block and reward the sender, so that we have a coin to spend.
     await testHelpers.mineBlock(node, sender.getAddress("base58"));
 
     // Make the coin spendable.
     consensus.COINBASE_MATURITY = 0;
-
     await testHelpers.time(100);
+
     await sender.send({
       outputs: [{
         value: 10 * COIN,
         address: receiver.getAddress("base58")
       }]
     });
-
-    await testHelpers.time(100);
+    await watcher.waitForTX();
+    
     node.trust.addTX.should.be.calledOnce();
   });
 
@@ -74,7 +77,7 @@ describe("FullNode", () => {
       for(let i = 0; i < coinbaseCoinsCount; i++) {
         var block = await testHelpers.mineBlock(node, addresses.alice);
         coinbaseHashes.push(block.txs[0].hash());
-        await testHelpers.time(200);
+        await testHelpers.time(500);
       }
 
       // Alice sends 20 BTC to everyone (including herself) via P2PKH
@@ -110,6 +113,8 @@ describe("FullNode", () => {
       
       var tx = mtx.toTX();
       node.sendTX(tx);
+      await watcher.waitForTX();
+
       prevout = {};
       testHelpers.names.forEach((name) => {
         prevout[name] = {
@@ -117,7 +122,6 @@ describe("FullNode", () => {
           index: testHelpers.names.indexOf(name)
         };
       });
-      await testHelpers.time(500);
       
       // Alice mines another block
       await testHelpers.mineBlock(node, helpers.pubKeyToEntity(rings.alice.getPublicKey()));
@@ -142,13 +146,11 @@ describe("FullNode", () => {
 					// same origin. We therefore need to sleep until the transaction is added to the pool. 
           let tx = mtx.toTX();
           node.sendTX(tx);
-          await testHelpers.time(250);
+          await watcher.waitForTX();
 					
           prevout[origin] = {hash: tx.hash().toString("hex"), index: 1};
         }
       }
-      //mtxs.forEach((mtx) => node.sendTX(mtx.toTX()));
-      await testHelpers.time(500);
       
       // Alice mines yet another block
       await testHelpers.mineBlock(node, helpers.pubKeyToEntity(rings.alice.getPublicKey()));
@@ -181,7 +183,7 @@ describe("FullNode", () => {
       should(await mtx.verify());
       node.sendTX(mtx.toTX());
 
-      await testHelpers.time(500);
+      await testHelpers.time(750);
       should(node.trust.getTrust(addresses.alice, addresses.bob)).equal(7 * COIN);
     });
   });

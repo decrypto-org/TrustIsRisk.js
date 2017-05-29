@@ -139,4 +139,48 @@ var testHelpers = {
   }
 };
 
+class NodeWatcher {
+  constructor(node) {
+    this.txCount = 0;
+    this.blockCount = 0;
+    this.node = node;
+    this.node.on("tx", this.onTX.bind(this));
+    this.node.on("block", this.onBlock.bind(this));
+  }
+
+  onTX() {
+    this.txCount++;
+  }
+
+  onBlock() {
+    this.blockCount++;
+  }
+
+  async waitForBlock(initialCount) {
+    if (initialCount === undefined) initialCount = this.blockCount;
+    await new Promise((resolve, reject) => {
+      var check = (() => {
+        if (this.blockCount > initialCount) resolve();
+        else setTimeout(check, 100);
+      }).bind(this);
+
+      check();
+    });
+  }
+
+  async waitForTX(initialCount) {
+    if (initialCount === undefined) initialCount = this.txCount;
+    await new Promise((resolve, reject) => {
+      var check = (() => {
+        if (this.txCount > initialCount) resolve();
+        else setTimeout(check, 100);
+      }).bind(this);
+
+      check();
+    });
+  }
+}
+
+testHelpers.NodeWatcher = NodeWatcher;
+
 module.exports = testHelpers;
