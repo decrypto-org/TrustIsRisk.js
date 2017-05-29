@@ -51,16 +51,16 @@ describe("TrustIsRisk", () => {
 
   describe(".getDirectTrust()", () => {
     it("returns zero for two arbitary parties that do not trust each other", () => {
-      should(tir.getDirectTrust(addr.alice.base58, bob)).equal(0);
-      should(tir.getDirectTrust(bob, alice)).equal(0);
-      should(tir.getDirectTrust(charlie, alice)).equal(0);
-      should(tir.getDirectTrust(alice, charlie)).equal(0);
-      should(tir.getDirectTrust(charlie, frank)).equal(0);
+      tir.getDirectTrust(alice, bob).should.equal(0);
+      tir.getDirectTrust(bob, alice).should.equal(0);
+      tir.getDirectTrust(charlie, alice).should.equal(0);
+      tir.getDirectTrust(alice, charlie).should.equal(0);
+      tir.getDirectTrust(charlie, frank).should.equal(0);
     });
 
     it("returns Infinity for one's direct trust to themselves", () => {
-      should(tir.getDirectTrust(alice, alice)).equal(Infinity);
-      should(tir.getDirectTrust(bob, bob)).equal(Infinity);
+      tir.getDirectTrust(alice, alice).should.equal(Infinity);
+      tir.getDirectTrust(bob, bob).should.equal(Infinity);
     });
   });
 
@@ -70,7 +70,7 @@ describe("TrustIsRisk", () => {
         trustIncreasingMTX.outputs[0] = testHelpers.getP2PKHOutput(charlie, 50 * COIN); 
         tir.parseTXAsTrustIncrease(trustIncreasingMTX.toTX());
 
-        should(tir.getDirectTrust(alice, bob)).equal(0);
+        tir.getDirectTrust(alice, bob).should.equal(0);
       });
     });
 
@@ -78,15 +78,15 @@ describe("TrustIsRisk", () => {
       it("correctly increases trust", () => {
         tir.addTX(trustIncreasingTX);
 
-        should(tir.getDirectTrust(alice, bob)).equal(42 * COIN);
-        should(tir.getDirectTrust(bob, alice)).equal(0);
+        tir.getDirectTrust(alice, bob).should.equal(42 * COIN);
+        tir.getDirectTrust(bob, alice).should.equal(0);
       });
 
       it("which has more than one input does not change trust", () => {
         trustIncreasingMTX.inputs.push(trustIncreasingMTX.inputs[0].clone());
         tir.addTX(trustIncreasingMTX.toTX());
 
-        should(tir.getDirectTrust(alice, bob)).equal(0);
+        tir.getDirectTrust(alice, bob).should.equal(0);
       });
 
       it("which has a change output correctly increases trust", () => {
@@ -94,7 +94,7 @@ describe("TrustIsRisk", () => {
         trustIncreasingMTX.outputs.push(testHelpers.getP2PKHOutput(alice, 10 * COIN));
         tir.addTX(trustIncreasingMTX.toTX());
 
-        should(tir.getDirectTrust(alice, bob)).equal(32 * COIN);
+        tir.getDirectTrust(alice, bob).should.equal(32 * COIN);
       });
 
       it("which has two change outputs does not change trust", () => {
@@ -104,7 +104,7 @@ describe("TrustIsRisk", () => {
         }
         tir.addTX(trustIncreasingMTX.toTX());
 
-        should(tir.getDirectTrust(alice, bob)).equal(0);
+        tir.getDirectTrust(alice, bob).should.equal(0);
       });
 
       it("which has a second output that is not a change output does not change trust", () => {
@@ -112,7 +112,7 @@ describe("TrustIsRisk", () => {
         trustIncreasingMTX.outputs.push(testHelpers.getP2PKHOutput(charlie, 5 * COIN));
         tir.addTX(trustIncreasingMTX.toTX());
 
-        should(tir.getDirectTrust(alice, bob)).equal(0);
+        tir.getDirectTrust(alice, bob).should.equal(0);
       });
 
       it("which has been processed before throws", () => {
@@ -129,14 +129,14 @@ describe("TrustIsRisk", () => {
 
       it("correctly decreases trust", () => {
         tir.addTX(trustDecreasingMTX.toTX());
-        should(tir.getDirectTrust(alice, bob)).equal(20 * COIN);
+        tir.getDirectTrust(alice, bob).should.equal(20 * COIN);
       });
 
       it("which has a second input decreases trust to zero", () => {
         trustDecreasingMTX.inputs.push(testHelpers.getP2PKHInput(addr.alice.pubKey));
         tir.addTX(trustDecreasingMTX.toTX());
 
-        should(tir.getDirectTrust(alice, bob)).equal(0);
+        tir.getDirectTrust(alice, bob).should.equal(0);
       });
 
       it("which has more than one trust outputs decreases trust to zero", () => {
@@ -145,7 +145,7 @@ describe("TrustIsRisk", () => {
             testHelpers.getOneOfTwoMultisigOutput(addr.alice.pubKey, addr.bob.pubKey, 5 * COIN));
         tir.addTX(trustDecreasingMTX.toTX());
 
-        should(tir.getDirectTrust(alice, bob)).equal(0);
+        tir.getDirectTrust(alice, bob).should.equal(0);
       });
     });
 
