@@ -84,8 +84,8 @@ var testHelpers = {
     return `0x${Number(data.length).toString(16)} 0x${data.toString("hex")}`;
   },
 
-  getP2PKHOutput: (to, value) => {
-    var address = bcoin.primitives.Address.fromBase58(to);
+  getP2PKHOutput: (dest, value) => {
+    var address = bcoin.primitives.Address.fromBase58(dest);
     var script = bcoin.script.fromPubkeyhash(address.hash);
     
     return new bcoin.primitives.Output({script, value});
@@ -108,20 +108,20 @@ var testHelpers = {
     }); 
   },
 
-  getOneOfTwoMultisigOutput: (pubKeyFrom, pubKeyTo, value) => {
+  getOneOfTwoMultisigOutput: (originPubKey, destPubKey, value) => {
     return new bcoin.primitives.Output({
-      script: bcoin.script.fromMultisig(1, 2, [pubKeyFrom, pubKeyTo]),
+      script: bcoin.script.fromMultisig(1, 2, [originPubKey, destPubKey]),
       value
     });
   },
 
-  getTrustIncreasingMTX: (pubKeyFrom, pubKeyTo, value) => {
+  getTrustIncreasingMTX: (originPubKey, destPubKey, value) => {
     return new bcoin.primitives.MTX({
       inputs: [
-        testHelpers.getP2PKHInput(pubKeyFrom)
+        testHelpers.getP2PKHInput(originPubKey)
       ],
       outputs: [
-        testHelpers.getOneOfTwoMultisigOutput(pubKeyFrom, pubKeyTo, value)
+        testHelpers.getOneOfTwoMultisigOutput(originPubKey, destPubKey, value)
       ]
     });
   },
@@ -129,11 +129,11 @@ var testHelpers = {
   applyGraph: (tir, fileName, addr) => {
     var graph = require(fileName);
 
-    for (var from in graph) {
-      var neighbours = graph[from];
-      for (var to in neighbours) {
-        var value = neighbours[to];
-        tir.addTX(testHelpers.getTrustIncreasingMTX(addr[from].pubKey, addr[to].pubKey, value).toTX()); 
+    for (var origin in graph) {
+      var neighbours = graph[origin];
+      for (var dest in neighbours) {
+        var value = neighbours[dest];
+        tir.addTX(testHelpers.getTrustIncreasingMTX(addr[origin].pubKey, addr[dest].pubKey, value).toTX()); 
       }
     }
   }

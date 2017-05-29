@@ -125,16 +125,16 @@ describe("FullNode", () => {
 
       var graph = require("./graphs/nobodyLikesFrank.json");
       var promises = [];
-      for (var from in graph) {
-        var neighbours = graph[from];
-        for (var to in neighbours) {
-          var value = neighbours[to];
+      for (var origin in graph) {
+        var neighbours = graph[origin];
+        for (var dest in neighbours) {
+          var value = neighbours[dest];
           if (!value || value < 1) continue;
 
-          let outpoint = new Outpoint(prevout[from].hash, prevout[from].index);
+          let outpoint = new Outpoint(prevout[origin].hash, prevout[origin].index);
 					
-          let mtx = await node.trust.getTrustIncreasingMTX(rings[from].getPrivateKey(),
-              rings[to].getPublicKey(), outpoint, value * consensus.COIN);
+          let mtx = await node.trust.getTrustIncreasingMTX(rings[origin].getPrivateKey(),
+              rings[dest].getPublicKey(), outpoint, value * consensus.COIN);
 					
           should(await mtx.verify());
 
@@ -144,7 +144,7 @@ describe("FullNode", () => {
           node.sendTX(tx);
           await testHelpers.time(250);
 					
-          prevout[from] = {hash: tx.hash().toString("hex"), index: 1};
+          prevout[origin] = {hash: tx.hash().toString("hex"), index: 1};
         }
       }
       //mtxs.forEach((mtx) => node.sendTX(mtx.toTX()));

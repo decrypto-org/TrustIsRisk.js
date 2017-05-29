@@ -35,22 +35,22 @@ class TrustDB {
     return trust;
   }
 
-  getDirectTrustAmount(from : Entity, to : Entity) : number {
-    if (from === to) return Infinity;
+  getDirectTrustAmount(origin : Entity, dest : Entity) : number {
+    if (origin === dest) return Infinity;
 
-    var trusts = this.getSpendableDirectTrusts(from, to);
+    var trusts = this.getSpendableDirectTrusts(origin, dest);
     return trusts.reduce((sum, t) => sum + t.amount, 0);
   }
 
-  getSpendableDirectTrusts(from : Entity, to : Entity) : DirectTrust[] {
-    return this.getDirectTrusts(from, to).filter((t) => t.isSpendable());
+  getSpendableDirectTrusts(origin : Entity, dest : Entity) : DirectTrust[] {
+    return this.getDirectTrusts(origin, dest).filter((t) => t.isSpendable());
   }
 
-  getDirectTrusts(from : Entity, to : Entity) : DirectTrust[] {
-    var fromMap = this.directTrusts.get(from);
-    if (!fromMap) return [];
+  getDirectTrusts(origin : Entity, dest : Entity) : DirectTrust[] {
+    var originMap = this.directTrusts.get(origin);
+    if (!originMap) return [];
 
-    var trusts = fromMap.get(to);
+    var trusts = originMap.get(dest);
     if (!trusts) return [];
 
     return trusts;
@@ -58,21 +58,21 @@ class TrustDB {
 
   getGraphWeightMatrix() : number[][] {
     var entitiesArr = this.getEntities();
-    return entitiesArr.map((from) => {
-      return entitiesArr.map((to) => this.getDirectTrustAmount(from, to));
+    return entitiesArr.map((origin) => {
+      return entitiesArr.map((dest) => this.getDirectTrustAmount(origin, dest));
     });
   }
 
-  getTrustAmount(from : Entity, to : Entity) : number {
+  getTrustAmount(origin : Entity, dest : Entity) : number {
     // TODO: Optimize
-    if (from === to) return Infinity;
+    if (origin === dest) return Infinity;
 
     var graph = this.getGraphWeightMatrix();
-    var fromIndex = this.getEntityIndex(from);
-    var toIndex = this.getEntityIndex(to);
+    var originIndex = this.getEntityIndex(origin);
+    var destIndex = this.getEntityIndex(dest);
 
-    if (fromIndex === -1 || toIndex === -1) return 0;
-    else return maxFlow(graph, fromIndex, toIndex);
+    if (originIndex === -1 || destIndex === -1) return 0;
+    else return maxFlow(graph, originIndex, destIndex);
   }
 
   getEntities() : Entity[] {
@@ -93,15 +93,15 @@ class TrustDB {
   }
 
   add(trust : DirectTrust) {
-    var from = trust.getFromEntity();
-    var to = trust.getToEntity();
-    assert(from !== to);
+    var origin = trust.getOriginEntity();
+    var dest = trust.getDestEntity();
+    assert(origin !== dest);
 
-    if (!this.directTrusts.has(from)) this.directTrusts.set(from, new Map());
-    var fromMap = ((this.directTrusts.get(from) : any) : Map<string, Array<DirectTrust>>);
+    if (!this.directTrusts.has(origin)) this.directTrusts.set(origin, new Map());
+    var originMap = ((this.directTrusts.get(origin) : any) : Map<string, Array<DirectTrust>>);
 
-    if (!fromMap.has(to)) fromMap.set(to, []);
-    var trusts = ((fromMap.get(to) : any) : Array<DirectTrust>);
+    if (!originMap.has(dest)) originMap.set(dest, []);
+    var trusts = ((originMap.get(dest) : any) : Array<DirectTrust>);
 
     if (trust.prev !== null) {
       trust.prev.spend(trust);
@@ -112,8 +112,8 @@ class TrustDB {
     trusts.push(trust);
     this.txToDirectTrust.set(trust.txHash, trust);
 
-    this.entities.add(from);
-    this.entities.add(to);
+    this.entities.add(origin);
+    this.entities.add(dest);
   }
 }
 

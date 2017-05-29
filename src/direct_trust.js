@@ -5,8 +5,8 @@ var assert = require("assert");
 var helpers = require("./helpers");
 
 type DirectTrustOptions = {
-  from : Key,
-  to : Key,
+  origin : Key,
+  dest : Key,
   amount : number,
 
   txHash : string,
@@ -18,8 +18,8 @@ type DirectTrustOptions = {
 }
 
 class DirectTrust {
-  from : Key
-  to : Key
+  origin : Key
+  dest : Key
   amount : number
 
   // Every DT is associated with a transaction output, except for non-standard trust decreasing
@@ -74,17 +74,17 @@ class DirectTrust {
     return valid;
   }
 
-  getFromEntity() : Entity {
-    return helpers.pubKeyToEntity(this.from);
+  getOriginEntity() : Entity {
+    return helpers.pubKeyToEntity(this.origin);
   }
 
-  getToEntity() : Entity {
-    return helpers.pubKeyToEntity(this.to);
+  getDestEntity() : Entity {
+    return helpers.pubKeyToEntity(this.dest);
   }
 
   spend(next : DirectTrust) : void {
     assert(!this.isSpent());
-    assert(this.from.equals(next.from) && this.to.equals(next.to));
+    assert(this.origin.equals(next.origin) && this.dest.equals(next.dest));
     assert(next.amount <= this.amount);
 
     this.next = next;
@@ -93,8 +93,8 @@ class DirectTrust {
 
   getNullifying(txHash : string) : DirectTrust {
     return new DirectTrust({
-      from: this.from,
-      to: this.to,
+      origin: this.origin,
+      dest: this.dest,
       amount: 0,
 
       prev: this,
