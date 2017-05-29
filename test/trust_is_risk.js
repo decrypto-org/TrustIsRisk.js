@@ -1,19 +1,19 @@
-var Trust = require('../');
-var helpers = require('../lib/helpers.js');
-var bcoin = require('bcoin');
+var Trust = require("../");
+var helpers = require("../lib/helpers.js");
+var bcoin = require("bcoin");
 var Coin = bcoin.primitives.Coin;
 var Address = bcoin.primitives.Address;
 var Input = bcoin.primitives.Input;
 var MTX = bcoin.primitives.MTX;
-var testHelpers = require('./helpers');
-var consensus = require('bcoin/lib/protocol/consensus');
-var sinon = require('sinon');
-var should = require('should');
-require('should-sinon');
+var testHelpers = require("./helpers");
+var consensus = require("bcoin/lib/protocol/consensus");
+var sinon = require("sinon");
+var should = require("should");
+require("should-sinon");
 
 const COIN = bcoin.consensus.COIN;
 
-describe('TrustIsRisk', () => {
+describe("TrustIsRisk", () => {
   var addr = testHelpers.getAddressFixtures();
   // Add base58 address variables to scope.
   for (name in addr) {
@@ -30,7 +30,7 @@ describe('TrustIsRisk', () => {
 
     var inputOneOfTwoMultisig = new Input({
       prevout: {
-        hash: trustIncreasingTX.hash().toString('hex'),
+        hash: trustIncreasingTX.hash().toString("hex"),
         index: 0
       },
       script: bcoin.script.fromString(
@@ -49,8 +49,8 @@ describe('TrustIsRisk', () => {
     });
   });
 
-  describe('.getDirectTrust()', () => {
-    it('returns zero for two arbitary parties that do not trust each other', () => {
+  describe(".getDirectTrust()", () => {
+    it("returns zero for two arbitary parties that do not trust each other", () => {
       should(tir.getDirectTrust(addr.alice.base58, bob)).equal(0);
       should(tir.getDirectTrust(bob, alice)).equal(0);
       should(tir.getDirectTrust(charlie, alice)).equal(0);
@@ -58,15 +58,15 @@ describe('TrustIsRisk', () => {
       should(tir.getDirectTrust(charlie, frank)).equal(0);
     });
 
-    it('returns Infinity for one\'s direct trust to themselves', () => {
+    it("returns Infinity for one's direct trust to themselves", () => {
       should(tir.getDirectTrust(alice, alice)).equal(Infinity);
       should(tir.getDirectTrust(bob, bob)).equal(Infinity);
     });
   });
 
-  describe('.addTX()', () => {
-    describe('with a non-TIR transaction', () => {
-      it('does not change trust', () => {
+  describe(".addTX()", () => {
+    describe("with a non-TIR transaction", () => {
+      it("does not change trust", () => {
         trustIncreasingMTX.outputs[0] = testHelpers.getP2PKHOutput(charlie, 50 * COIN); 
         tir.parseTXAsTrustIncrease(trustIncreasingMTX.toTX());
 
@@ -74,22 +74,22 @@ describe('TrustIsRisk', () => {
       });
     });
 
-    describe('with a trust increasing transaction', () => {
-      it('correctly increases trust', () => {
+    describe("with a trust increasing transaction", () => {
+      it("correctly increases trust", () => {
         tir.addTX(trustIncreasingTX);
 
         should(tir.getDirectTrust(alice, bob)).equal(42 * COIN);
         should(tir.getDirectTrust(bob, alice)).equal(0);
       });
 
-      it('which has more than one input does not change trust', () => {
+      it("which has more than one input does not change trust", () => {
         trustIncreasingMTX.inputs.push(trustIncreasingMTX.inputs[0].clone());
         tir.addTX(trustIncreasingMTX.toTX());
 
         should(tir.getDirectTrust(alice, bob)).equal(0);
       });
 
-      it('which has a change output correctly increases trust', () => {
+      it("which has a change output correctly increases trust", () => {
         trustIncreasingMTX.outputs[0].value -= 10 * COIN;
         trustIncreasingMTX.outputs.push(testHelpers.getP2PKHOutput(alice, 10 * COIN));
         tir.addTX(trustIncreasingMTX.toTX());
@@ -97,7 +97,7 @@ describe('TrustIsRisk', () => {
         should(tir.getDirectTrust(alice, bob)).equal(32 * COIN);
       });
 
-      it('which has two change outputs does not change trust', () => {
+      it("which has two change outputs does not change trust", () => {
         trustIncreasingMTX.outputs[0].value -= 10;
         for (var i = 0; i < 2; i++) {
           trustIncreasingMTX.outputs.push(testHelpers.getP2PKHOutput(alice, 5 * COIN));
@@ -107,7 +107,7 @@ describe('TrustIsRisk', () => {
         should(tir.getDirectTrust(alice, bob)).equal(0);
       });
 
-      it('which has a second output that is not a change output does not change trust', () => {
+      it("which has a second output that is not a change output does not change trust", () => {
         trustIncreasingMTX.outputs[0].value -= 10 * COIN;
         trustIncreasingMTX.outputs.push(testHelpers.getP2PKHOutput(charlie, 5 * COIN));
         tir.addTX(trustIncreasingMTX.toTX());
@@ -115,31 +115,31 @@ describe('TrustIsRisk', () => {
         should(tir.getDirectTrust(alice, bob)).equal(0);
       });
 
-      it('which has been processed before throws', () => {
+      it("which has been processed before throws", () => {
         var tx = trustIncreasingMTX.toTX();
         should(tir.addTX(tx));
         should.throws(() => tir.addTX(tx), /already processed/i);
       });
     });
 
-    describe('with a trust decreasing transaction', () => {
+    describe("with a trust decreasing transaction", () => {
       beforeEach(() => {
         tir.addTX(trustIncreasingTX);
       });
 
-      it('correctly decreases trust', () => {
+      it("correctly decreases trust", () => {
         tir.addTX(trustDecreasingMTX.toTX());
         should(tir.getDirectTrust(alice, bob)).equal(20 * COIN);
       });
 
-      it('which has a second input decreases trust to zero', () => {
+      it("which has a second input decreases trust to zero", () => {
         trustDecreasingMTX.inputs.push(testHelpers.getP2PKHInput(addr.alice.pubKey));
         tir.addTX(trustDecreasingMTX.toTX());
 
         should(tir.getDirectTrust(alice, bob)).equal(0);
       });
 
-      it('which has more than one trust outputs decreases trust to zero', () => {
+      it("which has more than one trust outputs decreases trust to zero", () => {
         trustDecreasingMTX.outputs[0].value -= 15 * COIN;
         trustDecreasingMTX.outputs.push(
             testHelpers.getOneOfTwoMultisigOutput(addr.alice.pubKey, addr.bob.pubKey, 5 * COIN));
@@ -149,18 +149,18 @@ describe('TrustIsRisk', () => {
       });
     });
 
-    describe('.getTrustIncreasingMTX()', () => {
-      it('creates valid trust-increasing transactions', async () => {
-        var getTXStub = sinon.stub(node, 'getCoin');
+    describe(".getTrustIncreasingMTX()", () => {
+      it("creates valid trust-increasing transactions", async () => {
+        var getTXStub = sinon.stub(node, "getCoin");
 
         var prevOutput = {
-          hash: 'v1pnhp2af4r5wz63j60vnh27s1bftl260qq621y458tn0g4x64u64yqz6d7qi6i8',
+          hash: "v1pnhp2af4r5wz63j60vnh27s1bftl260qq621y458tn0g4x64u64yqz6d7qi6i8",
           index: 1
         };
 
         getTXStub.withArgs(prevOutput.hash).returns(new Coin({
-            script: testHelpers.getP2PKHOutput(alice, 1).script,
-						value: 1000 * COIN
+          script: testHelpers.getP2PKHOutput(alice, 1).script,
+          value: 1000 * COIN
         }));
 
         var mtx = await tir.getTrustIncreasingMTX(addr.alice.privKey, addr.bob.pubKey, prevOutput,
@@ -171,19 +171,19 @@ describe('TrustIsRisk', () => {
         mtx.outputs.length.should.equal(2);
 
         var trustOutput = mtx.outputs[0];
-        trustOutput.getType().should.equal('multisig');
+        trustOutput.getType().should.equal("multisig");
         [1, 2].map((i) => helpers.pubKeyToEntity(trustOutput.script.get(i))).sort()
             .should.deepEqual([alice, bob].sort());
         trustOutput.value.should.equal(100 * COIN);
 
         var changeOutput = mtx.outputs[1];
-        changeOutput.getType().should.equal('pubkeyhash');
+        changeOutput.getType().should.equal("pubkeyhash");
         changeOutput.getAddress().toBase58().should.equal(alice);
         changeOutput.value.should.equal(900 * COIN - 1000);
       });
     });
 
-   describe('.getTrustDecreasingMTX()', () => {
+    describe(".getTrustDecreasingMTX()", () => {
       var trustTXs;
       beforeEach(() => {
         var tx;
@@ -217,12 +217,12 @@ describe('TrustIsRisk', () => {
 
         mtx.inputs.length.should.equal(1);
         mtx.inputs[0].prevout.should.have.properties({
-          hash: trustTXs[0].hash().toString('hex'),
+          hash: trustTXs[0].hash().toString("hex"),
           index: 0
         });
 
         mtx.outputs.length.should.equal(1); // Single P2PKH output
-        mtx.outputs[0].getType().should.equal('pubkeyhash');
+        mtx.outputs[0].getType().should.equal("pubkeyhash");
         mtx.outputs[0].getAddress().toBase58().should.equal(recipient);
         mtx.outputs[0].value.should.equal(42 * COIN - 1000);
 
@@ -230,59 +230,59 @@ describe('TrustIsRisk', () => {
 
         mtx.inputs.length.should.equal(1);
         mtx.inputs[0].prevout.should.have.properties({
-          hash: trustTXs[1].hash().toString('hex'),
+          hash: trustTXs[1].hash().toString("hex"),
           index: 0
         });
 
         mtx.outputs.length.should.equal(2); // One P2PKH output and one multisig trust output
         mtx.outputs[1].script.toString().should.equal(trustTXs[1].outputs[0].script.toString());
         mtx.outputs[1].value.should.equal(60 * COIN);
-        mtx.outputs[0].getType().should.equal('pubkeyhash');
+        mtx.outputs[0].getType().should.equal("pubkeyhash");
         mtx.outputs[0].getAddress().toBase58().should.equal(recipient);
         mtx.outputs[0].value.should.equal(40 * COIN - 1000);
       };
 
-      it('creates correct trust decreasing transactions', () => {
+      it("creates correct trust decreasing transactions", () => {
         var mtxs = tir.getTrustDecreasingMTXs(addr.alice.privKey, addr.bob.pubKey, 82 * COIN);
         checkMTXs(mtxs, alice);
       });
 
-      it('creates correct trust stealing transactions', () => {
+      it("creates correct trust stealing transactions", () => {
         var mtxs = tir.getTrustDecreasingMTXs(addr.alice.privKey, addr.bob.pubKey, 82 * COIN, charlie);
         checkMTXs(mtxs, charlie);
       });
 
-      it('throws when trying to decrease self-trust', () => {
+      it("throws when trying to decrease self-trust", () => {
         should.throws(() => tir.getTrustDecreasingMTXs(addr.alice.privKey, addr.alice.pubKey, 10 * COIN)
             , /self-trust/i);
       });
 
-      it('throws when there is not enough trust', () => {
+      it("throws when there is not enough trust", () => {
         should.throws(() => tir.getTrustDecreasingMTXs(addr.alice.privKey, addr.bob.pubKey, 700 * COIN)
           , /insufficient trust/i);
         
       });
-   });
+    });
 
-    describe('.getTrust()', () => {
-      it('returns zero for two arbitary parties that do not trust each other', () => {
+    describe(".getTrust()", () => {
+      it("returns zero for two arbitary parties that do not trust each other", () => {
         should(tir.getTrust(alice, bob)).equal(0);
         should(tir.getTrust(bob, alice)).equal(0);
         should(tir.getTrust(charlie, alice)).equal(0);
         should(tir.getTrust(alice, charlie)).equal(0);
       });     
 
-      it('returns Infinity for one\'s trust to themselves', () => {
+      it("returns Infinity for one's trust to themselves", () => {
         should(tir.getTrust(alice, alice)).equal(Infinity);
         should(tir.getTrust(bob, bob)).equal(Infinity);
       });
 
-      describe('after applying the Nobody Likes Frank graph example', () => {
+      describe("after applying the Nobody Likes Frank graph example", () => {
         beforeEach(() => {
-          testHelpers.applyGraph(tir, './graphs/nobodyLikesFrank.json', addr);
+          testHelpers.applyGraph(tir, "./graphs/nobodyLikesFrank.json", addr);
         });
 
-        it('correctly computes trusts', () => {
+        it("correctly computes trusts", () => {
           should(tir.getTrust(alice, alice)).equal(Infinity);
           should(tir.getTrust(alice, bob)).equal(10);
           should(tir.getTrust(alice, charlie)).equal(1);
@@ -340,7 +340,7 @@ describe('TrustIsRisk', () => {
           should(tir.getTrust(george, george)).equal(Infinity);
         });
 
-        it('correctly computes trusts when bob trusts frank', () => {
+        it("correctly computes trusts when bob trusts frank", () => {
           tir.addTX(testHelpers.getTrustIncreasingMTX(addr.bob.pubKey, addr.frank.pubKey, 8).toTX());
           should(tir.getTrust(george, frank)).equal(0);
           should(tir.getTrust(alice, frank)).equal(8);

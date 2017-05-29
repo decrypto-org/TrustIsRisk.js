@@ -1,16 +1,16 @@
 // @flow
-import type {Entity, TXHash, Key} from "./types"
-var assert = require('assert');
-var SortedSet = require('sorted-set');
-var maxFlow = require('graph-theory-ford-fulkerson');
-var bcoin = require('bcoin');
+import type {Entity, TXHash, Key} from "./types";
+var assert = require("assert");
+var SortedSet = require("sorted-set");
+var maxFlow = require("graph-theory-ford-fulkerson");
+var bcoin = require("bcoin");
 var Address = bcoin.primitives.Address;
 var KeyRing = bcoin.primitives.KeyRing;
 var MTX = bcoin.primitives.MTX;
 var Input = bcoin.primitives.Input;
 var Output = bcoin.primitives.Output;
 var Outpoint = bcoin.primitives.Outpoint;
-var DirectTrust = require('./direct_trust');
+var DirectTrust = require("./direct_trust");
 
 class TrustDB {
   directTrusts : Map<Entity, Map<Entity, Array<DirectTrust>>>
@@ -29,7 +29,7 @@ class TrustDB {
   }
 
   getDirectTrustByOutpoint(outpoint : bcoin$Outpoint) : (DirectTrust | null) {
-    var trust = this.txToDirectTrust.get(outpoint.hash.toString('hex'));
+    var trust = this.txToDirectTrust.get(outpoint.hash.toString("hex"));
     if (!trust) return null;
     if (trust.outputIndex !== outpoint.index) return null;
     return trust;
@@ -87,9 +87,9 @@ class TrustDB {
     return this.txToDirectTrust.has(txHash);
   }
 
-	isTrustOutput(txHash : string, outputIndex : number) : boolean {
-		var trust = this.txToDirectTrust.get(txHash);
-		return trust !== undefined && trust.outputIndex === outputIndex;
+  isTrustOutput(txHash : string, outputIndex : number) : boolean {
+    var trust = this.txToDirectTrust.get(txHash);
+    return trust !== undefined && trust.outputIndex === outputIndex;
   }
 
   add(trust : DirectTrust) {

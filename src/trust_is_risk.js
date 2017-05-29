@@ -1,6 +1,6 @@
 // @flow
-import type {Entity, TXHash, Key} from "./types"
-var bcoin = require('bcoin');
+import type {Entity, TXHash, Key} from "./types";
+var bcoin = require("bcoin");
 var Address = bcoin.primitives.Address;
 var KeyRing = bcoin.primitives.KeyRing;
 var MTX = bcoin.primitives.MTX;
@@ -8,10 +8,10 @@ var Input = bcoin.primitives.Input;
 var Output = bcoin.primitives.Output;
 var Outpoint = bcoin.primitives.Outpoint;
 var Coin = bcoin.primitives.Coin;
-var assert = require('assert');
-var helpers = require('./helpers');
-var TrustDB = require('./trust_db');
-var DirectTrust = require('./direct_trust');
+var assert = require("assert");
+var helpers = require("./helpers");
+var TrustDB = require("./trust_db");
+var DirectTrust = require("./direct_trust");
 
 class TrustIsRisk {
   node : bcoin$FullNode
@@ -21,7 +21,7 @@ class TrustIsRisk {
     this.node = node;
     this.db = new TrustDB();
 
-    this.node.on('tx', this.addTX.bind(this));
+    this.node.on("tx", this.addTX.bind(this));
   }
 
   getTrust(from : Entity, to : Entity) {
@@ -38,7 +38,7 @@ class TrustIsRisk {
   // network, false otherwise.
   // Throws an error if the transaction was processed earlier.
   addTX(tx : bcoin$TX) : boolean {
-    var txHash = tx.hash().toString('hex');
+    var txHash = tx.hash().toString("hex");
     if (this.db.isTrustTX(txHash)) {
       throw new Error(`Transaction already processed: Transaction ${txHash} already carries trust`);
     }
@@ -71,9 +71,9 @@ class TrustIsRisk {
   async getTrustIncreasingMTX(fromPrivate : Key, to : Key, outpoint : bcoin$Outpoint,
       trustAmount : number, fee : ?number)
       : Promise<bcoin$MTX> {
-		if (!fee) fee = 1000; // TODO: estimate this
+    if (!fee) fee = 1000; // TODO: estimate this
     var coin = await this.node.getCoin(outpoint.hash, outpoint.index);
-    if (!coin) throw new Error('Could not find coin');
+    if (!coin) throw new Error("Could not find coin");
 
     var fromKeyRing = KeyRing.fromPrivate(fromPrivate);
     var from = fromKeyRing.getPublicKey();
@@ -95,7 +95,7 @@ class TrustIsRisk {
       }));
     }
 
-		mtx.addCoin(coin);
+    mtx.addCoin(coin);
     var success = mtx.scriptVector(coin.script, mtx.inputs[0].script, fromKeyRing);
     assert(success);
 
@@ -130,10 +130,10 @@ class TrustIsRisk {
     var fromAddress = helpers.pubKeyToEntity(fromKeyRing.getPublicKey());
     var toAddress = helpers.pubKeyToEntity(toKeyRing.getPublicKey());
 
-    if (fromAddress === toAddress) throw new Error('Can\'t decrease self-trust');
+    if (fromAddress === toAddress) throw new Error("Can't decrease self-trust");
 
     var existingTrustAmount = this.db.getDirectTrustAmount(fromAddress, toAddress);
-    if (existingTrustAmount < trustDecreaseAmount) throw new Error('Insufficient trust');
+    if (existingTrustAmount < trustDecreaseAmount) throw new Error("Insufficient trust");
     
     var directTrusts = this.db.getSpendableDirectTrusts(fromAddress, toAddress);
     return directTrusts.map((directTrust) => {
@@ -147,7 +147,7 @@ class TrustIsRisk {
   getTrustDecreasingMTX(directTrust : DirectTrust, decreaseAmount : number, payee : ?Entity,
       signingKeyRing : bcoin$KeyRing, fee : ?number) {
     if (!payee) payee = directTrust.getFromEntity();
-		if (!fee) fee = 1000; // TODO: estimate this
+    if (!fee) fee = 1000; // TODO: estimate this
 
     var mtx = new MTX({
       inputs: [
@@ -180,9 +180,9 @@ class TrustIsRisk {
 
   parseTXAsTrustIncrease(tx : bcoin$TX) : (DirectTrust | null) {
     if (tx.inputs.length !== 1) return null;
-		var input = tx.inputs[0];
-    if (input.getType() !== 'pubkeyhash') return null; // TODO: This is unreliable
-    if (this.db.isTrustOutput(input.prevout.hash.toString('hex'), input.prevout.index)) return null;
+    var input = tx.inputs[0];
+    if (input.getType() !== "pubkeyhash") return null; // TODO: This is unreliable
+    if (this.db.isTrustOutput(input.prevout.hash.toString("hex"), input.prevout.index)) return null;
     var sender = tx.inputs[0].getAddress().toBase58();
 
     if (tx.outputs.length === 0 || tx.outputs.length > 2) return null;
@@ -190,7 +190,7 @@ class TrustIsRisk {
     var trustOutputs = this.searchForDirectTrustOutputs(tx, sender);
     if (trustOutputs.length !== 1) return null;
 
-    var changeOutputCount = tx.outputs.filter((o) => this.isChangeOutput(o, sender)).length
+    var changeOutputCount = tx.outputs.filter((o) => this.isChangeOutput(o, sender)).length;
     if (changeOutputCount + 1 !== tx.outputs.length) return null;
 
     return trustOutputs[0];
@@ -210,7 +210,7 @@ class TrustIsRisk {
   }
 
   getTrustDecrease(tx : bcoin$TX, prevTrust : DirectTrust) : DirectTrust {
-    var txHash = tx.hash().toString('hex');
+    var txHash = tx.hash().toString("hex");
     var nullTrust = prevTrust.getNullifying(txHash);
 
     if (tx.inputs.length !== 1) return nullTrust;
@@ -243,15 +243,15 @@ class TrustIsRisk {
   }
 
   isChangeOutput(output : bcoin$Output, sender : Entity) : boolean {
-    return (output.getType() === 'pubkeyhash')
+    return (output.getType() === "pubkeyhash")
             && (output.getAddress().toBase58() === sender);
   }
 
   parseOutputAsDirectTrust(tx : bcoin$TX, outputIndex : number, sender : Entity)
       : (DirectTrust | null) {
-    var txHash = tx.hash().toString('hex');
+    var txHash = tx.hash().toString("hex");
     var output = tx.outputs[outputIndex];
-    if (output.getType() !== 'multisig') return null;
+    if (output.getType() !== "multisig") return null;
     
     var entities = [1, 2].map((i) => helpers.pubKeyToEntity(output.script.get(i)));
     if (entities[0] === entities[1]) return null;

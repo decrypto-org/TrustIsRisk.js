@@ -7,7 +7,9 @@
     "build": "flow-remove-types -d lib/ src/",
     "test": "npm run build && mocha -t 10000",
     "prepublish": "npm run build",
-    "typecheck": "flow check"
+    "typecheck": "flow check",
+    "lint": "./node_modules/.bin/eslint --fix src/ test/",
+    "check": "npm run lint && npm run typecheck && npm run test"
   },
   "repository": {
     "type": "git",
@@ -25,6 +27,9 @@
   },
   "homepage": "https://github.com/decrypto-org/TrustIsRisk.js#readme",
   "devDependencies": {
+    "babel-eslint": "^7.2.3",
+    "eslint": "^3.19.0",
+    "eslint-plugin-flowtype": "^2.33.0",
     "flow-bin": "^0.45.0",
     "flow-remove-types": "^1.2.0",
     "mocha": "^3.4.2",

@@ -1,20 +1,20 @@
-var TrustIsRisk = require('../');
-var WalletDB = require('bcoin/lib/wallet/walletdb');
-var bcoin = require('bcoin');
+var TrustIsRisk = require("../");
+var WalletDB = require("bcoin/lib/wallet/walletdb");
+var bcoin = require("bcoin");
 var KeyRing = bcoin.primitives.KeyRing;
-var assert = require('assert');
+var assert = require("assert");
 
 var testHelpers = {
-  names: ['alice', 'bob', 'charlie', 'dave', 'eve', 'frank', 'george'],
+  names: ["alice", "bob", "charlie", "dave", "eve", "frank", "george"],
   rings: [
-    '02b8f07a401eca4888039b1898f94db44c43ccc6d3aa8b27e9b6ed7b377b24c0',
-    '2437025954568a8273968aa7535dbfc444fd8f8d0f5237cd96ac7234c77810ad',
-    '3BBA2AF9539D09B4FD2BDEA1D3A2CE4BF5D779831B8781EE2ACF9C03378B2AD7',
-    '19BD8D853FAEFDB9B01E4DE7F6096FF8F5F96D43E6564A5258307334A4AA59F3',
-    '0503054CF7EBB4E62191AF1D8DE97945178D3F465EE88EF1FB4E80A70CB4A49A',
-    '878DFE5B43AC858EA37B3A9EEBA9E244F1848A30F78B2E5AC5B3EBDE81AC7D45',
-    '1349A1318B1426E6F724CBFE7ECD2C46008A364A96C4BD20C83FC1C4EBB2EB4A'
-  ].map((key) => KeyRing.fromPrivate(new Buffer(key, 'hex'))),
+    "02b8f07a401eca4888039b1898f94db44c43ccc6d3aa8b27e9b6ed7b377b24c0",
+    "2437025954568a8273968aa7535dbfc444fd8f8d0f5237cd96ac7234c77810ad",
+    "3BBA2AF9539D09B4FD2BDEA1D3A2CE4BF5D779831B8781EE2ACF9C03378B2AD7",
+    "19BD8D853FAEFDB9B01E4DE7F6096FF8F5F96D43E6564A5258307334A4AA59F3",
+    "0503054CF7EBB4E62191AF1D8DE97945178D3F465EE88EF1FB4E80A70CB4A49A",
+    "878DFE5B43AC858EA37B3A9EEBA9E244F1848A30F78B2E5AC5B3EBDE81AC7D45",
+    "1349A1318B1426E6F724CBFE7ECD2C46008A364A96C4BD20C83FC1C4EBB2EB4A"
+  ].map((key) => KeyRing.fromPrivate(new Buffer(key, "hex"))),
 
   getAddressFixtures: () => {
     assert(testHelpers.rings.length === testHelpers.names.length);
@@ -35,7 +35,7 @@ var testHelpers = {
   },
 
   getNode: async () => {
-    var node = new TrustIsRisk.FullNode({network: 'regtest', passphrase: 'secret'});
+    var node = new TrustIsRisk.FullNode({network: "regtest", passphrase: "secret"});
 
     await node.open();
     await node.connect();
@@ -46,8 +46,8 @@ var testHelpers = {
 
   getWalletDB: async (node) => {
     var walletDB = new WalletDB({
-      network: 'regtest',
-      db: 'memory',
+      network: "regtest",
+      db: "memory",
       client: new bcoin.node.NodeClient(node)
     });
 
@@ -60,9 +60,9 @@ var testHelpers = {
   getWallet: async (walletDB, id) => {
     var options = {
       id,
-      passphrase: 'secret',
+      passphrase: "secret",
       witness: false,
-      type: 'pubkeyhash'
+      type: "pubkeyhash"
     };
 
     return walletDB.create(options); 
@@ -81,7 +81,7 @@ var testHelpers = {
   },
 
   bufferToScript: (data) => {
-    return `0x${Number(data.length).toString(16)} 0x${data.toString('hex')}`;
+    return `0x${Number(data.length).toString(16)} 0x${data.toString("hex")}`;
   },
 
   getP2PKHOutput: (to, value) => {
@@ -94,7 +94,7 @@ var testHelpers = {
   getP2PKHInput: (pubKey, prevout) => {
     if (!prevout) {
       prevout = { // Don't care
-        hash: 'v0pnhphaf4r5wz63j60vnh27s1bftl260qq621y458tn0g4x64u64yqz6d7qi6i8',
+        hash: "v0pnhphaf4r5wz63j60vnh27s1bftl260qq621y458tn0g4x64u64yqz6d7qi6i8",
         index: 2
       };
     }

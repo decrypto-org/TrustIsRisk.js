@@ -1,8 +1,8 @@
 // @flow
-import type {Entity, TXHash, Key} from "./types"
-var bcoin = require('bcoin');
-var assert = require('assert');
-var helpers = require('./helpers');
+import type {Entity, Key} from "./types";
+import type {script} from "bcoin";
+var assert = require("assert");
+var helpers = require("./helpers");
 
 type DirectTrustOptions = {
   from : Key,
@@ -14,7 +14,7 @@ type DirectTrustOptions = {
   script? : bcoin$Script,
 
   prev? : DirectTrust,
-  next? :DirectTrust
+  next? : DirectTrust
 }
 
 class DirectTrust {

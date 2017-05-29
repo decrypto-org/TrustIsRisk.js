@@ -1,6 +1,6 @@
 // @flow
-var bcoin = require('bcoin');
-var TrustIsRisk = require('./trust_is_risk');
+var bcoin = require("bcoin");
+var TrustIsRisk = require("./trust_is_risk");
 
 class FullNode extends bcoin.fullnode {
   trust : TrustIsRisk
