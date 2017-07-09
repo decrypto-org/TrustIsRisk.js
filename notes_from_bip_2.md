@@ -16,8 +16,8 @@ During the above, long open-ended discussions on public mailing lists should be 
 efficient include: setting up a separate SIG mailing list for the topic, having the BIP author accept private comments in the
 early design phases, setting up a wiki page or git repository, etc.
 
-Current BIP editor: Luke Dashjr [luke_bipeditor@dashjr.org](mailto:luke_bipeditor@dashjr.org)
-Amongst other things, he will check that:
+The current BIP editor, Luke Dashjr ([luke_bipeditor@dashjr.org](mailto:luke_bipeditor@dashjr.org)), will check, amongst other
+things, that:
 
 1. The BIP draft has been sent to the [Bitcoin development mailing
 list](https://lists.linuxfoundation.org/mailman/listinfo/bitcoin-dev)
@@ -54,10 +54,11 @@ are a Process BIP.
 We start out as draft and proceed from there.
 
 Please note:
-What if a BIP is proposed that only makes sense for a single specific project?
 
-*   The BIP process exists for standardisation between independent projects. If something only affects one project, it should
-    be done through that project's own internal processes, and never be proposed as a BIP in the first place.
+>What if a BIP is proposed that only makes sense for a single specific project?
+>
+>*   The BIP process exists for standardisation between independent projects. If something only affects one project, it should
+>    be done through that project's own internal processes, and never be proposed as a BIP in the first place.
 
 # Comments
 
