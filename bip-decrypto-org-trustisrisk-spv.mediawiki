@@ -1,0 +1,42 @@
+<pre>
+  BIP: ?
+  (Layer: Peer Services)
+  Title: SPV extension for Trust is Risk
+  Author: Orfeas Stefanos Thyfronitis Litos <o.thyfronitis@ed.ac.uk>
+          Christos Porios <chris.porios@gmail.com>
+  	Dionysis Zindros <dionyziz@gmail.com>
+  (Discussions-To: )
+  Comments-URI: https://github.com/bitcoin/bips/wiki/Comments:BIP-trustisrisk
+  Status: Draft
+  Type: Process
+  Created: 2017-07-31
+  License: CC0-1.0
+  (License-Code: GNU-All-Permissive)
+</pre>
+
+==Abstract==
+
+This BIP describes the needed extensions to the communication protocol of servers with SPV nodes in order to enable efficient
+transfer of relevant [https://github.com/decrypto-org/TrustIsRisk.js Trust is Risk] transactions for the calculation of
+indirect trust.
+
+==Copyright==
+
+This BIP is licensed under the Creative Commons CC0 1.0 Universal license.
+
+==Specification==
+
+==Motivation==
+
+==Rationale==
+
+==Backwards compatibility==
+
+This BIP does not in any way create backwards compatibility issues (hopefully). Existing SPV nodes can still use Bloom filters
+according to [https://github.com/bitcoin/bips/blob/master/bip-0037.mediawiki BIP 37] without any need to account for the
+extensions proposed in this document.
+
+==See Also==
+
+* [https://github.com/decrypto-org/TrustIsRisk/raw/master/fc17.pdf Trust is Risk paper]
+* [https://github.com/decrypto-org/TrustIsRisk.js Trust is Risk implementation]
