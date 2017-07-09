@@ -57,8 +57,8 @@ Please note:
 
 >What if a BIP is proposed that only makes sense for a single specific project?
 >
->*   The BIP process exists for standardisation between independent projects. If something only affects one project, it should
->    be done through that project's own internal processes, and never be proposed as a BIP in the first place.
+> *   The BIP process exists for standardisation between independent projects. If something only affects one project, it
+>     should be done through that project's own internal processes, and never be proposed as a BIP in the first place.
 
 # Comments
 
