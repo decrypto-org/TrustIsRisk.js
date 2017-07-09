@@ -24,7 +24,7 @@ list](https://lists.linuxfoundation.org/mailman/listinfo/bitcoin-dev)
 2. Backwards compatibility is addressed.
 3. A correct [Layer](https://github.com/bitcoin/bips/blob/master/bip-0123.mediawiki) header is assigned. ([BIP 37 - Bloom
 filters](https://github.com/bitcoin/bips/blob/master/bip-0037.mediawiki) is in the Peer Services Layer and probably so should
-we.)
+we.) Layers are relevant only for BIPs of type Standards Track.
 
 # Format and structure
 
