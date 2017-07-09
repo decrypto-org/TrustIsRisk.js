@@ -4,14 +4,11 @@ relevant for us, paraphrased for brevity.
 #Workflow
 
 1. Search past discussions to see if an idea has been considered before, and if so, what issues arose in its progression.
-
 2. Post about the new idea to the [Bitcoin development mailing
 list](https://lists.linuxfoundation.org/mailman/listinfo/bitcoin-dev) and get the community to answer whether the idea has any
 chance of acceptance.
-
 3. Present a draft BIP to the [Bitcoin development mailing
 list](https://lists.linuxfoundation.org/mailman/listinfo/bitcoin-dev) and pass some improvement rounds.
-
 4. Pull request the proposal to the [BIPs git repository](https://github.com/bitcoin/bips) with alias
 "bip-decrypto-org-trustisrisk-spv" or similar.
 
@@ -24,23 +21,29 @@ Amongst other things, he will check that:
 
 1. The BIP draft has been sent to the [Bitcoin development mailing
 list](https://lists.linuxfoundation.org/mailman/listinfo/bitcoin-dev)
-
 2. Backwards compatibility is addressed.
-
 3. A correct [Layer](https://github.com/bitcoin/bips/blob/master/bip-0123.mediawiki) header is assigned. ([BIP 37 - Bloom
 filters](https://github.com/bitcoin/bips/blob/master/bip-0037.mediawiki) is in the Peer Services Layer and probably so should
 we.)
 
 #Format and structure
 
-TODO
+format: mediawiki
 
+structure:
+1. Preamble
+2. Abstract
+3. Copyright
+4. Specification
+5. Motivation
+6. Rationale
+7. Backwards compatibility
+8. Reference implementation (Can be done in the step between Draft and Proposed)
+ 
 #Types
 
 1. Standards Track BIP
-
 2. Informational BIP
-
 3. Process BIP
 
 [BIP 37 - Bloom filters](https://github.com/bitcoin/bips/blob/master/bip-0037.mediawiki) is a Standards Track BIP. We probably
@@ -48,7 +51,13 @@ are a Process BIP.
 
 #Status field
 
-TODO
+We start out as draft and proceed from there.
+
+Please note:
+What if a BIP is proposed that only makes sense for a single specific project?
+
+*   The BIP process exists for standardisation between independent projects. If something only affects one project, it should
+    be done through that project's own internal processes, and never be proposed as a BIP in the first place.
 
 #Comments
 
