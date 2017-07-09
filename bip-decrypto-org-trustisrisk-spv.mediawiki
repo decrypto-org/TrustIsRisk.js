@@ -26,6 +26,15 @@ This BIP is licensed under the Creative Commons CC0 1.0 Universal license.
 
 ==Specification==
 
+Direction 1: A new message named tirutxo (similar to getheaders, getblocks and mempool) is sent to the server and the server
+responds with a list of all changes that have occurred to the trust graph since the height specified in the message.
+
+Direction 2: The message tirutxo is supplemented with two addresses of interest (source, sink) and the server sends only the
+relevant trasactions, that is a subset of the ones in Direction 1. For better privacy, the source and the sink can be two
+bloom filters that contain the true source and sink of interest along with other garbage addresses and the server then sends
+all the transactions that are relevant for all possible combinations of possible sources and sinks. Concern: this may be too
+hard on the server side.
+
 ==Motivation==
 
 ==Rationale==
