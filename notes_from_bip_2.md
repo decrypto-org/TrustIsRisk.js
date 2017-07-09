@@ -62,7 +62,8 @@ Please note:
 
 # Comments
 
-TODO
+1. Made in corresponding wiki page
+2. Comments used only after BIP completion, except for widely viewed/slowly advancing non-completed BIP.
 
 # Licensing
 
