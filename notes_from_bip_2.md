@@ -1,7 +1,7 @@
 Here we find the information from the [BIP process](https://github.com/bitcoin/bips/blob/master/bip-0002.mediawiki) that is
 relevant for us, paraphrased for brevity.
 
-#Workflow
+# Workflow
 
 1. Search past discussions to see if an idea has been considered before, and if so, what issues arose in its progression.
 2. Post about the new idea to the [Bitcoin development mailing
@@ -26,7 +26,7 @@ list](https://lists.linuxfoundation.org/mailman/listinfo/bitcoin-dev)
 filters](https://github.com/bitcoin/bips/blob/master/bip-0037.mediawiki) is in the Peer Services Layer and probably so should
 we.)
 
-#Format and structure
+# Format and structure
 
 format: mediawiki
 
@@ -40,7 +40,7 @@ structure:
 7. Backwards compatibility
 8. Reference implementation (Can be done in the step between Draft and Proposed)
  
-#Types
+# Types
 
 1. Standards Track BIP
 2. Informational BIP
@@ -49,7 +49,7 @@ structure:
 [BIP 37 - Bloom filters](https://github.com/bitcoin/bips/blob/master/bip-0037.mediawiki) is a Standards Track BIP. We probably
 are a Process BIP.
 
-#Status field
+# Status field
 
 We start out as draft and proceed from there.
 
@@ -59,15 +59,15 @@ What if a BIP is proposed that only makes sense for a single specific project?
 *   The BIP process exists for standardisation between independent projects. If something only affects one project, it should
     be done through that project's own internal processes, and never be proposed as a BIP in the first place.
 
-#Comments
+# Comments
 
 TODO
 
-#Licensing
+# Licensing
 
 An OR-list of licenses for the BIP and another OR-list of licenses for the code in the BIP are required in the header.
 
-##Recommended licenses
+## Recommended licenses
 
 1. BSD-2-Clause: [OSI-approved BSD 2-clause license](https://opensource.org/licenses/BSD-2-Clause)
 2. BSD-3-Clause: [OSI-approved BSD 3-clause license](https://opensource.org/licenses/BSD-3-Clause)
@@ -75,7 +75,7 @@ An OR-list of licenses for the BIP and another OR-list of licenses for the code 
 4. GNU-All-Permissive: [GNU All-Permissive
 License](http://www.gnu.org/prep/maintain/html_node/License-Notices-for-Other-Files.html)
 
-##Acceptable licenses
+## Acceptable licenses
 
 1. Apache-2.0: [Apache License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
 2. BSL-1.0: [Boost Software License, version 1.0](http://www.boost.org/LICENSE_1_0.txt)
