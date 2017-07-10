@@ -4,7 +4,7 @@
   Title: SPV extension for Trust is Risk
   Author: Orfeas Stefanos Thyfronitis Litos <o.thyfronitis@ed.ac.uk>
           Christos Porios <chris.porios@gmail.com>
-  	Dionysis Zindros <dionyziz@gmail.com>
+          Dionysis Zindros <dionyziz@gmail.com>
   (Discussions-To: )
   Comments-URI: https://github.com/bitcoin/bips/wiki/Comments:BIP-trustisrisk
   Status: Draft
@@ -16,9 +16,9 @@
 
 ==Abstract==
 
-This BIP describes the needed extensions to the communication protocol of servers with SPV nodes in order to enable efficient
-transfer of relevant [https://github.com/decrypto-org/TrustIsRisk.js Trust is Risk] transactions for the calculation of
-indirect trust.
+This BIP describes the needed extensions to the communication protocol of full nodes with SPV nodes in order to enable
+efficient transfer of relevant [https://github.com/decrypto-org/TrustIsRisk.js Trust is Risk] transactions for the calculation
+of indirect trust.
 
 ==Copyright==
 
