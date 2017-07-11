@@ -3,7 +3,7 @@
   "plugins": [
     "eslint-plugin-flowtype"
   ],
-	"env": {
+  "env": {
 			"es6": true,
 			"node": true
 	},
