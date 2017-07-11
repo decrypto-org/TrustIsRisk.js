@@ -12,6 +12,7 @@ var testHelpers = require("./helpers");
 var consensus = require("bcoin/lib/protocol/consensus");
 var sinon = require("sinon");
 var should = require("should");
+var assert = require("assert");
 require("should-sinon");
 
 const COIN = consensus.COIN;
@@ -20,31 +21,32 @@ describe("FullNode", () => {
   var node = null;
   var walletDB = null;
   var NodeWatcher = null;
+  var watcher = null;
   sinon.spy(Trust.TrustIsRisk.prototype, "addTX");
 
-  beforeEach("get node", () => testHelpers.getNode().then((n) => {
-    node = n;
+  beforeEach("get node", async () => {
+    node = await testHelpers.getNode();
     watcher = new testHelpers.NodeWatcher(node);
-  }));
+  });
 
-  beforeEach("get walletDB", () => testHelpers.getWalletDB(node).then((w) => {
-    walletDB = w;
-  }));
+  beforeEach("get walletDB", async () => {
+    walletDB = await testHelpers.getWalletDB(node);
+  });
 
   afterEach("close walletDB", async () => walletDB.close());
   afterEach("close node", async () => node.close());
 
   it("should call trust.addTX() on every transaction", async function() {
-    var sender = await testHelpers.getWallet(walletDB, "sender");
-    var receiver = await testHelpers.getWallet(walletDB, "receiver");
+    var sender = await testHelpers.createWallet(walletDB, "sender");
+    var receiver = await testHelpers.createWallet(walletDB, "receiver");
 
-    await testHelpers.time(1000);
+    await testHelpers.delay(1000);
     // Produce a block and reward the sender, so that we have a coin to spend.
     await testHelpers.mineBlock(node, sender.getAddress("base58"));
 
     // Make the coin spendable.
     consensus.COINBASE_MATURITY = 0;
-    await testHelpers.time(100);
+    await testHelpers.delay(100);
 
     await sender.send({
       outputs: [{
@@ -72,27 +74,26 @@ describe("FullNode", () => {
 
       // Alice mines three blocks, each rewards her with 50 spendable BTC
       consensus.COINBASE_MATURITY = 0;
-      var coinbaseCoinsCount = 3;
+      var blockCount = 3;
       var coinbaseHashes = [];
-      for(let i = 0; i < coinbaseCoinsCount; i++) {
+      for(let i = 0; i < blockCount; i++) {
         var block = await testHelpers.mineBlock(node, addresses.alice);
         coinbaseHashes.push(block.txs[0].hash());
-        await testHelpers.time(500);
+        await testHelpers.delay(500);
       }
 
       // Alice sends 20 BTC to everyone (including herself) via P2PKH
       var sendAmount = 20;
       var outputs = testHelpers.names.map((name) => {
-        return new Output({
-          script: Script.fromPubkeyhash(bcoin.crypto.hash160(rings[name].getPublicKey())),
-          value: sendAmount * consensus.COIN
-        });
+        return testHelpers.getP2PKHOutput(
+            Address.fromHash(bcoin.crypto.hash160(rings[name].getPublicKey())).toBase58(),
+            sendAmount * consensus.COIN);
       });
 
       // We have to use a change output, because transaction with too large a fee are considered
       // invalid.
       var fee = 0.01;
-      var changeAmount = 50 * coinbaseCoinsCount - sendAmount * testHelpers.names.length - fee;
+      var changeAmount = 50 * blockCount - sendAmount * testHelpers.names.length - fee;
       if (changeAmount >= 0.01) {
         outputs.push(new Output({
           script: Script.fromPubkeyhash(bcoin.crypto.hash160(rings.alice.getPublicKey())),
@@ -108,8 +109,8 @@ describe("FullNode", () => {
       coinbaseCoins.forEach((coin) => mtx.addCoin(coin));
 
       var signedCount = mtx.sign(rings.alice);
-      signedCount.should.equal(coinbaseCoinsCount);
-      should(await mtx.verify());
+      assert(signedCount === blockCount);
+      assert(await mtx.verify());
       
       var tx = mtx.toTX();
       node.sendTX(tx);
@@ -125,10 +126,9 @@ describe("FullNode", () => {
       
       // Alice mines another block
       await testHelpers.mineBlock(node, helpers.pubKeyToEntity(rings.alice.getPublicKey()));
-      await testHelpers.time(500);
+      await testHelpers.delay(500);
 
       var graph = require("./graphs/nobodyLikesFrank.json");
-      var promises = [];
       for (var origin in graph) {
         var neighbours = graph[origin];
         for (var dest in neighbours) {
@@ -137,13 +137,11 @@ describe("FullNode", () => {
 
           let outpoint = new Outpoint(prevout[origin].hash, prevout[origin].index);
 					
-          let mtx = await node.trust.getTrustIncreasingMTX(rings[origin].getPrivateKey(),
+          let mtx = await node.trust.createTrustIncreasingMTX(rings[origin].getPrivateKey(),
               rings[dest].getPublicKey(), outpoint, value * consensus.COIN);
 					
-          should(await mtx.verify());
+          assert(await mtx.verify());
 
-					// The change output from this transaction will be used in other transactions from the
-					// same origin. We therefore need to sleep until the transaction is added to the pool. 
           let tx = mtx.toTX();
           node.sendTX(tx);
           await watcher.waitForTX();
@@ -154,7 +152,7 @@ describe("FullNode", () => {
       
       // Alice mines yet another block
       await testHelpers.mineBlock(node, helpers.pubKeyToEntity(rings.alice.getPublicKey()));
-      await testHelpers.time(500);
+      await testHelpers.delay(500);
     });
 
     it("computes trusts correctly", () => {
@@ -162,20 +160,20 @@ describe("FullNode", () => {
         eval(`var ${name} = "${addresses[name]}";`);
       }	
 
-      should(node.trust.getTrust(alice, alice)).equal(Infinity);
-      should(node.trust.getTrust(alice, bob)).equal(10 * COIN);
-      should(node.trust.getTrust(alice, charlie)).equal(1 * COIN);
-      should(node.trust.getTrust(alice, frank)).equal(0);
-      should(node.trust.getTrust(alice, eve)).equal(6 * COIN);
+      should(node.trust.getIndirectTrust(alice, alice)).equal(Infinity);
+      should(node.trust.getIndirectTrust(alice, bob)).equal(10 * COIN);
+      should(node.trust.getIndirectTrust(alice, charlie)).equal(1 * COIN);
+      should(node.trust.getIndirectTrust(alice, frank)).equal(0);
+      should(node.trust.getIndirectTrust(alice, eve)).equal(6 * COIN);
 
-      should(node.trust.getTrust(bob, alice)).equal(1 * COIN);
-      should(node.trust.getTrust(bob, eve)).equal(3 * COIN);
-      should(node.trust.getTrust(dave, eve)).equal(12 * COIN);
-      should(node.trust.getTrust(george, eve)).equal(0);
+      should(node.trust.getIndirectTrust(bob, alice)).equal(1 * COIN);
+      should(node.trust.getIndirectTrust(bob, eve)).equal(3 * COIN);
+      should(node.trust.getIndirectTrust(dave, eve)).equal(12 * COIN);
+      should(node.trust.getIndirectTrust(george, eve)).equal(0);
     });
 
     it("after decreasing some trusts computes trusts correctly", async () => {
-      var mtxs = node.trust.getTrustDecreasingMTXs(rings.alice.getPrivateKey(),
+      var mtxs = node.trust.createTrustDecreasingMTXs(rings.alice.getPrivateKey(),
           rings.bob.getPublicKey(), 3 * COIN);
       mtxs.length.should.equal(1);
       var mtx = mtxs[0];
@@ -183,8 +181,8 @@ describe("FullNode", () => {
       should(await mtx.verify());
       node.sendTX(mtx.toTX());
 
-      await testHelpers.time(750);
-      should(node.trust.getTrust(addresses.alice, addresses.bob)).equal(7 * COIN);
+      await testHelpers.delay(750);
+      should(node.trust.getIndirectTrust(addresses.alice, addresses.bob)).equal(7 * COIN);
     });
   });
 });

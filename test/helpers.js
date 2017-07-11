@@ -7,8 +7,8 @@ var assert = require("assert");
 var testHelpers = {
   names: ["alice", "bob", "charlie", "dave", "eve", "frank", "george"],
   rings: [
-    "02b8f07a401eca4888039b1898f94db44c43ccc6d3aa8b27e9b6ed7b377b24c0",
-    "2437025954568a8273968aa7535dbfc444fd8f8d0f5237cd96ac7234c77810ad",
+    "02B8F07A401ECA4888039B1898F94DB44C43CCC6D3AA8B27E9B6ED7B377B24C0",
+    "2437025954568A8273968AA7535DBFC444FD8F8D0F5237CD96AC7234C77810AD",
     "3BBA2AF9539D09B4FD2BDEA1D3A2CE4BF5D779831B8781EE2ACF9C03378B2AD7",
     "19BD8D853FAEFDB9B01E4DE7F6096FF8F5F96D43E6564A5258307334A4AA59F3",
     "0503054CF7EBB4E62191AF1D8DE97945178D3F465EE88EF1FB4E80A70CB4A49A",
@@ -57,7 +57,7 @@ var testHelpers = {
     return walletDB;
   },
 
-  getWallet: async (walletDB, id) => {
+  createWallet: async (walletDB, id) => {
     var options = {
       id,
       passphrase: "secret",
@@ -71,10 +71,12 @@ var testHelpers = {
   mineBlock: async (node, rewardAddress) => {
     var block = await node.miner.mineBlock(node.chain.tip, rewardAddress);
     await node.chain.add(block);
+    // node.chain.tip does not contain all the properties we want,
+    // so we need to fetch it:
     return node.getBlock(node.chain.tip.hash);
   },
 
-  time: async (milliseconds) => {
+  delay: async (milliseconds) => {
     return new Promise((resolve, reject) => {
       setTimeout(resolve, milliseconds);
     });
@@ -126,14 +128,14 @@ var testHelpers = {
     });
   },
 
-  applyGraph: (tir, fileName, addr) => {
+  applyGraph: (trust, fileName, addressBook) => {
     var graph = require(fileName);
 
     for (var origin in graph) {
       var neighbours = graph[origin];
       for (var dest in neighbours) {
         var value = neighbours[dest];
-        tir.addTX(testHelpers.getTrustIncreasingMTX(addr[origin].pubKey, addr[dest].pubKey, value).toTX()); 
+        trust.addTX(testHelpers.getTrustIncreasingMTX(addressBook[origin].pubKey, addressBook[dest].pubKey, value).toTX()); 
       }
     }
   }

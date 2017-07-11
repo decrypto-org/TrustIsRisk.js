@@ -21,7 +21,7 @@
     "blockchain"
   ],
   "author": "Decrypto-org",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/decrypto-org/TrustIsRisk.js/issues"
   },

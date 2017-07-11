@@ -24,7 +24,7 @@ class TrustIsRisk {
     this.node.on("tx", this.addTX.bind(this));
   }
 
-  getTrust(origin : Entity, dest : Entity) {
+  getIndirectTrust(origin : Entity, dest : Entity) {
     return this.db.getTrustAmount(origin, dest);
   }
 
@@ -46,7 +46,7 @@ class TrustIsRisk {
     var directTrusts = this.getDirectTrusts(tx);
     if (directTrusts.length === 0) return false;
     else {
-      directTrusts.map(this.db.add.bind(this.db));
+      directTrusts.forEach(this.db.add.bind(this.db));
       return true;
     }
   }
@@ -68,12 +68,13 @@ class TrustIsRisk {
   // relationship by some amount. It will spend the outpoint, which must reference a P2PKH output
   // payable to the sender. The origin key must be a private key. Any satoshis not spent will be
   // returned to the sender, minus the fees, via P2PKH.
-  async getTrustIncreasingMTX(origin : Key, dest : Key, outpoint : bcoin$Outpoint,
+  async createTrustIncreasingMTX(origin : Key, dest : Key, outpoint : bcoin$Outpoint,
       trustAmount : number, fee : ?number)
       : Promise<bcoin$MTX> {
     if (!fee) fee = 1000; // TODO: estimate this
     var coin = await this.node.getCoin(outpoint.hash, outpoint.index);
     if (!coin) throw new Error("Could not find coin");
+    if (origin === dest) throw new Error("Can not increase self-trust.");
 
     var originKeyRing = KeyRing.fromPrivate(origin);
     var originPubKey = originKeyRing.getPublicKey();
@@ -112,7 +113,7 @@ class TrustIsRisk {
   // and the `dest` key is expected to be a public key. If steal is set to true, then `origin` is
   // expected to be a public key and `dest` is expected to be a private key. The private key will be
   // used to sign the transaction.
-  getTrustDecreasingMTXs(origin : Key, dest : Key, trustDecreaseAmount : number, payee : ?Entity,
+  createTrustDecreasingMTXs(origin : Key, dest : Key, trustDecreaseAmount : number, payee : ?Entity,
       steal : ?boolean, fee : ?number) : bcoin$MTX[] {
     if (steal === undefined) steal = false;
 
@@ -155,7 +156,7 @@ class TrustIsRisk {
       ],
       outputs: [new Output({
         script: bcoin.script.fromPubkeyhash(Address.fromBase58(payee).hash),
-        value: decreaseAmount - fee
+        value: ((decreaseAmount - fee) < 0) ? 0 : (decreaseAmount - fee)
       })]
     });
 
