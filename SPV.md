@@ -8,7 +8,7 @@ with Trust is Risk.
 
 ## General design
 
-The design goal is for an SPV node to be able to request for all Trust is Risk transactions. Ideally this should be achieved
+The design goal is for an SPV node to be able to request for all rust is Risk transactions. Ideally this should be achieved
 without the need of any structural change to the communication protocol nor to the serving full node. A specially crafted
 "Trust is Risk" tag should be added to all Trust is Risk transactions that has two properties:
 1. It distinguishes Trust is Risk transactions in a way that SPV nodes can request specifically for them.
@@ -50,22 +50,34 @@ Thus, in order for trust increasing and trust decreasing transactions to have a 
 paths to follow:
 1. Place the tag in the beginning of the signature script. In a trust increasing transaction, since it is spending a P2PKH,
    this means that the (unique) signature script becomes
+
    ```<tag> <sig> <pubkey>```
+
    from
-   ```<sig> <pubkey>```
+
+   ```<sig> <pubkey>```.
+
    On the other hand, a trust decreasing transaction spends a Multisig. Due to an error in the original implementation, an
    additional dummy instruction is needed in the beginning of the signature script. This dummy instruction can be replaced with
    the desired tag. The (unique) signature script becomes
+
    ```<tag> <A sig> <B sig>```
+
    from
-   ```OP_0 <A sig> <B sig>```
+
+   ```OP_0 <A sig> <B sig>```.
+
 2. Place the tag in the pubkey script. Both types of Trust is Risk transactions have exactly one Multisig output and thus in
    this case we do not need to treat them differently. Since a Multisig with up to three public keys is considered standard, a
    dummy pseudo-public key identical for all Trust is Risk transactions that will serve as the desired tag can be placed in the
    position of the third public key. This way the pubkey script corresponding to the Multisig becomes
+
    ```OP_1 <A pubkey> <B pubkey> <tag> OP_3 OP_CHECKMULTISIG```
+
    from
-   ```OP_1 <A pubkey> <B pubkey> <C pubkey> OP_3 OP_CHECKMULTISIG```
+
+   ```OP_1 <A pubkey> <B pubkey> <C pubkey> OP_3 OP_CHECKMULTISIG```.
+
    In this case, the ```<tag>``` must resemble a public key in format, but be generated in such a way that it is provable that
    the corresponding private key is not known. There always exists a tiny probability of a private key that corresponds to the
    tag to be found and someone finding this private key will be able to spend all Trust is Risk transactions in the UTXO, thus
