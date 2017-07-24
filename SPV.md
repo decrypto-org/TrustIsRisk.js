@@ -70,15 +70,11 @@ paths to follow:
 2. Place the tag in the pubkey script. Both types of Trust is Risk transactions have exactly one Multisig output and thus in
    this case we do not need to treat them differently. Since a Multisig with up to three public keys is considered standard, a
    dummy public key identical for all Trust is Risk transactions that will serve as the desired tag can be placed in the
-   position of the third public key. The corresponding private key will be publicly available and the Multisig will be changed
-   into a 2-of-3. This way the pubkey script corresponding to the Multisig becomes
+   position of the third public key. The dummy public key will be created in a way that proves that the the corresponding
+   private key is unknown. The Multisig will be a 1-of-3. This way the pubkey script corresponding to the Multisig becomes
 
-   ```OP_2 <A pubkey> <B pubkey> <tag> OP_3 OP_CHECKMULTISIG```
+   ```OP_1 <A pubkey> <B pubkey> <tag> OP_3 OP_CHECKMULTISIG```
 
    from
 
    ```OP_1 <A pubkey> <B pubkey> <C pubkey> OP_3 OP_CHECKMULTISIG```.
-
-   Please note that player A knows the private key that corresponds to <A pubkey> along with the publicly known private key
-   that corresponds to the <tag> and thus is able to spend the transaction. Corresponding arguments can be made for player B.
-   Thus the proposed structure emulates the functionality of a 1-of-2 Multisig and at the same time includes the desired tag.
