@@ -86,7 +86,7 @@ class TrustIsRisk {
     var mtx = new MTX({
       outputs: [
         new Output({
-          script: bcoin.script.fromMultisig(1, 2, [originPubKey, dest]),
+          script: bcoin.script.fromMultisig(1, 3, [originPubKey, dest, tag]),
           value: trustAmount
         })
       ]
