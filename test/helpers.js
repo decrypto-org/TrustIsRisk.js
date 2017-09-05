@@ -82,7 +82,7 @@ var testHelpers = {
     }); 
   },
 
-  getOneOfTwoMultisigOutput: (originPubKey, destPubKey, value) => {
+  getOneOfThreeMultisigOutput: (originPubKey, destPubKey, value) => {
     return new bcoin.primitives.Output({
       script: bcoin.script.fromMultisig(1, 2, [originPubKey, destPubKey]),
       value
@@ -95,7 +95,7 @@ var testHelpers = {
         testHelpers.getP2PKHInput(originPubKey)
       ],
       outputs: [
-        testHelpers.getOneOfTwoMultisigOutput(originPubKey, destPubKey, value)
+        testHelpers.getOneOfThreeMultisigOutput(originPubKey, destPubKey, value)
       ]
     });
   },

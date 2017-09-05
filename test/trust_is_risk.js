@@ -40,7 +40,7 @@ describe("TrustIsRisk", () => {
     trustIncreasingMTX = testHelpers.getTrustIncreasingMTX(addr.alice.pubKey, addr.bob.pubKey, 42 * COIN);
     trustIncreasingTX = trustIncreasingMTX.toTX();
 
-    var inputOneOfTwoMultisig = new Input({
+    var inputOneOfThreeMultisig = new Input({
       prevout: {
         hash: trustIncreasingTX.hash().toString("hex"),
         index: 0
@@ -52,10 +52,10 @@ describe("TrustIsRisk", () => {
 
     trustDecreasingMTX = new MTX({
       inputs: [
-        inputOneOfTwoMultisig
+        inputOneOfThreeMultisig
       ],
       outputs: [
-        testHelpers.getOneOfTwoMultisigOutput(addr.alice.pubKey, addr.bob.pubKey, 20 * COIN),
+        testHelpers.getOneOfThreeMultisigOutput(addr.alice.pubKey, addr.bob.pubKey, 20 * COIN),
         testHelpers.getP2PKHOutput(addr.alice.base58, 22 * COIN)
       ]
     });
@@ -170,7 +170,7 @@ describe("TrustIsRisk", () => {
       it("which has more than one trust outputs decreases trust to zero", () => {
         trustDecreasingMTX.outputs[0].value -= 15 * COIN;
         trustDecreasingMTX.outputs.push(
-            testHelpers.getOneOfTwoMultisigOutput(addr.alice.pubKey, addr.bob.pubKey, 5 * COIN));
+            testHelpers.getOneOfThreeMultisigOutput(addr.alice.pubKey, addr.bob.pubKey, 5 * COIN));
         tir.addTX(trustDecreasingMTX.toTX());
 
         tir.getDirectTrust(alice, bob).should.equal(0);
