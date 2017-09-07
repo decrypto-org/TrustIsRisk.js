@@ -15,7 +15,7 @@ var DirectTrust = require("./direct_trust");
 
 const ripemdTag = bcoin.crypto.hash160("trustisrisk"); //
 const ripemdTag1 = "1";                                //TODO
-const tag = "1111111111111111111111111111111111";      //
+const tag = Buffer.from("1111111111111111111111111111111111");      //
 
 class TrustIsRisk {
   node : bcoin$FullNode
