@@ -13,9 +13,9 @@ var fixtures = require("./fixtures");
 require("should-sinon");
 
 const COIN = bcoin.consensus.COIN;
-const ripemdTag = bcoin.crypto.hash160("trustisrisk"); //
-const ripemdTag1 = "1";                                //TODO
-const tag = "1111111111111111111111111111111111";      //
+// const ripemdTag = bcoin.crypto.hash160("trustisrisk"); 
+// const ripemdTag1 = "1";                                TOFIX
+const tag = Buffer.from("1111111111111111111111111111111111");
 
 describe("TrustIsRisk", () => {
   var addr = {};
