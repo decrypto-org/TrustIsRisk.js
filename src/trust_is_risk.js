@@ -13,9 +13,9 @@ var helpers = require("./helpers");
 var TrustDB = require("./trust_db");
 var DirectTrust = require("./direct_trust");
 
-const ripemdTag = bcoin.crypto.hash160("trustisrisk"); //
-const ripemdTag1 = "1";                                //TODO
-const tag = Buffer.from("1111111111111111111111111111111111");      //
+//const ripemdTag = bcoin.crypto.hash160("trustisrisk"); 
+//const ripemdTag1 = "1";                                TOFIX
+const tag = Buffer.from("1111111111111111111111111111111111");
 
 class TrustIsRisk {
   node : bcoin$FullNode
