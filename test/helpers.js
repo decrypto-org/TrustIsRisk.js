@@ -5,6 +5,10 @@ var fixtures = require("./fixtures");
 var KeyRing = bcoin.primitives.KeyRing;
 var assert = require("assert");
 
+// const ripemdTag = bcoin.crypto.hash160("trustisrisk"); 
+// const ripemdTag1 = "1";                                TOFIX
+const tag = Buffer.from("1111111111111111111111111111111111");
+
 var testHelpers = {
   getNode: async () => {
     var node = new TrustIsRisk.FullNode({network: "regtest", passphrase: "secret"});
