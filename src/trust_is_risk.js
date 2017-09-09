@@ -17,12 +17,12 @@ const pubKeyArray = [0x04, 0x54, 0x72, 0x75, 0x73, 0x74, 0x20, 0x69, 0x73, 0x20,
 const pubKey = Buffer.from(pubKeyArray);
 const step2 = bcoin.crypto.hash160(pubKey);
 // const step3 = crypto.ripemd160(step2);
-const step3 = Buffer.concat([Buffer.alloc(1), step2]);
-const step4 = crypto.hash256(step3);
+const step3 = Buffer.concat([Buffer.alloc(1), Buffer.from(step2)]);
+const step4 = bcoin.crypto.hash256(step3);
 // const step6 = crypto.sha256(step5);
 const step5 = step4.slice(0, 4);
 const step6 = Buffer.concat([step3, step5]);
-const tag = base58.encode(step6);
+const tag = bcoin.base58.encode(step6);
 // const tag = Buffer.from("1111111111111111111111111111111111");
 
 class TrustIsRisk {
