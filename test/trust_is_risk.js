@@ -51,6 +51,7 @@ describe("TrustIsRisk", () => {
 
   var node, tir, trustIncreasingMTX, trustDecreasingMTX, trustIncreasingTX;
   beforeEach(() => {
+  // TODO: check that tag has correct type and format: Valid address, corresponding public key is "0x04Trust is Risk0x00..0x00"
     node = new bcoin.fullnode({});
     tir = new Trust.TrustIsRisk(node);
 
