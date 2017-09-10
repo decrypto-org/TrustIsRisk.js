@@ -99,7 +99,7 @@ declare module 'bcoin' {
       hash256(str : (string | Buffer)) : Hash
     },
     base58 : {
-      encode(str : (string | Buffer)) : bcoin$Address
+      encode(str : (string | Buffer)) : Buffer
     }
   }
 }
