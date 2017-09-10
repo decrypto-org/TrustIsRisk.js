@@ -16,16 +16,13 @@ require("should-sinon");
 
 const COIN = bcoin.consensus.COIN;
 const publicKeyArray = [0x04, 0x54, 0x72, 0x75, 0x73, 0x74, 0x20, 0x69, 0x73, 0x20, 0x52, 0x69, 0x73, 0x6b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
-const publicKey = Buffer.from(publicKeyArray);
-const step2 = crypto.sha256(publicKey);
-const step3 = crypto.ripemd160(step2);
-const step4 = Buffer.concat([Buffer.alloc(1), step3]);
-const step5 = crypto.sha256(step4);
-const step6 = crypto.sha256(step5);
-const step7 = step6.slice(0, 4);
-const step8 = Buffer.concat([step4, step7]);
-const tag = base58.encode(step8);
-// const tag = Buffer.from("1111111111111111111111111111111111");
+const pubKey = Buffer.from(pubKeyArray);
+const step2 = Buffer.from(bcoin.crypto.hash160(pubKey));
+const step3 = Buffer.concat([Buffer.alloc(1), step2]);
+const step4 = Buffer.from(bcoin.crypto.hash256(step3));
+const step5 = step4.slice(0, 4);
+const step6 = Buffer.concat([step3, step5]);
+const tag = bcoin.base58.encode(step6);
 
 describe("TrustIsRisk", () => {
   var addr = {};
