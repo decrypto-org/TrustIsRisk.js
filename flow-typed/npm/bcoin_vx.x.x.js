@@ -95,7 +95,7 @@ declare module 'bcoin' {
       Coin : Class<bcoin$Coin>
     },
     crypto : {
-      hash160(str : (string | Buffer)) : Hash
+      hash160(str : (string | Buffer)) : Hash,
       hash256(str : (string | Buffer)) : Hash
     }
   }
