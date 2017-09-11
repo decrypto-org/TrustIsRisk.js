@@ -12,6 +12,7 @@ var should = require("should");
 var fixtures = require("./fixtures");
 var crypto = require("bcoin/lib/crypto");
 var base58 = require("bcoin/lib/utils/base58");
+var assert = require("assert");
 require("should-sinon");
 
 const COIN = bcoin.consensus.COIN;
