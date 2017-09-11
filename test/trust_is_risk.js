@@ -29,7 +29,7 @@ const step3 = Buffer.concat([Buffer.alloc(1), step2]);
 const step4 = Buffer.from(bcoin.crypto.hash256(step3));
 const step5 = step4.slice(0, 4);
 const step6 = Buffer.concat([step3, step5]);
-const tag = bcoin.base58.encode(step6);
+const tag = Buffer.from(bcoin.base58.encode(step6));
 
 describe("TrustIsRisk", () => {
   var addr = {};
