@@ -228,17 +228,18 @@ class TrustIsRisk {
     return nextTrust;
   }
   
-  // Looks for direct trust outputs that originate from a sender in an array of bitcoin outputs.
-  // Returns a list of the corresponding DirectTrust objects.
+  // Looks for direct trust outputs that originate from a sender in a transaction.
+  // Returns an array of the corresponding DirectTrust objects.
   // If the recipient parameter is set, it will limit the results only to the outputs being sent to
   // the recipient.
   searchForDirectTrustOutputs(tx : bcoin$TX, origin : Entity, recipient : ?Entity) : DirectTrust[] {
     var directTrusts = tx.outputs.map((output, outputIndex) =>
       this.parseOutputAsDirectTrust(tx, outputIndex, origin)
-    ).filter(Boolean);
+    ).filter(Boolean); // filter out nulls
 
     if (recipient) {
-      directTrusts.filter((trust) => trust.dest === recipient);
+      directTrusts = directTrusts.filter((trust) =>
+          helpers.pubKeyToEntity(trust.dest) === recipient);
     }
     
     return directTrusts;

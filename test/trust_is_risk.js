@@ -150,6 +150,16 @@ describe("TrustIsRisk", () => {
         tir.getDirectTrust(alice, bob).should.equal(20 * COIN);
       });
 
+      it("decreases trust to zero for trust decreasing transactions with a wrong recipient", () => {
+        // By changing the trust recipient from bob to charlie, we make the transaction a
+        // nullifying trust transaction.
+        trustDecreasingMTX.outputs[0] =
+            testHelpers.getOneOfTwoMultisigOutput(addr.alice.pubKey, addr.charlie.pubKey, 20 * COIN);
+
+        tir.addTX(trustDecreasingMTX.toTX());
+        tir.getDirectTrust(alice, bob).should.equal(0);
+      });
+
       it("which has a second input decreases trust to zero", () => {
         trustDecreasingMTX.inputs.push(testHelpers.getP2PKHInput(addr.alice.pubKey));
         tir.addTX(trustDecreasingMTX.toTX());
