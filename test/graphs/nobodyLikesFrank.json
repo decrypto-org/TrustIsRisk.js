@@ -1,0 +1,24 @@
+{
+  "alice": {
+    "bob": 10,
+    "dave": 3
+  },
+  "bob": {
+    "charlie": 1,
+    "eve": 2,
+    "dave": 1,
+    "george": 1
+  },
+  "charlie": {
+    "george": 3
+  },
+  "dave": {
+    "eve": 10,
+    "alice": 2
+  },
+  "eve": {},
+  "frank": {
+    "charlie": 10
+  },
+  "george": {}
+}

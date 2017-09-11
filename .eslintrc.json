@@ -1,0 +1,40 @@
+{
+  "parser": "babel-eslint",
+  "plugins": [
+    "eslint-plugin-flowtype"
+  ],
+  "env": {
+			"es6": true,
+			"node": true
+	},
+	"extends": [
+    "eslint:recommended",
+    "plugin:flowtype/recommended"
+  ],
+	"rules": {
+			"indent": [
+					"error",
+					2
+			],
+			"linebreak-style": [
+					"error",
+					"unix"
+			],
+			"quotes": [
+					"error",
+					"double"
+			],
+			"semi": [
+					"error",
+					"always"
+			],
+      "flowtype/space-before-type-colon": 0,
+      "no-undef": 0,
+      "no-unused-vars": 0
+	},
+	"settings": {
+		"flowtype": {
+			"onlyFilesWithFlowAnnotation": true
+		}
+	}
+}

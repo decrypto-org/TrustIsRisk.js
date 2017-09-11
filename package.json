@@ -5,9 +5,11 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "flow-remove-types -d lib/ src/",
-    "test": "npm run build && mocha",
+    "test": "npm run build && mocha -t 10000",
     "prepublish": "npm run build",
-    "typecheck": "flow check"
+    "typecheck": "flow check",
+    "lint": "./node_modules/.bin/eslint --fix src/ test/",
+    "check": "npm run lint && npm run typecheck && npm run test"
   },
   "repository": {
     "type": "git",
@@ -19,17 +21,25 @@
     "blockchain"
   ],
   "author": "Decrypto-org",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/decrypto-org/TrustIsRisk.js/issues"
   },
   "homepage": "https://github.com/decrypto-org/TrustIsRisk.js#readme",
   "devDependencies": {
+    "babel-eslint": "^7.2.3",
+    "eslint": "^3.19.0",
+    "eslint-plugin-flowtype": "^2.33.0",
     "flow-bin": "^0.45.0",
     "flow-remove-types": "^1.2.0",
-    "should": "^11.2.1"
+    "mocha": "^3.4.2",
+    "should": "^11.2.1",
+    "should-sinon": "0.0.5",
+    "sinon": "^2.2.0"
   },
   "dependencies": {
-    "bcoin": "^1.0.0-beta.12"
+    "bcoin": "1.0.0-beta.12",
+    "graph-theory-ford-fulkerson": "^1.0.0",
+    "sorted-set": "^0.3.0"
   }
 }
