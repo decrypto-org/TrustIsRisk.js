@@ -23,11 +23,6 @@ class TrustDB {
     this.entities = new SortedSet();
   }
 
-  getDirectTrustByTX(txHash : string) : (DirectTrust | null) {
-    if (!this.isTrustTX(txHash)) return null;
-    return ((this.txToDirectTrust.get(txHash) : any) : DirectTrust);
-  }
-
   getDirectTrustByOutpoint(outpoint : bcoin$Outpoint) : (DirectTrust | null) {
     var trust = this.txToDirectTrust.get(outpoint.hash.toString("hex"));
     if (!trust) return null;

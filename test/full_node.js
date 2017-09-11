@@ -190,4 +190,8 @@ describe("FullNode", () => {
       should(node.trust.getIndirectTrust(addresses.alice, addresses.bob)).equal(7 * COIN);
     });
   });
+
+  describe("with the topcoder.json example", () => {
+    //TODO: Write tests here.
+  });
 });
