@@ -71,7 +71,7 @@ class TrustDB {
   }
 
   getEntities() : Entity[] {
-    return this.entities.slice(0, this.entities.length);
+    return this.entities.slice();
   }
 
   getEntityIndex(entity : Entity) : number {

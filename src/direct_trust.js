@@ -63,15 +63,12 @@ class DirectTrust {
   isValid() : boolean {
     // TODO: Consider removing this function and ensure validity at build time by using the flow
     //       type system, possibly by creating sub-types like "IncreasingDirectTrust" etc.
-    var valid = true;
-
-    if ((this.outputIndex === null) !== (this.script === null)) valid = false;
-    if (this.outputIndex === null && this.isIncrease()) valid = false;
-    if (this.outputIndex === null && this.amount > 0) valid = false;
-    if (this.isIncrease() && this.isNull()) valid = false;
-    if (this.isSpent() && this.isNull()) valid = false;
-
-    return valid;
+    if ((this.outputIndex === null) !== (this.script === null)) return false;
+    if (this.outputIndex === null && this.isIncrease()) return false;
+    if (this.outputIndex === null && this.amount > 0) return false; 
+    if (this.isIncrease() && this.isNull()) return false;
+    if (this.isSpent() && this.isNull()) return false;
+    return true;
   }
 
   getOriginEntity() : Entity {

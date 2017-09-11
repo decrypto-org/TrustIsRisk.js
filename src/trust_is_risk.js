@@ -205,9 +205,7 @@ class TrustIsRisk {
 
   getInputTrusts(inputs : bcoin$Input[]) : DirectTrust[] {
     return inputs.map((input) => {
-      var trust = this.db.getDirectTrustByOutpoint(input.prevout);
-      if (trust && trust.outputIndex === input.prevout.index) return trust;
-      else return null;
+      return this.db.getDirectTrustByOutpoint(input.prevout);
     }).filter(Boolean);
   }
 
@@ -224,7 +222,7 @@ class TrustIsRisk {
 
     nextTrust.prev = prevTrust;
 
-    assert(nextTrust.amount - prevTrust.amount <= 0);
+    assert(nextTrust.amount <= prevTrust.amount);
     return nextTrust;
   }
   
