@@ -100,6 +100,9 @@ declare module 'bcoin' {
     },
     base58 : {
       encode(str : (string | Buffer)) : Buffer
+    },
+    HDPublicKey : {
+      fromBase58(str : (string | Buffer)) : Buffer
     }
   }
 }
