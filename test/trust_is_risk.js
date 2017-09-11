@@ -81,7 +81,7 @@ describe("TrustIsRisk", () => {
 
   describe("tag", () => {
     it("is a valid bitcoin address", () => {
-      Address.fromString(tag.toString("ascii")).should.equal(1);
+      Address.fromString(tag.toString("ascii")).should.exist(1);
     });
 
     it("corresponds to a public key that contains \"Trust is Risk\"", () => {
