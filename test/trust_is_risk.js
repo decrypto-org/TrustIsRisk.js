@@ -9,15 +9,27 @@ var testHelpers = require("./helpers");
 var consensus = require("bcoin/lib/protocol/consensus");
 var sinon = require("sinon");
 var should = require("should");
+var fixtures = require("./fixtures");
 require("should-sinon");
 
 const COIN = bcoin.consensus.COIN;
 
 describe("TrustIsRisk", () => {
-  var addr = testHelpers.getAddressFixtures();
+  var addr = {};
+  for (let [name, keyRing] of Object.entries(fixtures.keyRings)) {
+    var pubKey = keyRing.getPublicKey();
+    var privKey = keyRing.getPrivateKey();
+
+    addr[name] = {};
+    addr[name].pubKey = pubKey;
+    addr[name].privKey = privKey;
+    addr[name].base58 = bcoin.primitives.Address.fromHash(bcoin.crypto.hash160(pubKey)).toString();
+  }
+
   // Add base58 address variables to scope.
-  for (name in addr) {
-    eval(`var ${name} = "${addr[name].base58}";`);
+  for (name in fixtures.keyRings) {
+    var keyRing = fixtures.keyRings[name];
+    eval(`var ${name} = "${bcoin.primitives.Address.fromHash(bcoin.crypto.hash160(keyRing.getPublicKey())).toString()}";`);
   }
 
   var node, tir, trustIncreasingMTX, trustDecreasingMTX, trustIncreasingTX;

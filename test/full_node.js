@@ -13,6 +13,7 @@ var consensus = require("bcoin/lib/protocol/consensus");
 var sinon = require("sinon");
 var should = require("should");
 var assert = require("assert");
+var fixtures = require("./fixtures");
 require("should-sinon");
 
 const COIN = consensus.COIN;
@@ -64,12 +65,9 @@ describe("FullNode", () => {
 
     beforeEach("apply graph transactions", async () => {
       addresses = {};
-      rings = {};
 
-      for (let i = 0; i < testHelpers.names.length; i++) {
-        var name = testHelpers.names[i];
-        rings[name] = testHelpers.rings[i];
-        addresses[name] = helpers.pubKeyToEntity(rings[name].getPublicKey());
+      for (var [name, keyRing] of Object.entries(fixtures.keyRings)) {
+        addresses[name] = helpers.pubKeyToEntity(keyRing.getPublicKey());
       }
 
       // Alice mines three blocks, each rewards her with 50 spendable BTC
@@ -84,19 +82,21 @@ describe("FullNode", () => {
 
       // Alice sends 20 BTC to everyone (including herself) via P2PKH
       var sendAmount = 20;
-      var outputs = testHelpers.names.map((name) => {
+      var outputs = fixtures.names.map((name) => {
         return testHelpers.getP2PKHOutput(
-            Address.fromHash(bcoin.crypto.hash160(rings[name].getPublicKey())).toBase58(),
+            Address.fromHash(bcoin.crypto.hash160(fixtures.keyRings[name].getPublicKey()))
+                .toBase58(),
             sendAmount * consensus.COIN);
       });
 
       // We have to use a change output, because transaction with too large a fee are considered
       // invalid.
       var fee = 0.01;
-      var changeAmount = 50 * blockCount - sendAmount * testHelpers.names.length - fee;
+      var changeAmount = 50 * blockCount - sendAmount * fixtures.names.length - fee;
       if (changeAmount >= 0.01) {
         outputs.push(new Output({
-          script: Script.fromPubkeyhash(bcoin.crypto.hash160(rings.alice.getPublicKey())),
+          script: Script.fromPubkeyhash(bcoin.crypto.hash160(
+              fixtures.keyRings.alice.getPublicKey())),
           value: changeAmount * consensus.COIN
         }));
       }
@@ -108,7 +108,7 @@ describe("FullNode", () => {
       var mtx = new MTX({outputs});
       coinbaseCoins.forEach((coin) => mtx.addCoin(coin));
 
-      var signedCount = mtx.sign(rings.alice);
+      var signedCount = mtx.sign(fixtures.keyRings.alice);
       assert(signedCount === blockCount);
       assert(await mtx.verify());
       
@@ -117,15 +117,16 @@ describe("FullNode", () => {
       await watcher.waitForTX();
 
       prevout = {};
-      testHelpers.names.forEach((name) => {
+      fixtures.names.forEach((name) => {
         prevout[name] = {
           hash: tx.hash().toString("hex"),
-          index: testHelpers.names.indexOf(name)
+          index: fixtures.names.indexOf(name)
         };
       });
       
       // Alice mines another block
-      await testHelpers.mineBlock(node, helpers.pubKeyToEntity(rings.alice.getPublicKey()));
+      await testHelpers.mineBlock(node, helpers.pubKeyToEntity(
+          fixtures.keyRings.alice.getPublicKey()));
       await testHelpers.delay(500);
 
       var graph = require("./graphs/nobodyLikesFrank.json");
@@ -137,8 +138,11 @@ describe("FullNode", () => {
 
           let outpoint = new Outpoint(prevout[origin].hash, prevout[origin].index);
 					
-          let mtx = await node.trust.createTrustIncreasingMTX(rings[origin].getPrivateKey(),
-              rings[dest].getPublicKey(), outpoint, value * consensus.COIN);
+          let mtx = await node.trust.createTrustIncreasingMTX(
+              fixtures.keyRings[origin].getPrivateKey(),
+              fixtures.keyRings[dest].getPublicKey(),
+              outpoint,
+              value * consensus.COIN);
 					
           assert(await mtx.verify());
 
@@ -151,7 +155,8 @@ describe("FullNode", () => {
       }
       
       // Alice mines yet another block
-      await testHelpers.mineBlock(node, helpers.pubKeyToEntity(rings.alice.getPublicKey()));
+      await testHelpers.mineBlock(node, helpers.pubKeyToEntity(
+          fixtures.keyRings.alice.getPublicKey()));
       await testHelpers.delay(500);
     });
 
@@ -173,8 +178,8 @@ describe("FullNode", () => {
     });
 
     it("after decreasing some trusts computes trusts correctly", async () => {
-      var mtxs = node.trust.createTrustDecreasingMTXs(rings.alice.getPrivateKey(),
-          rings.bob.getPublicKey(), 3 * COIN);
+      var mtxs = node.trust.createTrustDecreasingMTXs(fixtures.keyRings.alice.getPrivateKey(),
+          fixtures.keyRings.bob.getPublicKey(), 3 * COIN);
       mtxs.length.should.equal(1);
       var mtx = mtxs[0];
 

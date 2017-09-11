@@ -1,39 +1,11 @@
 var TrustIsRisk = require("../");
 var WalletDB = require("bcoin/lib/wallet/walletdb");
 var bcoin = require("bcoin");
+var fixtures = require("./fixtures");
 var KeyRing = bcoin.primitives.KeyRing;
 var assert = require("assert");
 
 var testHelpers = {
-  names: ["alice", "bob", "charlie", "dave", "eve", "frank", "george"],
-  rings: [
-    "02B8F07A401ECA4888039B1898F94DB44C43CCC6D3AA8B27E9B6ED7B377B24C0",
-    "2437025954568A8273968AA7535DBFC444FD8F8D0F5237CD96AC7234C77810AD",
-    "3BBA2AF9539D09B4FD2BDEA1D3A2CE4BF5D779831B8781EE2ACF9C03378B2AD7",
-    "19BD8D853FAEFDB9B01E4DE7F6096FF8F5F96D43E6564A5258307334A4AA59F3",
-    "0503054CF7EBB4E62191AF1D8DE97945178D3F465EE88EF1FB4E80A70CB4A49A",
-    "878DFE5B43AC858EA37B3A9EEBA9E244F1848A30F78B2E5AC5B3EBDE81AC7D45",
-    "1349A1318B1426E6F724CBFE7ECD2C46008A364A96C4BD20C83FC1C4EBB2EB4A"
-  ].map((key) => KeyRing.fromPrivate(new Buffer(key, "hex"))),
-
-  getAddressFixtures: () => {
-    assert(testHelpers.rings.length === testHelpers.names.length);
-
-    var addr = {};
-    for (var i = 0; i < testHelpers.names.length; i++) {
-      var name = testHelpers.names[i];
-      var pubKey = testHelpers.rings[i].getPublicKey();
-      var privKey = testHelpers.rings[i].getPrivateKey();
-
-      addr[name] = {};
-      addr[name].pubKey = pubKey;
-      addr[name].privKey = privKey;
-      addr[name].base58 = bcoin.primitives.Address.fromHash(bcoin.crypto.hash160(pubKey)).toString();
-    }
-
-    return addr;
-  },
-
   getNode: async () => {
     var node = new TrustIsRisk.FullNode({network: "regtest", passphrase: "secret"});
 
