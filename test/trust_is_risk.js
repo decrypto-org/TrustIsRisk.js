@@ -93,8 +93,8 @@ describe("TrustIsRisk", () => {
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00];
-      bcoin.prototype.HDPublicKey.fromBase58(bcoin.primitives.Address.fromString(tag.toString("ascii"))).should.equal(fakePubKeyArray);
-      bcoin.http.Wallet.getKey(bcoin.primitives.Address.fromString(tag.toString("ascii"))).should.equal(fakePubKeyArray);
+      //bcoin.primitives.HDPublicKey.fromBase58(bcoin.primitives.Address.fromBase58(tag.toString("ascii"))).should.equal(fakePubKeyArray);
+      bcoin.http.Wallet.getKey(bcoin.primitives.Address.fromBase58(tag.toString("ascii"))).should.equal(Buffer.from(fakePubKey));
     });
   });
 
