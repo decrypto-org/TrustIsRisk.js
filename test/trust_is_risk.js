@@ -188,7 +188,7 @@ describe("TrustIsRisk", () => {
         // By changing the trust recipient from bob to charlie, we make the transaction a
         // nullifying trust transaction.
         trustDecreasingMTX.outputs[0] =
-            testHelpers.getOneOfTwoMultisigOutput(addr.alice.pubKey, addr.charlie.pubKey, 20 * COIN);
+            testHelpers.getOneOfThreeMultisigOutput(addr.alice.pubKey, addr.charlie.pubKey, 20 * COIN);
 
         tir.addTX(trustDecreasingMTX.toTX());
         tir.getDirectTrust(alice, bob).should.equal(0);
