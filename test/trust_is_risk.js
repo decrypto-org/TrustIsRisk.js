@@ -78,7 +78,7 @@ describe("TrustIsRisk", () => {
 
   describe("tag", () => {
     it("is a valid bitcoin address", () => {
-      assert.ok(Address.fromString(tag.toString("ascii")));
+      assert.ok(bcoin.primitives.Address.fromString(tag.toString("ascii")));
     });
 
     it("corresponds to a public key that contains \"Trust is Risk\"", () => {
@@ -88,8 +88,8 @@ describe("TrustIsRisk", () => {
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00];
-      bcoin.prototype.HDPublicKey.fromBase58(Address.fromString(tag.toString("ascii"))).should.equal(fakePubKeyArray);
-      bcoin.http.Wallet.getKey(Address.fromString(tag.toString("ascii"))).should.equal(fakePubKeyArray);
+      bcoin.prototype.HDPublicKey.fromBase58(bcoin.primitives.Address.fromString(tag.toString("ascii"))).should.equal(fakePubKeyArray);
+      bcoin.http.Wallet.getKey(bcoin.primitives.Address.fromString(tag.toString("ascii"))).should.equal(fakePubKeyArray);
     });
   });
 
