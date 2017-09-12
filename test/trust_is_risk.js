@@ -83,7 +83,7 @@ describe("TrustIsRisk", () => {
     });
 
     it("is a valid bitcoin address", () => {
-      assert.ok(bcoin.primitives.Address.fromString(tag.toString("ascii")));
+      assert(bcoin.primitives.Address.fromBase58(tag.toString("ascii")));
     });
 
     it("corresponds to a public key that contains \"Trust is Risk\"", () => {
