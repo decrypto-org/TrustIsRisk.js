@@ -78,6 +78,10 @@ describe("TrustIsRisk", () => {
   });
 
   describe("tag", () => {
+    it("corresponds to a valid public key", () => {
+      assert(bcoin.crypto.publicKeyVerify(fakePubKey));
+    });
+
     it("is a valid bitcoin address", () => {
       assert.ok(bcoin.primitives.Address.fromString(tag.toString("ascii")));
     });
