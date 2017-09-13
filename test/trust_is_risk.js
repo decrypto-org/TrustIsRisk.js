@@ -7,7 +7,7 @@ var Input = bcoin.primitives.Input;
 var MTX = bcoin.primitives.MTX;
 var testHelpers = require("./helpers");
 var consensus = require("bcoin/lib/protocol/consensus");
-var secp256k1 = bcoin.crypto.ec-secp256k1;
+var secp256k1 = require("bcoin/lib/crypto/ec-secp256k1");
 var sinon = require("sinon");
 var should = require("should");
 var fixtures = require("./fixtures");
@@ -79,7 +79,7 @@ describe("TrustIsRisk", () => {
 
   describe("tag", () => {
     it("corresponds to a valid public key", () => {
-      assert(bcoin.crypto.publicKeyVerify(fakePubKey));
+      assert(secp256k1.publicKeyVerify(fakePubKey));
     });
 
     it("is a valid bitcoin address", () => {
