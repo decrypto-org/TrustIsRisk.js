@@ -88,11 +88,6 @@ describe("TrustIsRisk", () => {
     it("is a valid bitcoin address", () => {
       assert(bcoin.primitives.Address.fromBase58(tag.toString("ascii")));
     });
-
-    it("corresponds to a public key that contains \"Trust is Risk\"", () => {
-      //bcoin.primitives.HDPublicKey.fromBase58(bcoin.primitives.Address.fromBase58(tag.toString("ascii"))).should.equal(fakePubKeyArray);
-      bcoin.http.Wallet.getKey(bcoin.primitives.Address.fromBase58(tag.toString("ascii"))).should.equal(Buffer.from(fakePubKey));
-    });
   });
 
   describe(".getDirectTrust()", () => {
