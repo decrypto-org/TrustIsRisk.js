@@ -84,6 +84,7 @@ describe("TrustIsRisk", () => {
 
   describe("tag", () => {
     it("corresponds to a valid public key", () => {
+      Buffer.isBuffer(fakePubKey).should.equal(true);
       secp256k1.publicKeyVerify(fakePubKey).should.equal(true);
     });
 
