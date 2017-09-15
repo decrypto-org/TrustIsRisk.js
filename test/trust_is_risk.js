@@ -84,7 +84,7 @@ describe("TrustIsRisk", () => {
 
   describe("tag", () => {
     it("corresponds to a valid public key", () => {
-      assert(secp256k1.publicKeyVerify(fakePubKey));
+      secp256k1.publicKeyVerify(fakePubKey).should.equal(true);
     });
 
     it("is a valid bitcoin address", () => {
