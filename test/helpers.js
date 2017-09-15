@@ -17,12 +17,8 @@ const fakePubKeyArray = [0x04,                     // constant 0x04 prefix
   0x8e, 0xce, 0x18, 0x00, 0x14, 0xde, 0x48, 0x1a];
 
 const fakePubKey = Buffer.from(fakePubKeyArray);
-const step2 = Buffer.from(bcoin.crypto.hash160(fakePubKey));
-const step3 = Buffer.concat([Buffer.alloc(1), step2]);
-const step4 = Buffer.from(bcoin.crypto.hash256(step3));
-const step5 = step4.slice(0, 4);
-const step6 = Buffer.concat([step3, step5]);
-const tag = Buffer.from(bcoin.base58.encode(step6));
+const fakeKeyRing = KeyRing.fromPublic(fakePubKey);
+const tag = Buffer.from(fakeKeyRing.getAddress("base58"));
 
 var testHelpers = {
   getNode: async () => {
