@@ -73,6 +73,7 @@ declare class bcoin$KeyRing {
 
   getPublicKey() : Buffer;
   getPrivateKey() : Buffer;
+  getAddress() : Buffer;
 }
 
 declare class bcoin$Coin extends bcoin$Output {
