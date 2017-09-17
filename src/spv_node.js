@@ -2,7 +2,7 @@
 var bcoin = require("bcoin");
 var TrustIsRisk = require("./trust_is_risk");
 
-class SpvNode extends bcoin.spvnode {
+class SPVNode extends bcoin.spvnode {
   trust : TrustIsRisk
 
   constructor(options : Object) {
@@ -11,4 +11,4 @@ class SpvNode extends bcoin.spvnode {
   }
 }
 
-module.exports = SpvNode;
+module.exports = SPVNode;

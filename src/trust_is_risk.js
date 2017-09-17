@@ -29,10 +29,10 @@ const fakeKeyRing = KeyRing.fromPublic(fakePubKey);
 const tag = Buffer.from(fakeKeyRing.getAddress("base58"));
 
 class TrustIsRisk {
-  node : bcoin$FullNode
+  node : (bcoin$FullNode | bcoin$SPVNode)
   db : TrustDB
 
-  constructor(node : bcoin$FullNode) {
+  constructor(node : (bcoin$FullNode | bcoin$SPVNode)) {
     this.node = node;
     this.db = new TrustDB();
 

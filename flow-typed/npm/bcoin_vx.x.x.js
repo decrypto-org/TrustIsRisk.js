@@ -9,6 +9,13 @@ declare class bcoin$FullNode {
   getCoin(hash : Hash, index : number) : bcoin$Coin;
 }
 
+declare class bcoin$SPVNode {
+  on(eventName : string, eventHandler : Function) : void;
+  getTX(hash : Hash) : Promise<bcoin$TX>;
+  getCoin(hash : Hash, index : number) : bcoin$Coin;
+  //TODO Check if changes/additions are needed
+}
+
 declare class bcoin$Address {
   toBase58() : string;
   hash : Buffer;
@@ -84,6 +91,7 @@ declare class bcoin$Coin extends bcoin$Output {
 declare module 'bcoin' {
   declare module.exports: {
     fullnode : Class<bcoin$FullNode>,
+    spvnode : Class<bcoin$SPVNode>,
     script : Class<bcoin$Script>,
     primitives : {
       Address : Class<bcoin$Address>,
