@@ -23,6 +23,7 @@ class SPVNode extends bcoin.spvnode {
   constructor(options : Object) {
     super(options);
     this.trust = new TrustIsRisk(this);
+    this.pool.watchAddress(tag);
   }
 }
 
