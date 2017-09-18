@@ -13,7 +13,12 @@ declare class bcoin$SPVNode {
   on(eventName : string, eventHandler : Function) : void;
   getTX(hash : Hash) : Promise<bcoin$TX>;
   getCoin(hash : Hash, index : number) : bcoin$Coin;
+  pool : bcoin$Pool;
   //TODO Check if changes/additions are needed
+}
+
+declare class bcoin$Pool {
+  watchAddress(address : Buffer) : void;
 }
 
 declare class bcoin$Address {
@@ -93,6 +98,7 @@ declare module 'bcoin' {
     fullnode : Class<bcoin$FullNode>,
     spvnode : Class<bcoin$SPVNode>,
     script : Class<bcoin$Script>,
+    pool : Class<bcoin$Pool>,
     primitives : {
       Address : Class<bcoin$Address>,
       TX : Class<bcoin$TX>,
