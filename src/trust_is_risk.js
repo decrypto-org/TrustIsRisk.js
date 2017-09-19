@@ -20,7 +20,7 @@ class TrustIsRisk {
   fakePubKey : Buffer
   fakeKeyRing : KeyRing
   tag : Buffer
-  
+
   constructor(node : (bcoin$FullNode | bcoin$SPVNode)) {
     this.fakePubKeyArray = [0x04,                        // constant 0x04 prefix
       0x54, 0x72, 0x75, 0x73, 0x74, 0x20, 0x69, 0x73,
