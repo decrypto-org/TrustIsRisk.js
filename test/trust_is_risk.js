@@ -5,7 +5,6 @@ var Coin = bcoin.primitives.Coin;
 var Address = bcoin.primitives.Address;
 var Input = bcoin.primitives.Input;
 var MTX = bcoin.primitives.MTX;
-var KeyRing = bcoin.primitives.KeyRing;
 var testHelpers = require("./helpers");
 var consensus = require("bcoin/lib/protocol/consensus");
 var secp256k1 = require("bcoin/lib/crypto/ec-secp256k1");
@@ -16,21 +15,6 @@ var assert = require("assert");
 require("should-sinon");
 
 const COIN = bcoin.consensus.COIN;
-
-const fakePubKeyArray = [0x04,                     // constant 0x04 prefix
-  0x54, 0x72, 0x75, 0x73, 0x74, 0x20, 0x69, 0x73,
-  0x20, 0x52, 0x69, 0x73, 0x6b, 0x00, 0x00, 0x00,  // 32 bytes with the x coordinate
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // containing ASCII "Trust is Risk"
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
-                                                   // secp256k1 curve: y^2 = x^3 + 7
-  0x05, 0x5d, 0x5f, 0x28, 0x5e, 0xd7, 0x9d, 0x0c,
-  0x6f, 0x61, 0xc3, 0x0e, 0xfc, 0x9d, 0x21, 0x91,
-  0x65, 0x82, 0x80, 0x59, 0xa6, 0x01, 0x25, 0x0c,  // 32 bytes with the y coordinate
-  0x8e, 0xce, 0x18, 0x00, 0x14, 0xde, 0x48, 0x1a];
-
-const fakePubKey = Buffer.from(fakePubKeyArray);
-const fakeKeyRing = KeyRing.fromPublic(fakePubKey);
-const tag = Buffer.from(fakeKeyRing.getAddress("base58"));
 
 describe("TrustIsRisk", () => {
   var addr = {};
@@ -81,12 +65,12 @@ describe("TrustIsRisk", () => {
 
   describe("tag", () => {
     it("corresponds to a valid public key", () => {
-      Buffer.isBuffer(fakePubKey).should.equal(true);
-      secp256k1.publicKeyVerify(fakePubKey).should.equal(true);
+      Buffer.isBuffer(tir.fakePubKey).should.equal(true);
+      secp256k1.publicKeyVerify(tir.fakePubKey).should.equal(true);
     });
 
     it("is a valid bitcoin address", () => {
-      assert(bcoin.primitives.Address.fromBase58(tag.toString("ascii")));
+      assert(bcoin.primitives.Address.fromBase58(tir.tag.toString("ascii")));
     });
   });
 
@@ -232,7 +216,7 @@ describe("TrustIsRisk", () => {
       trustOutput.getType().should.equal("multisig");
       [1, 2].map((i) => helpers.pubKeyToEntity(trustOutput.script.get(i))).sort()
           .should.deepEqual([alice, bob].sort());
-      trustOutput.script.get(3).should.deepEqual(tag);
+      trustOutput.script.get(3).should.deepEqual(tir.tag);
       trustOutput.value.should.equal(100 * COIN);
 
       var changeOutput = mtx.outputs[1];
