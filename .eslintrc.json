@@ -30,7 +30,8 @@
 			],
       "flowtype/space-before-type-colon": 0,
       "no-undef": 0,
-      "no-unused-vars": 0
+      "no-unused-vars": 0,
+      "no-console": 0
 	},
 	"settings": {
 		"flowtype": {
