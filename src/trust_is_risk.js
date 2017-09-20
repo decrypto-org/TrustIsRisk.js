@@ -16,17 +16,17 @@ var DirectTrust = require("./direct_trust");
 class TrustIsRisk {
   node : (bcoin$FullNode | bcoin$SPVNode)
   db : TrustDB
+  uncompressedFakePubKeyArray : Array<number>
   fakePubKeyArray : Array<number>
-  shortFakePubKeyArray : Array<number>
+  uncompressedFakePubKey : Buffer
   fakePubKey : Buffer
-  shortFakePubKey : Buffer
+  uncompressedFakeKeyRing : KeyRing
   fakeKeyRing : KeyRing
-  shortFakeKeyRing : KeyRing
+  uncompressedTag : Buffer
   tag : Buffer
-  shortTag : Buffer
 
   constructor(node : (bcoin$FullNode | bcoin$SPVNode)) {
-    this.fakePubKeyArray = [0x04,                        // constant 0x04 prefix
+    this.uncompressedFakePubKeyArray = [0x04,            // constant 0x04 prefix
       0x54, 0x72, 0x75, 0x73, 0x74, 0x20, 0x69, 0x73,
       0x20, 0x52, 0x69, 0x73, 0x6b, 0x00, 0x00, 0x00,    // 32 bytes with the x coordinate
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // containing ASCII "Trust is Risk"
@@ -37,18 +37,18 @@ class TrustIsRisk {
       0x65, 0x82, 0x80, 0x59, 0xa6, 0x01, 0x25, 0x0c,    // 32 bytes with the y coordinate
       0x8e, 0xce, 0x18, 0x00, 0x14, 0xde, 0x48, 0x1a];
 
-    this.shortFakePubKeyArray = [0x02,                   // 0x02 prefix for even y values
+    this.fakePubKeyArray = [0x02,                        // 0x02 prefix for even y values
       0x54, 0x72, 0x75, 0x73, 0x74, 0x20, 0x69, 0x73,
       0x20, 0x52, 0x69, 0x73, 0x6b, 0x00, 0x00, 0x00,    // only x is given in short version
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01];
 
+    this.uncompressedFakePubKey = Buffer.from(this.uncompressedFakePubKeyArray);
     this.fakePubKey = Buffer.from(this.fakePubKeyArray);
-    this.shortFakePubKey = Buffer.from(this.shortFakePubKeyArray);
+    this.uncompressedFakeKeyRing = KeyRing.fromPublic(this.uncompressedFakePubKey);
     this.fakeKeyRing = KeyRing.fromPublic(this.fakePubKey);
-    this.shortFakeKeyRing = KeyRing.fromPublic(this.shortFakePubKey);
+    this.uncompressedTag = Buffer.from(this.uncompressedFakeKeyRing.getAddress("base58"));
     this.tag = Buffer.from(this.fakeKeyRing.getAddress("base58"));
-    this.shortTag = Buffer.from(this.shortFakeKeyRing.getAddress("base58"));
 
     this.node = node;
     this.db = new TrustDB();
