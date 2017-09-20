@@ -114,7 +114,7 @@ class TrustIsRisk {
     var mtx = new MTX({
       outputs: [
         new Output({
-          script: bcoin.script.fromMultisig(1, 3, [originPubKey, dest, this.fakePubKey]),
+          script: bcoin.script.fromMultisig(1, 3, [originPubKey, dest, this.tag]),
           value: trustAmount
         })
       ]
@@ -196,7 +196,7 @@ class TrustIsRisk {
     var remainingTrustAmount = directTrust.amount - decreaseAmount;
     if (remainingTrustAmount > 0) {
       mtx.addOutput(new Output({
-        script: bcoin.script.fromMultisig(1, 3, [directTrust.origin, directTrust.dest, this.shortFakePubKey]),
+        script: bcoin.script.fromMultisig(1, 3, [directTrust.origin, directTrust.dest, this.tag]),
         value: remainingTrustAmount
       }));
     }
