@@ -184,11 +184,11 @@ describe("FullNode", () => {
       var mtx = mtxs[0];
 
       should(await mtx.verify());
-      var aba = mtx.toTX();
-      node.sendTX(aba);
-      await testHelpers.delay(1000000);
-      //node.sendTX(mtx.toTX());
-      console.log("aha");
+      node.sendTX(mtx.toTX());
+//      var aba = mtx.toTX();
+//      node.sendTX(aba);
+//      await testHelpers.delay(1000000);
+//      console.log("aha");
 
       await testHelpers.delay(750);
       should(node.trust.getIndirectTrust(addresses.alice, addresses.bob)).equal(7 * COIN);
