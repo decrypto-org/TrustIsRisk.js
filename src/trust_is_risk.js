@@ -196,7 +196,7 @@ class TrustIsRisk {
     var remainingTrustAmount = directTrust.amount - decreaseAmount;
     if (remainingTrustAmount > 0) {
       mtx.addOutput(new Output({
-        script: bcoin.script.fromMultisig(1, 3, [directTrust.origin, directTrust.dest, this.tag]),
+        script: bcoin.script.fromMultisig(1, 3, [directTrust.origin, directTrust.dest, this.shortFakePubKey]),
         value: remainingTrustAmount
       }));
     }

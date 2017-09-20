@@ -70,7 +70,7 @@ describe("TrustIsRisk", () => {
     });
 
     it("is a valid bitcoin address", () => {
-      assert(bcoin.primitives.Address.fromBase58(tir.tag.toString("ascii")));
+      assert(bcoin.primitives.Address.fromBase58(tir.shortTag.toString("ascii")));
     });
   });
 
@@ -216,7 +216,7 @@ describe("TrustIsRisk", () => {
       trustOutput.getType().should.equal("multisig");
       [1, 2].map((i) => helpers.pubKeyToEntity(trustOutput.script.get(i))).sort()
           .should.deepEqual([alice, bob].sort());
-      trustOutput.script.get(3).should.deepEqual(tir.tag);
+      trustOutput.script.get(3).should.deepEqual(tir.shortTag);
       trustOutput.value.should.equal(100 * COIN);
 
       var changeOutput = mtx.outputs[1];
