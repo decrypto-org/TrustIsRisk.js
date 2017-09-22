@@ -17,18 +17,18 @@ class TrustIsRisk {
   node : (bcoin$FullNode | bcoin$SPVNode)
   db : TrustDB
 
-  uncompressedFakePubKeyArray : Array<number>
-  uncompressedFakePubKey : Buffer
-  uncompressedFakeKeyRing : KeyRing
-  uncompressedTag : Buffer
-
   fakePubKeyArray : Array<number>
   fakePubKey : Buffer
   fakeKeyRing : KeyRing
   tag : Buffer
 
+  compressedFakePubKeyArray : Array<number>
+  compressedFakePubKey : Buffer
+  compressedFakeKeyRing : KeyRing
+  compressedTag : Buffer
+
   constructor(node : (bcoin$FullNode | bcoin$SPVNode)) {
-    this.uncompressedFakePubKeyArray = [0x04,            // constant 0x04 prefix
+    this.fakePubKeyArray = [0x04,            // constant 0x04 prefix
       0x54, 0x72, 0x75, 0x73, 0x74, 0x20, 0x69, 0x73,
       0x20, 0x52, 0x69, 0x73, 0x6b, 0x00, 0x00, 0x00,    // 32 bytes with the x coordinate
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // containing ASCII "Trust is Risk"
@@ -39,20 +39,20 @@ class TrustIsRisk {
       0x65, 0x82, 0x80, 0x59, 0xa6, 0x01, 0x25, 0x0c,    // 32 bytes with the y coordinate
       0x8e, 0xce, 0x18, 0x00, 0x14, 0xde, 0x48, 0x1a];
 
-    this.uncompressedFakePubKey = Buffer.from(this.uncompressedFakePubKeyArray);
-    this.uncompressedFakeKeyRing = KeyRing.fromPublic(this.uncompressedFakePubKey);
-    this.uncompressedTag = Buffer.from(this.uncompressedFakeKeyRing.getAddress("base58"));
+    this.fakePubKey = Buffer.from(this.fakePubKeyArray);
+    this.fakeKeyRing = KeyRing.fromPublic(this.fakePubKey);
+    this.tag = Buffer.from(this.fakeKeyRing.getAddress("base58"));
 
 
-    this.fakePubKeyArray = [0x02,                        // 0x02 prefix for even y values
+    this.compressedFakePubKeyArray = [0x02,                        // 0x02 prefix for even y values
       0x54, 0x72, 0x75, 0x73, 0x74, 0x20, 0x69, 0x73,
       0x20, 0x52, 0x69, 0x73, 0x6b, 0x00, 0x00, 0x00,    // only x is given in short version
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01];
 
-    this.fakePubKey = Buffer.from(this.fakePubKeyArray);
-    this.fakeKeyRing = KeyRing.fromPublic(this.fakePubKey);
-    this.tag = Buffer.from(this.fakeKeyRing.getAddress("base58"));
+    this.compressedFakePubKey = Buffer.from(this.compressedFakePubKeyArray);
+    this.compressedFakeKeyRing = KeyRing.fromPublic(this.compressedFakePubKey);
+    this.compressedTag = Buffer.from(this.compressedFakeKeyRing.getAddress("base58"));
 
     this.node = node;
     this.db = new TrustDB();
@@ -118,7 +118,7 @@ class TrustIsRisk {
     var mtx = new MTX({
       outputs: [
         new Output({
-          script: bcoin.script.fromMultisig(1, 3, [originPubKey, dest, this.uncompressedFakePubKey]),
+          script: bcoin.script.fromMultisig(1, 3, [originPubKey, dest, this.fakePubKey]),
           value: trustAmount
         })
       ]
@@ -200,7 +200,7 @@ class TrustIsRisk {
     var remainingTrustAmount = directTrust.amount - decreaseAmount;
     if (remainingTrustAmount > 0) {
       mtx.addOutput(new Output({
-        script: bcoin.script.fromMultisig(1, 3, [directTrust.origin, directTrust.dest, this.uncompressedFakePubKey]),
+        script: bcoin.script.fromMultisig(1, 3, [directTrust.origin, directTrust.dest, this.fakePubKey]),
         value: remainingTrustAmount
       }));
     }
