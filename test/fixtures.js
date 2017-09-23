@@ -14,7 +14,7 @@ var privateKeys = {
 var keyRings = {};
 for (let name in privateKeys) {
   let key = privateKeys[name];
-  keyRings[name] = KeyRing.fromPrivate(new Buffer(key, "hex"));
+  keyRings[name] = KeyRing.fromPrivate(Buffer.from(key, "hex"));
 }
 
 module.exports = {
