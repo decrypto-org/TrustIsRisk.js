@@ -1,12 +1,5 @@
 // @flow
-var bcoin = require('bcoin');
-
-class fullnode extends bcoin.fullnode {
-  constructor(options : Object) {
-    super(options);
-  }
-}
-
 module.exports = {
-  fullnode
-}
+  FullNode: require("./full_node"),
+  TrustIsRisk: require("./trust_is_risk")
+};
