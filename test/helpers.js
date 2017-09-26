@@ -5,13 +5,8 @@ var fixtures = require("./fixtures");
 var assert = require("assert");
 
 var testHelpers = {
-  getNode: async (type) => {
-    var node;
-    if (type === "full")
-      node = new TrustIsRisk.FullNode({network: "regtest", passphrase: "secret"});
-    else if (type === "spv")
-      node = new TrustIsRisk.SPVNode({network: "regtest", passphrase: "secret"});
-    else throw new Error("Not a valid node type (should be \"full\" or \"spv\")");
+  getNode: async () => {
+    var node = new TrustIsRisk.FullNode({network: "regtest", passphrase: "secret"});
 
     await node.open();
     await node.connect();
