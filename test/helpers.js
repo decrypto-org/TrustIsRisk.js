@@ -5,18 +5,13 @@ var fixtures = require("./fixtures");
 var assert = require("assert");
 
 var testHelpers = {
-  getFullNode: async () => {
-    var node = new TrustIsRisk.FullNode({network: "regtest", passphrase: "secret"});
-
-    await node.open();
-    await node.connect();
-    node.startSync();
-
-    return node;
-  },
-
-  getSPVNode: async () => {
-    var node = new TrustIsRisk.SPVNode({network: "regtest", passphrase: "secret"});
+  getNode: async (type) => {
+    var node;
+    if (type === "full")
+      node = new TrustIsRisk.FullNode({network: "regtest", passphrase: "secret"});
+    else if (type === "spv")
+      node = new TrustIsRisk.SPVNode({network: "regtest", passphrase: "secret"});
+    else throw new Error("Not a valid node type (should be \"full\" or \"spv\")");
 
     await node.open();
     await node.connect();
