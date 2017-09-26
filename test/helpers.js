@@ -5,7 +5,7 @@ var fixtures = require("./fixtures");
 var assert = require("assert");
 
 var testHelpers = {
-  getNode: async () => {
+  getFullNode: async () => {
     var node = new TrustIsRisk.FullNode({network: "regtest", passphrase: "secret"});
 
     await node.open();

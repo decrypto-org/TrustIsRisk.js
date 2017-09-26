@@ -26,7 +26,7 @@ describe("FullNode", () => {
   sinon.spy(Trust.TrustIsRisk.prototype, "addTX");
 
   beforeEach("get node", async () => {
-    node = await testHelpers.getNode();
+    node = await testHelpers.getFullNode();
     watcher = new testHelpers.NodeWatcher(node);
   });
 
