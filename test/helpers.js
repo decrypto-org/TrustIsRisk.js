@@ -15,6 +15,16 @@ var testHelpers = {
     return node;
   },
 
+  getSPVNode: async () => {
+    var node = new TrustIsRisk.SPVNode({network: "regtest", passphrase: "secret"});
+
+    await node.open();
+    await node.connect();
+    node.startSync();
+
+    return node;
+  },
+
   getWalletDB: async (node) => {
     var walletDB = new WalletDB({
       network: "regtest",
