@@ -19,30 +19,33 @@ require("should-sinon");
 const COIN = consensus.COIN;
 
 describe("SPVNode", () => {
-  var node = null;
-  var walletDB = null;
+  var SPVNode = null;
+  var miner = null;
+  var SPVWalletDB = null;
+  var minerWalletDB = null;
   var NodeWatcher = null;
-  var watcher = null;
+  var SPVWatcher = null;
+  var minerWatcher = null;
 
-  beforeEach("get node", async () => {
-    node = await testHelpers.getNode();
-    watcher = new testHelpers.NodeWatcher(node);
+  beforeEach("get an SPV and a full node", async () => {
+    SPVNode = new Trust.SPVNode({network: "regtest", passphrase: "secret"});
+    miner = new Trust.FullNode({network: "regtest", passphrase: "secret"});
+    SPVWatcher = new testHelpers.NodeWatcher(SPVNode);
+    minerWatcher = new testHelpers.NodeWatcher(miner);
   });
-
-  beforeEach("get walletDB", async () => {
-    walletDB = await testHelpers.getWalletDB(node);
-  });
-
-  afterEach("close walletDB", async () => walletDB.close());
-  afterEach("close node", async () => node.close());
 
   it("should call trust.addTX() on every transaction", async function() {
-    var sender = await testHelpers.createWallet(walletDB, "sender");
-    var receiver = await testHelpers.createWallet(walletDB, "receiver");
+
+    SPVWalletDB = await testHelpers.openNode(SPVNode);
+    var receiver = await testHelpers.createWallet(SPVWalletDB, "receiver");
+    testHelpers.closeNode(SPVWalletDB, SPVNode);
+    await testHelpers.delay(1000);
+    minerWalletDB = await testHelpers.openNode(miner);
+    var sender = await testHelpers.createWallet(minerWalletDB, "sender");
 
     await testHelpers.delay(1000);
     // Produce a block and reward the sender, so that we have a coin to spend.
-    await testHelpers.mineBlock(node, sender.getAddress("base58"));
+    await testHelpers.mineBlock(miner, sender.getAddress("base58"));
 
     // Make the coin spendable.
     consensus.COINBASE_MATURITY = 0;
@@ -54,9 +57,13 @@ describe("SPVNode", () => {
         address: receiver.getAddress("base58")
       }]
     });
-    await watcher.waitForTX();
+    await testHelpers.delay(1000);
+    testHelpers.closeNode(minerWalletDB, miner);
+    SPVWalletDB = await testHelpers.openNode(SPVNode);
+    await SPVWatcher.waitForTX();
     
-    node.trust.addTX.should.be.calledOnce();
+    SPVNode.trust.addTX.should.be.calledOnce();
+    testHelpers.closeNode(SPVWalletDB, SPVNode);
   });
 
   describe("with the nobodyLikesFrank.json example", () => {
