@@ -27,6 +27,10 @@ describe("SPVNode", () => {
   var SPVWatcher = null;
   var minerWatcher = null;
 
+// TODO: Scrap all changes and find a way to use two ports and inform the two
+// nodes for each other using the `nodes` or `known-peers` from the pool options
+// of https://github.com/bcoin-org/bcoin/wiki/Configuration
+
   beforeEach("get an SPV and a full node", async () => {
     SPVNode = new Trust.SPVNode({network: "regtest", passphrase: "secret"});
     miner = new Trust.FullNode({network: "regtest", passphrase: "secret"});
