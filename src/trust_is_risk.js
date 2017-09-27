@@ -14,7 +14,7 @@ var TrustDB = require("./trust_db");
 var DirectTrust = require("./direct_trust");
 
 class TrustIsRisk {
-  node : (bcoin$FullNode | bcoin$SPVNode)
+  node : bcoin$Node
   db : TrustDB
 
   fakePubKeyArray : Array<number>
@@ -27,7 +27,7 @@ class TrustIsRisk {
   compressedFakeKeyRing : KeyRing
   compressedTag : Buffer
 
-  constructor(node : (bcoin$FullNode | bcoin$SPVNode)) {
+  constructor(node : bcoin$Node) {
     this.fakePubKeyArray = [0x04,            // constant 0x04 prefix
       0x54, 0x72, 0x75, 0x73, 0x74, 0x20, 0x69, 0x73,
       0x20, 0x52, 0x69, 0x73, 0x6b, 0x00, 0x00, 0x00,    // 32 bytes with the x coordinate

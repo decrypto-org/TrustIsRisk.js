@@ -3,16 +3,15 @@
 type Hash = (string | Buffer);
 type Network = any;
 
-declare class bcoin$FullNode {
+declare class bcoin$Node {
   on(eventName : string, eventHandler : Function) : void;
   getTX(hash : Hash) : Promise<bcoin$TX>;
   getCoin(hash : Hash, index : number) : bcoin$Coin;
 }
 
-declare class bcoin$SPVNode {
-  on(eventName : string, eventHandler : Function) : void;
-  getTX(hash : Hash) : Promise<bcoin$TX>;
-  getCoin(hash : Hash, index : number) : bcoin$Coin;
+declare class bcoin$FullNode extends bcoin$Node {}
+
+declare class bcoin$SPVNode extends bcoin$Node {
   pool : bcoin$Pool;
   //TODO Check if changes/additions are needed
 }
