@@ -11,7 +11,6 @@ var secp256k1 = require("bcoin/lib/crypto/ec-secp256k1");
 var sinon = require("sinon");
 var should = require("should");
 var fixtures = require("./fixtures");
-var assert = require("assert");
 require("should-sinon");
 
 const COIN = bcoin.consensus.COIN;
@@ -70,7 +69,7 @@ describe("TrustIsRisk", () => {
     });
 
     it("is a valid bitcoin address", () => {
-      assert(bcoin.primitives.Address.fromBase58(tir.tag.toString("ascii")));
+      bcoin.primitives.Address.fromBase58(tir.tag.toString("ascii")).should.be.ok;
     });
   });
 
