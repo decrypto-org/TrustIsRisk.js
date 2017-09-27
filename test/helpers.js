@@ -82,7 +82,7 @@ var testHelpers = {
   },
 
   getOneOfThreeMultisigOutput: (originPubKey, destPubKey, value) => {
-    fakePubKey = (new TrustIsRisk.TrustIsRisk(new bcoin.fullnode({}))).fakePubKey;
+    fakePubKey = TrustIsRisk.TrustIsRisk.fakePubKey;
     return new bcoin.primitives.Output({
       script: bcoin.script.fromMultisig(1, 3, [originPubKey, destPubKey, fakePubKey]),
       value

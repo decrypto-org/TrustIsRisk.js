@@ -64,12 +64,12 @@ describe("TrustIsRisk", () => {
 
   describe("tag", () => {
     it("corresponds to a valid public key", () => {
-      Buffer.isBuffer(tir.fakePubKey).should.equal(true);
-      secp256k1.publicKeyVerify(tir.fakePubKey).should.equal(true);
+      Buffer.isBuffer(Trust.TrustIsRisk.fakePubKey).should.equal(true);
+      secp256k1.publicKeyVerify(Trust.TrustIsRisk.fakePubKey).should.equal(true);
     });
 
     it("is a valid bitcoin address", () => {
-      bcoin.primitives.Address.fromBase58(tir.tag.toString("ascii")).should.be.ok;
+      bcoin.primitives.Address.fromBase58(Trust.TrustIsRisk.tag.toString("ascii")).should.be.ok;
     });
   });
 
@@ -215,7 +215,7 @@ describe("TrustIsRisk", () => {
       trustOutput.getType().should.equal("multisig");
       [1, 2].map((i) => helpers.pubKeyToEntity(trustOutput.script.get(i))).sort()
           .should.deepEqual([alice, bob].sort());
-      trustOutput.script.get(3).should.deepEqual(tir.fakePubKey);
+      trustOutput.script.get(3).should.deepEqual(Trust.TrustIsRisk.fakePubKey);
       trustOutput.value.should.equal(100 * COIN);
 
       var changeOutput = mtx.outputs[1];
