@@ -23,7 +23,7 @@ describe("FullNode", () => {
   var walletDB = null;
   var NodeWatcher = null;
   var watcher = null;
-  sinon.spy(Trust.TrustIsRisk.prototype, "addTX");
+  sinon.spy(Trust.TrustIsRisk.Tir.prototype, "addTX");
 
   beforeEach("get node", async () => {
     node = await testHelpers.getNode();
