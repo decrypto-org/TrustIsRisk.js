@@ -22,11 +22,6 @@ class TrustIsRisk {
   fakeKeyRing : KeyRing
   tag : Buffer
 
-  compressedFakePubKeyArray : Array<number>
-  compressedFakePubKey : Buffer
-  compressedFakeKeyRing : KeyRing
-  compressedTag : Buffer
-
   constructor(node : bcoin$Node) {
     this.fakePubKeyArray = [0x04,                        // constant 0x04 prefix
       0x54, 0x72, 0x75, 0x73, 0x74, 0x20, 0x69, 0x73,
@@ -42,17 +37,6 @@ class TrustIsRisk {
     this.fakePubKey = Buffer.from(this.fakePubKeyArray);
     this.fakeKeyRing = KeyRing.fromPublic(this.fakePubKey);
     this.tag = Buffer.from(this.fakeKeyRing.getAddress("base58"));
-
-
-    this.compressedFakePubKeyArray = [0x02,                        // 0x02 prefix for even y values
-      0x54, 0x72, 0x75, 0x73, 0x74, 0x20, 0x69, 0x73,
-      0x20, 0x52, 0x69, 0x73, 0x6b, 0x00, 0x00, 0x00,    // only x is given in short version
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01];
-
-    this.compressedFakePubKey = Buffer.from(this.compressedFakePubKeyArray);
-    this.compressedFakeKeyRing = KeyRing.fromPublic(this.compressedFakePubKey);
-    this.compressedTag = Buffer.from(this.compressedFakeKeyRing.getAddress("base58"));
 
     this.node = node;
     this.db = new TrustDB();
