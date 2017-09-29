@@ -32,8 +32,8 @@ describe("SPVNode", () => {
 // of https://github.com/bcoin-org/bcoin/wiki/Configuration
 
   beforeEach("get an SPV and a full node", async () => {
-    SPVNode = new Trust.SPVNode({network: "regtest", passphrase: "secret"});
-    miner = new Trust.FullNode({network: "regtest", passphrase: "secret"});
+    SPVNode = new Trust.SPVNode({network: "regtest", passphrase: "secret", port: 48332, node: "127.0.0.1/48333"});
+    miner = new Trust.FullNode({network: "regtest", passphrase: "secret", port: 48333, node: "127.0.0.1/48332"});
     SPVWatcher = new testHelpers.NodeWatcher(SPVNode);
     minerWatcher = new testHelpers.NodeWatcher(miner);
   });
