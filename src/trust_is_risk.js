@@ -301,6 +301,6 @@ class TrustIsRisk {
   }
 }
 
-module.exports.Tir = TrustIsRisk;
+module.exports.TIR = TrustIsRisk;
 module.exports.fakePubKey = fakePubKey;
 module.exports.tag = tag;
