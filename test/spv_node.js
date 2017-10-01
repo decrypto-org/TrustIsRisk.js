@@ -73,7 +73,7 @@ describe("SPVNode", () => {
     });
     await SPVWatcher.waitForTX();
     
-    SPVNode.trust.addTX.should.be.calledOnce();
+    minerNode.trust.addTX.should.be.calledOnce();
   });
 
   describe("with the nobodyLikesFrank.json example", () => {
@@ -91,7 +91,7 @@ describe("SPVNode", () => {
       var blockCount = 3;
       var coinbaseHashes = [];
       for(let i = 0; i < blockCount; i++) {
-        var block = await testHelpers.mineBlock(node, addresses.alice);
+        var block = await testHelpers.mineBlock(miner, addresses.alice);
         coinbaseHashes.push(block.txs[0].hash());
         await testHelpers.delay(500);
       }
