@@ -25,6 +25,7 @@ describe("SPVNode", () => {
   var minerWalletDB = null;
   var spvWatcher = null;
   var minerWatcher = null;
+  sinon.spy(Trust.TrustIsRisk.prototype, "addTX");
 
 // TODO: Scrap all changes and find a way to use two ports and inform the two
 // nodes for each other using the `nodes` or `known-peers` from the pool options
