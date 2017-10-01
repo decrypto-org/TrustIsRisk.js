@@ -219,7 +219,7 @@ describe("SPVNode", () => {
       should(spvNode.trust.getIndirectTrust(george, eve)).equal(0);
     });
 
-    it("after decreasing some trusts computes trusts correctly", async () => {
+    it("after decreasing some trusts lets both nodes compute trusts correctly", async () => {
       var mtxs = miner.trust.createTrustDecreasingMTXs(fixtures.keyRings.alice.getPrivateKey(),
           fixtures.keyRings.bob.getPublicKey(), 3 * COIN);
       mtxs.length.should.equal(1);
@@ -229,7 +229,10 @@ describe("SPVNode", () => {
       miner.sendTX(mtx.toTX());
 
       await testHelpers.delay(750);
+      should(miner.trust.getIndirectTrust(addresses.alice, addresses.bob)).equal(7 * COIN);
+      should(spvNode.trust.getIndirectTrust(addresses.alice, addresses.bob)).equal(7 * COIN);
       should(miner.trust.getIndirectTrust(addresses.dave, addresses.eve)).equal(10 * COIN);
+      should(spvNode.trust.getIndirectTrust(addresses.dave, addresses.eve)).equal(10 * COIN);
     });
   });
 
