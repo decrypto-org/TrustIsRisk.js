@@ -119,7 +119,7 @@ describe("SPVNode", () => {
 
       // Use the coinbase coins as inputs
       var coinbaseCoins = await Promise.all(coinbaseHashes.map((hash) => {
-        return node.getCoin(hash.toString("hex"), 0);
+        return miner.getCoin(hash.toString("hex"), 0);
       }));
       var mtx = new MTX({outputs});
       coinbaseCoins.forEach((coin) => mtx.addCoin(coin));
@@ -129,8 +129,8 @@ describe("SPVNode", () => {
       assert(await mtx.verify());
       
       var tx = mtx.toTX();
-      node.sendTX(tx);
-      await watcher.waitForTX();
+      miner.sendTX(tx);
+      await minerWatcher.waitForTX();
 
       prevout = {};
       fixtures.names.forEach((name) => {
@@ -141,7 +141,7 @@ describe("SPVNode", () => {
       });
       
       // Alice mines another block
-      await testHelpers.mineBlock(node, helpers.pubKeyToEntity(
+      await testHelpers.mineBlock(miner, helpers.pubKeyToEntity(
           fixtures.keyRings.alice.getPublicKey()));
       await testHelpers.delay(500);
 
@@ -171,7 +171,7 @@ describe("SPVNode", () => {
       }
       
       // Alice mines yet another block
-      await testHelpers.mineBlock(node, helpers.pubKeyToEntity(
+      await testHelpers.mineBlock(miner, helpers.pubKeyToEntity(
           fixtures.keyRings.alice.getPublicKey()));
       await testHelpers.delay(500);
     });
@@ -194,16 +194,16 @@ describe("SPVNode", () => {
     });
 
     it("after decreasing some trusts computes trusts correctly", async () => {
-      var mtxs = node.trust.createTrustDecreasingMTXs(fixtures.keyRings.alice.getPrivateKey(),
+      var mtxs = miner.trust.createTrustDecreasingMTXs(fixtures.keyRings.alice.getPrivateKey(),
           fixtures.keyRings.bob.getPublicKey(), 3 * COIN);
       mtxs.length.should.equal(1);
       var mtx = mtxs[0];
 
       should(await mtx.verify());
-      node.sendTX(mtx.toTX());
+      miner.sendTX(mtx.toTX());
 
       await testHelpers.delay(750);
-      should(node.trust.getIndirectTrust(addresses.alice, addresses.bob)).equal(7 * COIN);
+      should(miner.trust.getIndirectTrust(addresses.dave, addresses.eve)).equal(10 * COIN);
     });
   });
 
