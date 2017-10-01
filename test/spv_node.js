@@ -58,14 +58,14 @@ describe("SPVNode", () => {
     var minerReceiver = await testHelpers.createWallet(minerWalletDB, "receiver");
 
     await testHelpers.delay(1000);
-    // Produce a block and reward the sender, so that we have a coin to spend.
-    await testHelpers.mineBlock(miner, sender.getAddress("base58"));
+    // Produce a block and reward the minerSender, so that we have a coin to spend.
+    await testHelpers.mineBlock(miner, minerSender.getAddress("base58"));
 
     // Make the coin spendable.
     consensus.COINBASE_MATURITY = 0;
     await testHelpers.delay(100);
 
-    await sender.send({
+    await minerSender.send({
       outputs: [{
         value: 10 * COIN,
         address: receiver.getAddress("base58")
