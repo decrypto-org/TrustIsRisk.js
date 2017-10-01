@@ -3,10 +3,21 @@
 type Hash = (string | Buffer);
 type Network = any;
 
-declare class bcoin$FullNode {
+declare class bcoin$Node {
   on(eventName : string, eventHandler : Function) : void;
   getTX(hash : Hash) : Promise<bcoin$TX>;
   getCoin(hash : Hash, index : number) : bcoin$Coin;
+}
+
+declare class bcoin$FullNode extends bcoin$Node {}
+
+declare class bcoin$SPVNode extends bcoin$Node {
+  pool : bcoin$Pool;
+  //TODO Check if changes/additions are needed
+}
+
+declare class bcoin$Pool {
+  watchAddress(address : Buffer) : void;
 }
 
 declare class bcoin$Address {
@@ -73,6 +84,7 @@ declare class bcoin$KeyRing {
 
   getPublicKey() : Buffer;
   getPrivateKey() : Buffer;
+  getAddress() : Buffer;
 }
 
 declare class bcoin$Coin extends bcoin$Output {
@@ -83,7 +95,9 @@ declare class bcoin$Coin extends bcoin$Output {
 declare module 'bcoin' {
   declare module.exports: {
     fullnode : Class<bcoin$FullNode>,
+    spvnode : Class<bcoin$SPVNode>,
     script : Class<bcoin$Script>,
+    pool : Class<bcoin$Pool>,
     primitives : {
       Address : Class<bcoin$Address>,
       TX : Class<bcoin$TX>,
@@ -95,8 +109,12 @@ declare module 'bcoin' {
       Coin : Class<bcoin$Coin>
     },
     crypto : {
-      hash160(str : (string | Buffer)) : Hash
-    }
+      hash160(str : (string | Buffer)) : Hash,
+      hash256(str : (string | Buffer)) : Hash
+    },
+    base58 : {
+      encode(str : (string | Buffer)) : Buffer
+    },
   }
 }
 

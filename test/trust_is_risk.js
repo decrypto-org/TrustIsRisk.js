@@ -7,6 +7,7 @@ var Input = bcoin.primitives.Input;
 var MTX = bcoin.primitives.MTX;
 var testHelpers = require("./helpers");
 var consensus = require("bcoin/lib/protocol/consensus");
+var secp256k1 = require("bcoin/lib/crypto/ec-secp256k1");
 var sinon = require("sinon");
 var should = require("should");
 var fixtures = require("./fixtures");
@@ -35,12 +36,12 @@ describe("TrustIsRisk", () => {
   var node, tir, trustIncreasingMTX, trustDecreasingMTX, trustIncreasingTX;
   beforeEach(() => {
     node = new bcoin.fullnode({});
-    tir = new Trust.TrustIsRisk(node);
+    tir = new Trust.TrustIsRisk.TIR(node);
 
     trustIncreasingMTX = testHelpers.getTrustIncreasingMTX(addr.alice.pubKey, addr.bob.pubKey, 42 * COIN);
     trustIncreasingTX = trustIncreasingMTX.toTX();
 
-    var inputOneOfTwoMultisig = new Input({
+    var inputOneOfThreeMultisig = new Input({
       prevout: {
         hash: trustIncreasingTX.hash().toString("hex"),
         index: 0
@@ -52,12 +53,23 @@ describe("TrustIsRisk", () => {
 
     trustDecreasingMTX = new MTX({
       inputs: [
-        inputOneOfTwoMultisig
+        inputOneOfThreeMultisig
       ],
       outputs: [
-        testHelpers.getOneOfTwoMultisigOutput(addr.alice.pubKey, addr.bob.pubKey, 20 * COIN),
+        testHelpers.getOneOfThreeMultisigOutput(addr.alice.pubKey, addr.bob.pubKey, 20 * COIN),
         testHelpers.getP2PKHOutput(addr.alice.base58, 22 * COIN)
       ]
+    });
+  });
+
+  describe("tag", () => {
+    it("corresponds to a valid public key", () => {
+      Buffer.isBuffer(Trust.TrustIsRisk.fakePubKey).should.equal(true);
+      secp256k1.publicKeyVerify(Trust.TrustIsRisk.fakePubKey).should.equal(true);
+    });
+
+    it("is a valid bitcoin address", () => {
+      bcoin.primitives.Address.fromBase58(Trust.TrustIsRisk.tag.toString("ascii")).should.be.ok;
     });
   });
 
@@ -154,7 +166,7 @@ describe("TrustIsRisk", () => {
         // By changing the trust recipient from bob to charlie, we make the transaction a
         // nullifying trust transaction.
         trustDecreasingMTX.outputs[0] =
-            testHelpers.getOneOfTwoMultisigOutput(addr.alice.pubKey, addr.charlie.pubKey, 20 * COIN);
+            testHelpers.getOneOfThreeMultisigOutput(addr.alice.pubKey, addr.charlie.pubKey, 20 * COIN);
 
         tir.addTX(trustDecreasingMTX.toTX());
         tir.getDirectTrust(alice, bob).should.equal(0);
@@ -170,7 +182,7 @@ describe("TrustIsRisk", () => {
       it("which has more than one trust outputs decreases trust to zero", () => {
         trustDecreasingMTX.outputs[0].value -= 15 * COIN;
         trustDecreasingMTX.outputs.push(
-            testHelpers.getOneOfTwoMultisigOutput(addr.alice.pubKey, addr.bob.pubKey, 5 * COIN));
+            testHelpers.getOneOfThreeMultisigOutput(addr.alice.pubKey, addr.bob.pubKey, 5 * COIN));
         tir.addTX(trustDecreasingMTX.toTX());
 
         tir.getDirectTrust(alice, bob).should.equal(0);
@@ -203,6 +215,7 @@ describe("TrustIsRisk", () => {
       trustOutput.getType().should.equal("multisig");
       [1, 2].map((i) => helpers.pubKeyToEntity(trustOutput.script.get(i))).sort()
           .should.deepEqual([alice, bob].sort());
+      trustOutput.script.get(3).should.deepEqual(Trust.TrustIsRisk.fakePubKey);
       trustOutput.value.should.equal(100 * COIN);
 
       var changeOutput = mtx.outputs[1];

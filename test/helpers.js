@@ -2,7 +2,6 @@ var TrustIsRisk = require("../");
 var WalletDB = require("bcoin/lib/wallet/walletdb");
 var bcoin = require("bcoin");
 var fixtures = require("./fixtures");
-var KeyRing = bcoin.primitives.KeyRing;
 var assert = require("assert");
 
 var testHelpers = {
@@ -82,9 +81,10 @@ var testHelpers = {
     }); 
   },
 
-  getOneOfTwoMultisigOutput: (originPubKey, destPubKey, value) => {
+  getOneOfThreeMultisigOutput: (originPubKey, destPubKey, value) => {
+    fakePubKey = TrustIsRisk.TrustIsRisk.fakePubKey;
     return new bcoin.primitives.Output({
-      script: bcoin.script.fromMultisig(1, 2, [originPubKey, destPubKey]),
+      script: bcoin.script.fromMultisig(1, 3, [originPubKey, destPubKey, fakePubKey]),
       value
     });
   },
@@ -95,7 +95,7 @@ var testHelpers = {
         testHelpers.getP2PKHInput(originPubKey)
       ],
       outputs: [
-        testHelpers.getOneOfTwoMultisigOutput(originPubKey, destPubKey, value)
+        testHelpers.getOneOfThreeMultisigOutput(originPubKey, destPubKey, value)
       ]
     });
   },
