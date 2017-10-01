@@ -71,7 +71,6 @@ describe("SPVNode", () => {
         address: receiver.getAddress("base58")
       }]
     });
-    await testHelpers.delay(1000);
     await SPVWatcher.waitForTX();
     
     SPVNode.trust.addTX.should.be.calledOnce();
