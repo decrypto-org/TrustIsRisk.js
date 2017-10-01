@@ -26,10 +26,6 @@ describe("SPVNode", () => {
   var spvWatcher = null;
   var minerWatcher = null;
 
-// TODO: Scrap all changes and find a way to use two ports and inform the two
-// nodes for each other using the `nodes` or `known-peers` from the pool options
-// of https://github.com/bcoin-org/bcoin/wiki/Configuration
-
   beforeEach("get SPV node", async () => {
     spvNode = await testHelpers.getNode("spv");
     spvWatcher = new testHelpers.NodeWatcher(spvNode);
