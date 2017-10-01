@@ -19,12 +19,12 @@ require("should-sinon");
 const COIN = consensus.COIN;
 
 describe("SPVNode", () => {
-  var SPVNode = null;
+  var spvNode = null;
   var miner = null;
-  var SPVWalletDB = null;
+  var spvWalletDB = null;
   var minerWalletDB = null;
   var NodeWatcher = null;
-  var SPVWatcher = null;
+  var spvWatcher = null;
   var minerWatcher = null;
 
 // TODO: Scrap all changes and find a way to use two ports and inform the two
