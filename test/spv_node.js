@@ -185,7 +185,23 @@ describe("SPVNode", () => {
       await testHelpers.delay(500);
     });
 
-    it("computes trusts correctly", () => {
+    it("lets the miner compute trusts correctly", () => {
+      for (name in addresses) { // Add addresses to scope
+        eval(`var ${name} = "${addresses[name]}";`);
+      }
+
+      should(miner.trust.getIndirectTrust(alice, alice)).equal(Infinity);
+      should(miner.trust.getIndirectTrust(alice, bob)).equal(10 * COIN);
+      should(miner.trust.getIndirectTrust(alice, charlie)).equal(1 * COIN);
+      should(miner.trust.getIndirectTrust(alice, frank)).equal(0);
+      should(miner.trust.getIndirectTrust(alice, eve)).equal(6 * COIN);
+
+      should(miner.trust.getIndirectTrust(bob, alice)).equal(1 * COIN);
+      should(miner.trust.getIndirectTrust(bob, eve)).equal(3 * COIN);
+      should(miner.trust.getIndirectTrust(dave, eve)).equal(12 * COIN);
+      should(miner.trust.getIndirectTrust(george, eve)).equal(0);
+    });
+
       for (name in addresses) { // Add addresses to scope
         eval(`var ${name} = "${addresses[name]}";`);
       }	
