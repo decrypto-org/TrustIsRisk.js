@@ -54,9 +54,6 @@ describe("SPVNode", () => {
     var spvSender = await testHelpers.createWallet(spvWalletDB, "sender");
     var spvReceiver = await testHelpers.createWallet(spvWalletDB, "receiver");
 
-    SPVWalletDB = await testHelpers.openNode(SPVNode);
-    testHelpers.closeNode(SPVWalletDB, SPVNode);
-    minerWalletDB = await testHelpers.openNode(miner);
     var minerSender = await testHelpers.createWallet(minerWalletDB, "sender");
     var minerReceiver = await testHelpers.createWallet(minerWalletDB, "receiver");
 
@@ -75,12 +72,9 @@ describe("SPVNode", () => {
       }]
     });
     await testHelpers.delay(1000);
-    testHelpers.closeNode(minerWalletDB, miner);
-    SPVWalletDB = await testHelpers.openNode(SPVNode);
     await SPVWatcher.waitForTX();
     
     SPVNode.trust.addTX.should.be.calledOnce();
-    testHelpers.closeNode(SPVWalletDB, SPVNode);
   });
 
   describe("with the nobodyLikesFrank.json example", () => {
