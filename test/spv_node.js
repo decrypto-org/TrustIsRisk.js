@@ -23,7 +23,6 @@ describe("SPVNode", () => {
   var miner = null;
   var spvWalletDB = null;
   var minerWalletDB = null;
-  var NodeWatcher = null;
   var spvWatcher = null;
   var minerWatcher = null;
 
