@@ -21,7 +21,6 @@ const COIN = consensus.COIN;
 describe("FullNode", () => {
   var node = null;
   var walletDB = null;
-  var NodeWatcher = null;
   var watcher = null;
   sinon.spy(Trust.TrustIsRisk.TIR.prototype, "addTX");
 
