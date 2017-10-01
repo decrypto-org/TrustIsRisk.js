@@ -152,6 +152,15 @@ describe("SPVNode", () => {
           var value = neighbours[dest];
           if (!value || value < 1) continue;
 
+          if (origin == charlie || origin == dave) {
+            let node = spvNode;
+	    let watcher = spvWatcher;
+	  }
+	  else {
+	    let node = miner;
+	    let watcher = minerWatcher;
+	  }
+
           let outpoint = new Outpoint(prevout[origin].hash, prevout[origin].index);
 					
           let mtx = await node.trust.createTrustIncreasingMTX(
