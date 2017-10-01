@@ -154,12 +154,12 @@ describe("SPVNode", () => {
 
           if (origin == charlie || origin == dave) {
             let node = spvNode;
-	    let watcher = spvWatcher;
-	  }
-	  else {
-	    let node = miner;
-	    let watcher = minerWatcher;
-	  }
+            let watcher = spvWatcher;
+          }
+          else {
+            let node = miner;
+            let watcher = minerWatcher;
+          }
 
           let outpoint = new Outpoint(prevout[origin].hash, prevout[origin].index);
 					
