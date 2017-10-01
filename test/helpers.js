@@ -25,8 +25,17 @@ var testHelpers = {
     node.close();
   },
 
-  getNode: async () => {
-    var node = new TrustIsRisk.FullNode({network: "regtest", passphrase: "secret"});
+  getNode: async (type) => {
+    var node = null;
+    assert(type === undefined || type === "spv" || type === "full");
+    if (type === undefined)
+      node = new TrustIsRisk.FullNode({network: "regtest", passphrase: "secret"});
+    else if (type === "spv")
+      node = new TrustIsRisk.SPVNode({network: "regtest", passphrase: "secret",
+        port: 48332, node: "127.0.0.1/48333"});
+    else // if type === "full"
+      node = new TrustIsRisk.FullNode({network: "regtest", passphrase: "secret",
+        port: 48333, node: "127.0.0.1/48332"});
 
     await node.open();
     await node.connect();
