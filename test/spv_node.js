@@ -202,20 +202,21 @@ describe("SPVNode", () => {
       should(miner.trust.getIndirectTrust(george, eve)).equal(0);
     });
 
+    it("lets the SPV node compute trusts correctly", () => {
       for (name in addresses) { // Add addresses to scope
         eval(`var ${name} = "${addresses[name]}";`);
       }	
 
-      should(node.trust.getIndirectTrust(alice, alice)).equal(Infinity);
-      should(node.trust.getIndirectTrust(alice, bob)).equal(10 * COIN);
-      should(node.trust.getIndirectTrust(alice, charlie)).equal(1 * COIN);
-      should(node.trust.getIndirectTrust(alice, frank)).equal(0);
-      should(node.trust.getIndirectTrust(alice, eve)).equal(6 * COIN);
+      should(spvNode.trust.getIndirectTrust(alice, alice)).equal(Infinity);
+      should(spvNode.trust.getIndirectTrust(alice, bob)).equal(10 * COIN);
+      should(spvNode.trust.getIndirectTrust(alice, charlie)).equal(1 * COIN);
+      should(spvNode.trust.getIndirectTrust(alice, frank)).equal(0);
+      should(spvNode.trust.getIndirectTrust(alice, eve)).equal(6 * COIN);
 
-      should(node.trust.getIndirectTrust(bob, alice)).equal(1 * COIN);
-      should(node.trust.getIndirectTrust(bob, eve)).equal(3 * COIN);
-      should(node.trust.getIndirectTrust(dave, eve)).equal(12 * COIN);
-      should(node.trust.getIndirectTrust(george, eve)).equal(0);
+      should(spvNode.trust.getIndirectTrust(bob, alice)).equal(1 * COIN);
+      should(spvNode.trust.getIndirectTrust(bob, eve)).equal(3 * COIN);
+      should(spvNode.trust.getIndirectTrust(dave, eve)).equal(12 * COIN);
+      should(spvNode.trust.getIndirectTrust(george, eve)).equal(0);
     });
 
     it("after decreasing some trusts computes trusts correctly", async () => {
