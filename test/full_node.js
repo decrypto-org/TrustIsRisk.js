@@ -88,8 +88,8 @@ describe("FullNode", () => {
             sendAmount * consensus.COIN);
       });
 
-      // We have to use a change output, because transaction with too large a fee are considered
-      // invalid.
+      // We have to use a change output, because transactions with too large
+      // a fee are considered invalid.
       var fee = 0.01;
       var changeAmount = 50 * blockCount - sendAmount * fixtures.names.length - fee;
       if (changeAmount >= 0.01) {
