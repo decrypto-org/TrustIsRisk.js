@@ -31,12 +31,29 @@ describe("SPVNode", () => {
 // nodes for each other using the `nodes` or `known-peers` from the pool options
 // of https://github.com/bcoin-org/bcoin/wiki/Configuration
 
-  beforeEach("get an SPV and a full node", async () => {
-    SPVNode = new Trust.SPVNode({network: "regtest", passphrase: "secret", port: 48332, node: "127.0.0.1/48333"});
-    miner = new Trust.FullNode({network: "regtest", passphrase: "secret", port: 48333, node: "127.0.0.1/48332"});
-    SPVWatcher = new testHelpers.NodeWatcher(SPVNode);
+  beforeEach("get SPV node", async () => {
+    spvNode = await testHelpers.getNode("spv");
+    spvWatcher = new testHelpers.NodeWatcher(spvNode);
+  });
+
+  beforeEach("get miner (full node)", async () => {
+    miner = await testHelpers.getNode("full");
     minerWatcher = new testHelpers.NodeWatcher(miner);
   });
+
+  beforeEach("get spvWalletDB", async () => {
+    spvWalletDB = await testHelpers.getWalletDB(spvNode);
+  });
+
+  beforeEach("get minerWalletDB", async () => {
+    minerWalletDB = await testHelpers.getWalletDB(miner);
+  });
+  
+  afterEach("close spvWalletDB", async () => spvWalletDB.close());
+  afterEach("close minerWalletDB", async () => minerWalletDB.close());
+
+  afterEach("close SPV node", async () => spvNode.close());
+  afterEach("close miner (full node)", async () => miner.close());
 
   it("should call trust.addTX() on every transaction", async function() {
 
