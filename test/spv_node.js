@@ -68,12 +68,12 @@ describe("SPVNode", () => {
     await minerSender.send({
       outputs: [{
         value: 10 * COIN,
-        address: receiver.getAddress("base58")
+        address: minerReceiver.getAddress("base58")
       }]
     });
-    await SPVWatcher.waitForTX();
+    await minerWatcher.waitForTX();
     
-    minerNode.trust.addTX.should.be.calledOnce();
+    miner.trust.addTX.should.be.calledOnce();
   });
 
   describe("with the nobodyLikesFrank.json example", () => {
