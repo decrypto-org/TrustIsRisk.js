@@ -51,11 +51,11 @@ describe("SPVNode", () => {
   afterEach("close miner (full node)", async () => miner.close());
 
   it("should call trust.addTX() on every transaction", async function() {
-    var spvSender = await testHelpers.createWallet(spvWalletDB, "sender");
-    var spvReceiver = await testHelpers.createWallet(spvWalletDB, "receiver");
+    var spvSender = await testHelpers.createWallet(spvWalletDB, "spvSender");
+    var spvReceiver = await testHelpers.createWallet(spvWalletDB, "spvReceiver");
 
-    var minerSender = await testHelpers.createWallet(minerWalletDB, "sender");
-    var minerReceiver = await testHelpers.createWallet(minerWalletDB, "receiver");
+    var minerSender = await testHelpers.createWallet(minerWalletDB, "minerSender");
+    var minerReceiver = await testHelpers.createWallet(minerWalletDB, "minerReceiver");
 
     await testHelpers.delay(1000);
     // Produce a block and reward the minerSender, so that we have a coin to spend.
