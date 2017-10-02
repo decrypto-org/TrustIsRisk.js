@@ -5,26 +5,6 @@ var fixtures = require("./fixtures");
 var assert = require("assert");
 
 var testHelpers = {
-  openNode: async (node) => {
-    await node.open();
-    await node.connect();
-    node.startSync();
-    var walletDB = new WalletDB({
-      network: "regtest",
-      db: "memory",
-      client: new bcoin.node.NodeClient(node)   // bad code: copy paste
-    });
-    await walletDB.open();
-    await walletDB.connect();
-
-    return walletDB;
-  },
-
-  closeNode: (walletDB, node) => {
-    walletDB.close();
-    node.close();
-  },
-
   getNode: async (type) => {
     var node = null;
     assert(type === undefined || type === "spv" || type === "full");
