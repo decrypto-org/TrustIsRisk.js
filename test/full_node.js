@@ -18,12 +18,20 @@ require("should-sinon");
 
 const COIN = consensus.COIN;
 
+
 describe("FullNode", () => {
   var node = null;
   var walletDB = null;
   var NodeWatcher = null;
   var watcher = null;
-  sinon.spy(Trust.TrustIsRisk.prototype, "addTX");
+
+  before("set up addTX() spy", function() {
+    sinon.spy(Trust.TrustIsRisk.prototype, "addTX");
+  });
+
+  after("reset addTX spy", function() {
+    Trust.TrustIsRisk.prototype.addTX.reset();
+  });
 
   beforeEach("get node", async () => {
     node = await testHelpers.getNode();
@@ -36,7 +44,7 @@ describe("FullNode", () => {
 
   afterEach("close walletDB", async () => walletDB.close());
   afterEach("close node", async () => node.close());
-
+  
   it("should call trust.addTX() on every transaction", async function() {
     var sender = await testHelpers.createWallet(walletDB, "sender");
     var receiver = await testHelpers.createWallet(walletDB, "receiver");
