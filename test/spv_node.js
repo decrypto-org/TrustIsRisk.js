@@ -26,6 +26,14 @@ describe("SPVNode", () => {
   var spvWatcher = null;
   var minerWatcher = null;
 
+  before("set up addTX() spy", function() {
+    sinon.spy(Trust.TrustIsRisk.prototype, "addTX");
+  });
+
+  after("reset addTX spy", function() {
+    return Trust.TrustIsRisk.prototype.addTX.restore();
+  });
+
   beforeEach("get SPV node", async () => {
     spvNode = await testHelpers.getNode("spv");
     spvWatcher = new testHelpers.NodeWatcher(spvNode);

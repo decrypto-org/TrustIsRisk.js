@@ -30,7 +30,7 @@ describe("FullNode", () => {
   });
 
   after("reset addTX spy", function() {
-    Trust.TrustIsRisk.prototype.addTX.reset();
+    return Trust.TrustIsRisk.prototype.addTX.restore();
   });
 
   beforeEach("get node", async () => {
