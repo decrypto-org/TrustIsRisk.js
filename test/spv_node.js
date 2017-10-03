@@ -62,7 +62,7 @@ describe("SPVNode", () => {
   beforeEach("get minerWalletDB", async () => {
     minerWalletDB = await testHelpers.getWalletDB(miner);
   });
-  
+
   afterEach("close spvWalletDB", async () => spvWalletDB.close());
   afterEach("close minerWalletDB", async () => minerWalletDB.close());
 
@@ -186,11 +186,13 @@ describe("SPVNode", () => {
 
           let mtx = null;
           if (node.spv) console.log(await spvWalletDB.getHashes());
-          else {mtx = await node.trust.createTrustIncreasingMTX(
-              fixtures.keyRings[origin].getPrivateKey(),
-              fixtures.keyRings[dest].getPublicKey(),
-              outpoint,
-              value * consensus.COIN);
+          else { // if full node
+            mtx = await node.trust.createTrustIncreasingMTX(
+                fixtures.keyRings[origin].getPrivateKey(),
+                fixtures.keyRings[dest].getPublicKey(),
+                outpoint,
+                value * consensus.COIN);
+          }
 					
           assert(await mtx.verify());
 
