@@ -34,14 +34,25 @@ describe("SPVNode", () => {
     return Trust.TrustIsRisk.prototype.addTX.restore();
   });
 
-  beforeEach("get SPV node", async () => {
-    spvNode = await testHelpers.getNode("spv");
-    spvWatcher = new testHelpers.NodeWatcher(spvNode);
+  beforeEach("get nodes", () => {
+    miner = new Trust.FullNode({network: "regtest", passphrase: "secret", port: 48334, nodes: ["127.0.0.1:48333"]});
+    spvNode = new Trust.SPVNode({network: "regtest", passphrase: "secret", port: 48333, nodes: ["127.0.0.1:48334"]});
   });
 
-  beforeEach("get miner (full node)", async () => {
-    miner = await testHelpers.getNode("full");
+  beforeEach("open and connect nodes", async () => {
+    await miner.open();
+    await spvNode.open();
+
+    await miner.connect();
+    await spvNode.connect();
+
+    miner.startSync();
+    spvNode.startSync();
+  });
+
+  beforeEach("get watchers", () => {
     minerWatcher = new testHelpers.NodeWatcher(miner);
+    spvWatcher = new testHelpers.NodeWatcher(spvNode);
   });
 
   beforeEach("get spvWalletDB", async () => {
