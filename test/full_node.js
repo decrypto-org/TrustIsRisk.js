@@ -42,8 +42,8 @@ describe("FullNode", () => {
     walletDB = await testHelpers.getWalletDB(node);
   });
 
-  afterEach("close walletDB", async () => walletDB.close());
-  afterEach("close node", async () => node.close());
+  afterEach("close walletDB", async () => testHelpers.closeWalletDB(walletDB));
+  afterEach("close node", async () => testHelpers.closeNode(node));
   
   it("should call trust.addTX() on every transaction", async function() {
     var sender = await testHelpers.createWallet(walletDB, "sender");
