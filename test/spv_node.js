@@ -173,11 +173,14 @@ describe("SPVNode", () => {
 
           let outpoint = new Outpoint(prevout[origin].hash, prevout[origin].index);
 
-          let mtx = await node.trust.createTrustIncreasingMTX(
+          let mtx = null;
+          if (node.spv) console.log(await spvWalletDB.getHashes());
+          else {mtx = await node.trust.createTrustIncreasingMTX(
               fixtures.keyRings[origin].getPrivateKey(),
               fixtures.keyRings[dest].getPublicKey(),
               outpoint,
               value * consensus.COIN);
+            console.log(await minerWalletDB.getHashes());}
 					
           assert(await mtx.verify());
 
