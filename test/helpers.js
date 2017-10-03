@@ -24,6 +24,12 @@ var testHelpers = {
     return node;
   },
 
+  closeNode: async (node) => {
+    node.stopSync();
+    await node.disconnect();
+    await node.close();
+  },
+
   getWalletDB: async (node) => {
     var walletDB = new WalletDB({
       network: "regtest",
@@ -35,6 +41,11 @@ var testHelpers = {
     await walletDB.connect();
 
     return walletDB;
+  },
+
+  closeWalletDB: async (walletDB) => {
+    await walletDB.disconnect();
+    await walletDB.close();
   },
 
   createWallet: async (walletDB, id) => {
