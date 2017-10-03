@@ -12,10 +12,10 @@ var testHelpers = {
       node = new TrustIsRisk.FullNode({network: "regtest", passphrase: "secret"});
     else if (type === "spv")
       node = new TrustIsRisk.SPVNode({network: "regtest", passphrase: "secret",
-        port: 48333, node: "127.0.0.1:48334"});
+        port: 48333, nodes: ["127.0.0.1:48334"]});
     else // if type === "full"
       node = new TrustIsRisk.FullNode({network: "regtest", passphrase: "secret",
-        port: 48334, node: "127.0.0.1:48333"});
+        port: 48334});
 
     await node.open();
     await node.connect();
