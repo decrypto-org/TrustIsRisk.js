@@ -191,7 +191,6 @@ describe("SPVNode", () => {
               fixtures.keyRings[dest].getPublicKey(),
               outpoint,
               value * consensus.COIN);
-            console.log(await minerWalletDB.getHashes());}
 					
           assert(await mtx.verify());
 
