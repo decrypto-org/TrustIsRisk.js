@@ -18,6 +18,8 @@ declare class bcoin$SPVNode {
   //TODO Check if changes/additions are needed
 }
 
+declare class bcoin$WalletDB {}
+
 declare class bcoin$Wallet {
   getTX() : bcoin$TX;
 }
