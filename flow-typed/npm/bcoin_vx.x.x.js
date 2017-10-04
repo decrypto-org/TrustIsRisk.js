@@ -45,7 +45,7 @@ declare class bcoin$MTX {
   inputs : bcoin$Input[];
   outputs : bcoin$Output[];
 
-  toTX : bcoin$TX;
+  toTX() : bcoin$TX;
   template(ring : bcoin$KeyRing) : number;
   scriptVector(outputScript : bcoin$Script, inputScript : bcoin$Script, ring : bcoin$KeyRing) : boolean;
   addOutput(output : bcoin$Output) : void;
