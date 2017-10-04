@@ -10,10 +10,11 @@ declare class bcoin$FullNode {
 }
 
 declare class bcoin$SPVNode {
+  pool : bcoin$Pool;
+
   on(eventName : string, eventHandler : Function) : void;
   getTX(hash : Hash) : Promise<bcoin$TX>;
   getCoin(hash : Hash, index : number) : bcoin$Coin;
-  pool : bcoin$Pool;
   //TODO Check if changes/additions are needed
 }
 
