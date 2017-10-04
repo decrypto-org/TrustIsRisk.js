@@ -37,6 +37,7 @@ declare class bcoin$TX {
   outputs : bcoin$Output[];
 
   hash(enc : ?'hex') : Buffer;
+  getOutputValue() : number;
 }
 
 
