@@ -86,6 +86,8 @@ declare class bcoin$Script {
 declare class bcoin$Outpoint {
   hash : Buffer;
   index : number;
+
+  txid() : Buffer;
 }
 
 declare class bcoin$KeyRing {
