@@ -146,7 +146,7 @@ describe("FullNode", () => {
 
           let outpoint = new Outpoint(prevout[origin].hash, prevout[origin].index);
 					
-          let mtx = await node.trust.createTrustIncreasingMTX(
+          let mtx = await node.trust.ccreateTrustIncreasingMTX(
               fixtures.keyRings[origin].getPrivateKey(),
               fixtures.keyRings[dest].getPublicKey(),
               outpoint,

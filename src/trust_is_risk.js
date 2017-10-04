@@ -143,6 +143,70 @@ class TrustIsRisk {
     return mtx;
   }
 
+  async ccreateTrustIncreasingMTX(origin : Key, dest : Key, outpoint : bcoin$Outpoint,
+      trustAmount : number, fee : ?number)
+      : Promise<bcoin$MTX> {
+    if (!fee) fee = 1000; // TODO: estimate this
+    if (origin === dest) throw new Error("Can not increase self-trust.");
+
+    var originKeyRing = KeyRing.fromPrivate(origin);
+    var originPubKey = originKeyRing.getPublicKey();
+
+    var mtx = new MTX({
+      outputs: [
+        new Output({
+          script: bcoin.script.fromMultisig(1, 3, [originPubKey, dest, this.fakePubKey]),
+          value: trustAmount
+        })
+      ]
+    });
+
+    if (node.spv) {
+      var txid = outpoint.txid();
+      node.pool.watchAddress(txid);
+      helpers.delay(1000); // TODO: wait adaptively (like waitForTX() from testHelpers)
+
+      var coin = await this.node.getCoin(outpoint.hash, outpoint.index);
+      if (!tx) throw new Error("Could not find tx");
+  
+  
+      var changeAmount = tx.getOutputValue() - trustAmount - fee; // TODO: find how to get the value another way
+      assert(changeAmount >= 0);
+      if (changeAmount) {
+        mtx.addOutput(new Output({
+          script: bcoin.script.fromPubkeyhash(bcoin.crypto.hash160(originPubKey)),
+          value: changeAmount
+        }));
+      }
+  
+      mtx.addCoin(coin); // TODO: use addInput() instead
+    }
+
+    else { // node is full
+      var coin = await this.node.getCoin(outpoint.hash, outpoint.index);
+      if (!coin) throw new Error("Could not find coin");
+  
+  
+      var changeAmount = coin.value - trustAmount - fee; // TODO: find how to get the value another way
+      assert(changeAmount >= 0);
+      if (changeAmount) {
+        mtx.addOutput(new Output({
+          script: bcoin.script.fromPubkeyhash(bcoin.crypto.hash160(originPubKey)),
+          value: changeAmount
+        }));
+      }
+  
+      mtx.addCoin(coin); // TODO: use addInput() instead
+      var success = mtx.scriptVector(coin.script, mtx.inputs[0].script, originKeyRing);
+      assert(success);
+    }
+
+    var signedCount = mtx.sign(originKeyRing);
+    assert(signedCount === 1);
+
+    return mtx;
+  }
+
   // Returns an array of trust-decreasing mutable transaction objects, which reduce a trust
   // relationship by the amount specified. The payee will receive the amount deducted minus the
   // transaction fees via P2PKH.
