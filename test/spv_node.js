@@ -30,8 +30,8 @@ describe("SPVNode", () => {
     sinon.spy(Trust.TrustIsRisk.prototype, "addTX");
   });
 
-  after("reset addTX spy", function() {
-    return Trust.TrustIsRisk.prototype.addTX.restore();
+  after("reset addTX() spy", function() {
+    Trust.TrustIsRisk.prototype.addTX.restore();
   });
 
   beforeEach("get nodes", () => {

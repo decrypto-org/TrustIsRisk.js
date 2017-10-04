@@ -124,7 +124,7 @@ class TrustIsRisk {
       ]
     });
 
-    var changeAmount = coin.value - trustAmount - fee;
+    var changeAmount = coin.value - trustAmount - fee; // TODO: find how to get the value another way
     assert(changeAmount >= 0);
     if (changeAmount) {
       mtx.addOutput(new Output({
@@ -133,7 +133,7 @@ class TrustIsRisk {
       }));
     }
 
-    mtx.addCoin(coin);
+    mtx.addCoin(coin); // TODO: use addInput() instead
     var success = mtx.scriptVector(coin.script, mtx.inputs[0].script, originKeyRing);
     assert(success);
 
