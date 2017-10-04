@@ -50,6 +50,7 @@ declare class bcoin$MTX {
   scriptVector(outputScript : bcoin$Script, inputScript : bcoin$Script, ring : bcoin$KeyRing) : boolean;
   addOutput(output : bcoin$Output) : void;
   addCoin(coin : bcoin$Coin) : void;
+  addInput(input : (bcoin$Input | Object)) : void;
   sign(ring : bcoin$KeyRing) : number;
   signInput(index : number, coin : bcoin$Coin, keyRing : bcoin$KeyRing) : boolean;
 }
