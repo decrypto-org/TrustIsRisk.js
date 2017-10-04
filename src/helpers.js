@@ -6,6 +6,12 @@ var Address = bcoin.primitives.Address;
 var helpers = {
   pubKeyToEntity: (key : Key) : Entity => {
     return Address.fromHash(bcoin.crypto.hash160(key)).toBase58();
+  },
+
+  delay: async (milliseconds : number) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(resolve, milliseconds);
+    });
   }
 };
 
