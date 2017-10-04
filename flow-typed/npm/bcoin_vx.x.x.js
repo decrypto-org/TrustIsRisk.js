@@ -17,6 +17,10 @@ declare class bcoin$SPVNode {
   //TODO Check if changes/additions are needed
 }
 
+declare class bcoin$Wallet {
+  getTX() : bcoin$TX;
+}
+
 declare class bcoin$Pool {
   watchAddress(address : Buffer) : void;
 }
