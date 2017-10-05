@@ -182,7 +182,7 @@ class TrustIsRisk {
       mtx.addCoin(coin); // TODO: use addInput() instead
     }
 
-    else { // node is full
+    else { // it is a full node
       var coin = await this.node.getCoin(outpoint.hash, outpoint.index);
       if (!coin) throw new Error("Could not find coin");
   
