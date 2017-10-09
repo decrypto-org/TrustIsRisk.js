@@ -165,8 +165,10 @@ class TrustIsRisk {
 
     if (node.spv) {
       var txid = outpoint.txid();
+      var watcher = new helpers.NodeWatcher(node);
       node.pool.watchAddress(txid);
       helpers.delay(1000); // TODO: wait adaptively (like waitForTX() from testHelpers)
+      await watcher.waitForTX();
 
       var coin = await this.node.getCoin(outpoint.hash, outpoint.index);
       if (!tx) throw new Error("Could not find tx");
