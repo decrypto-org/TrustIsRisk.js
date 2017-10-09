@@ -144,7 +144,7 @@ class TrustIsRisk {
   }
 
   async ccreateTrustIncreasingMTX(origin : Key, dest : Key, outpoint : bcoin$Outpoint,
-      trustAmount : number, fee : ?number)
+      trustAmount : number, node : (bcoin$FullNode | bcoin$SPVNode), fee : ?number)
       : Promise<bcoin$MTX> {
     if (!fee) fee = 1000; // TODO: estimate this
     if (origin === dest) throw new Error("Can not increase self-trust.");
