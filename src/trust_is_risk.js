@@ -166,6 +166,7 @@ class TrustIsRisk {
     if (node.spv) {
       var txid = outpoint.txid();
       var watcher = new helpers.NodeWatcher(node);
+      var tx = null;
       node.pool.watchAddress(txid);
       helpers.delay(1000); // TODO: wait adaptively (like waitForTX() from testHelpers)
       await watcher.waitForTX();
