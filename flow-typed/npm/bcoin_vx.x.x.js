@@ -4,6 +4,8 @@ type Hash = (string | Buffer);
 type Network = any;
 
 declare class bcoin$FullNode {
+  pool : bcoin$Pool;
+
   on(eventName : string, eventHandler : Function) : void;
   getTX(hash : Hash) : Promise<bcoin$TX>;
   getCoin(hash : Hash, index : number) : bcoin$Coin;
@@ -25,7 +27,18 @@ declare class bcoin$Wallet {
 }
 
 declare class bcoin$Pool {
+  peers : bcoin$PeerList;
+
   watchAddress(address : Buffer) : void;
+}
+
+declare class bcoin$Peer {}
+
+declare class bcoin$PeerList {
+  get(hostname : string) : bcoin$Peer;
+  add(peer : bcoin$Peer) : void;
+  head() : bcoin$Peer;
+  next() : bcoin$Peer;
 }
 
 declare class bcoin$Address {
