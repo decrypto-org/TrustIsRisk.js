@@ -64,6 +64,14 @@ describe("SPVNode", () => {
     minerWalletDB = await testHelpers.getWalletDB(miner);
   });
 
+//  beforeEach("connect nodes between them", () => {
+//    var minerPeer = bcoin.net.Peer.fromOptions({network: "regtest", passphrase: "secret", host: "127.0.0.1", port: 48334});
+//    var socket = minerPeer.connect({host: "127.0.0.1", port: 48334});
+//    console.log(socket);
+//    spvNode.pool.peers.add(minerPeer);
+//    console.log("edw");
+//  });
+
   afterEach("close walletDBs", async () => {
     await testHelpers.closeWalletDB(spvWalletDB);
     await testHelpers.closeWalletDB(minerWalletDB);
