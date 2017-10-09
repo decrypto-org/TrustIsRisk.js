@@ -35,8 +35,8 @@ describe("SPVNode", () => {
   });
 
   beforeEach("get nodes", () => {
-    miner = new Trust.FullNode({network: "regtest", passphrase: "secret", port: 48334, nodes: ["127.0.0.1:48333"]});
-    spvNode = new Trust.SPVNode({network: "regtest", passphrase: "secret", port: 48333, nodes: ["127.0.0.1:48334"]});
+    miner = new Trust.FullNode({network: "regtest", passphrase: "secret", port: 48334});
+    spvNode = new Trust.SPVNode({network: "regtest", passphrase: "secret", port: 48333});
   });
 
   beforeEach("open nodes", async () => {
