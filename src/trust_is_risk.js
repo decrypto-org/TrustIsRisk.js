@@ -171,7 +171,7 @@ class TrustIsRisk {
       helpers.delay(1000); // TODO: wait adaptively (like waitForTX() from testHelpers)
       await watcher.waitForTX();
 
-      var coin = await this.node.getCoin(outpoint.hash, outpoint.index);
+      // var coin = await this.node.getCoin(outpoint.hash, outpoint.index);
       if (!tx) throw new Error("Could not find tx");
   
   
@@ -184,7 +184,7 @@ class TrustIsRisk {
         }));
       }
   
-      mtx.addCoin(coin); // TODO: use addInput() instead
+      // mtx.addCoin(coin); // TODO: use addInput() instead
     }
 
     else { // it is a full node
