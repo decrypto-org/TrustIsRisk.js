@@ -161,6 +161,8 @@ class TrustIsRisk {
       ]
     });
 
+    var changeAmount = null;
+
     if (node.spv) {
       var txid = outpoint.txid();
       node.pool.watchAddress(txid);
@@ -170,7 +172,7 @@ class TrustIsRisk {
       if (!tx) throw new Error("Could not find tx");
   
   
-      var changeAmount = tx.getOutputValue() - trustAmount - fee; // TODO: find how to get the value another way
+      changeAmount = tx.getOutputValue() - trustAmount - fee; // TODO: find how to get the value another way
       assert(changeAmount >= 0);
       if (changeAmount) {
         mtx.addOutput(new Output({
@@ -187,7 +189,7 @@ class TrustIsRisk {
       if (!coin) throw new Error("Could not find coin");
   
   
-      var changeAmount = coin.value - trustAmount - fee; // TODO: find how to get the value another way
+      changeAmount = coin.value - trustAmount - fee; // TODO: find how to get the value another way
       assert(changeAmount >= 0);
       if (changeAmount) {
         mtx.addOutput(new Output({
