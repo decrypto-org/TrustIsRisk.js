@@ -39,13 +39,17 @@ describe("SPVNode", () => {
     spvNode = new Trust.SPVNode({network: "regtest", passphrase: "secret", port: 48333, nodes: ["127.0.0.1:48334"]});
   });
 
-  beforeEach("open and connect nodes", async () => {
+  beforeEach("open nodes", async () => {
     await miner.open();
     await spvNode.open();
+  });
 
+  beforeEach("connect nodes", async () => {
     await miner.connect();
     await spvNode.connect();
+  });
 
+  beforeEach("start syncing nodes", () => {
     miner.startSync();
     spvNode.startSync();
   });
@@ -55,19 +59,20 @@ describe("SPVNode", () => {
     spvWatcher = new testHelpers.NodeWatcher(spvNode);
   });
 
-  beforeEach("get spvWalletDB", async () => {
+  beforeEach("get walletDBs", async () => {
     spvWalletDB = await testHelpers.getWalletDB(spvNode);
-  });
-
-  beforeEach("get minerWalletDB", async () => {
     minerWalletDB = await testHelpers.getWalletDB(miner);
   });
 
-  afterEach("close spvWalletDB", async () => spvWalletDB.close());
-  afterEach("close minerWalletDB", async () => minerWalletDB.close());
+  afterEach("close walletDBs", async () => {
+    await testHelpers.closeWalletDB(spvWalletDB);
+    await testHelpers.closeWalletDB(minerWalletDB);
+  });
 
-  afterEach("close SPV node", async () => spvNode.close());
-  afterEach("close miner (full node)", async () => miner.close());
+  afterEach("close nodes", async () => {
+    await testHelpers.closeNode(spvNode);
+    await testHelpers.closeNode(miner);
+  });
 
   it("should call trust.addTX() on every transaction", async function() {
     var spvSender = await testHelpers.createWallet(spvWalletDB, "spvSender");
