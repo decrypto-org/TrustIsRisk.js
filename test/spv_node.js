@@ -84,6 +84,11 @@ describe("SPVNode", () => {
 //    })().catch((err) => {
 //      console.error(err.stack);
 //    });
+    console.log(minerAddr);
+    console.log("Before connecting");
+    console.log(miner.pool.peers);
+    console.log(spvNode.pool.peers);
+    console.log("\n");
   });
 
   afterEach("disconnect nodes", async () => {
@@ -225,7 +230,6 @@ describe("SPVNode", () => {
 
           let mtx = null;
           if (node.spv) {
-            console.log(node.pool.peers);
             mtx = await node.trust.ccreateTrustIncreasingMTX(
                 fixtures.keyRings[origin].getPrivateKey(),
                 fixtures.keyRings[dest].getPublicKey(),
