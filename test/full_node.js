@@ -34,17 +34,37 @@ describe("FullNode", () => {
   });
 
   beforeEach("get node", async () => {
-    node = await testHelpers.getNode();
-    watcher = new testHelpers.NodeWatcher(node);
+    node = new Trust.FullNode({network: "regtest", passphrase: "secret"});
+    await node.open();
   });
 
-  beforeEach("get walletDB", async () => {
+  beforeEach("get connected walletDB", async () => {
     walletDB = await testHelpers.getWalletDB(node);
   });
 
-  afterEach("close walletDB", async () => testHelpers.closeWalletDB(walletDB));
-  afterEach("close node", async () => testHelpers.closeNode(node));
+  beforeEach("connect node", async () => {
+    await node.connect();
+    node.startSync();
+  });
+
+  beforeEach("get watcher", async () => {
+    watcher = new testHelpers.NodeWatcher(node);
+  });
+
+  afterEach("disconnect node", async () => {
+    node.stopSync();
+    await node.disconnect();
+  });
+
+  afterEach("disconnect and close walletDB", async () => {
+    await walletDB.disconnect();
+    await walletDB.close();
+  });
   
+  afterEach("close node", async () => {
+    await node.close();
+  });
+
   it("should call trust.addTX() on every transaction", async function() {
     var sender = await testHelpers.createWallet(walletDB, "sender");
     var receiver = await testHelpers.createWallet(walletDB, "receiver");
