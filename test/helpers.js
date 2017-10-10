@@ -6,17 +6,7 @@ var assert = require("assert");
 
 var testHelpers = {
   getNode: async (type) => {
-    var node = null;
-    assert(type === undefined || type === "spv" || type === "full");
-    if (type === undefined)
-      node = new TrustIsRisk.FullNode({network: "regtest", passphrase: "secret"});
-    else if (type === "spv")
-      node = new TrustIsRisk.SPVNode({network: "regtest", passphrase: "secret",
-        port: 48333, nodes: ["127.0.0.1:48334"]});
-    else // if type === "full"
-      node = new TrustIsRisk.FullNode({network: "regtest", passphrase: "secret",
-        port: 48334});
-
+    var node = new TrustIsRisk.FullNode({network: "regtest", passphrase: "secret"});
     await node.open();
     await node.connect();
     node.startSync();
