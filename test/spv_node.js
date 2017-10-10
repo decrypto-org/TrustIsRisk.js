@@ -118,8 +118,7 @@ describe("SPVNode", () => {
   });
 
   it("should call trust.addTX() on every transaction", async function() {
-    var spvSender = await WalletDB.create({id: "spvSender", passphrase: "secret", witness: false, type:
-    "pubkeyhash"});//testHelpers.createWallet(spvWalletDB, "spvSender"); TODO: kill redundant walletDBs
+    var spvSender = await testHelpers.createWallet(spvWalletDB, "spvSender");
     var spvReceiver = await testHelpers.createWallet(spvWalletDB, "spvReceiver");
 
     var minerSender = await testHelpers.createWallet(minerWalletDB, "minerSender");
