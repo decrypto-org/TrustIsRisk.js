@@ -8,10 +8,13 @@ var testHelpers = {
   getNode: async (type) => {
     var node = new TrustIsRisk.FullNode({network: "regtest", passphrase: "secret"});
     await node.open();
-    await node.connect();
-    node.startSync();
 
     return node;
+  },
+
+  connectNode: async (node) => {
+    await node.connect();
+    node.startSync();
   },
 
   closeNode: async (node) => {
