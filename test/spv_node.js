@@ -90,6 +90,10 @@ describe("SPVNode", () => {
       console.error(err.stack);
     });
     await testHelpers.delay(1000);
+    console.log("After connecting");
+    console.log(miner.pool.peers);
+    console.log(spvNode.pool.peers);
+    console.log("\n");
   });
 
   afterEach("disconnect nodes", async () => {
