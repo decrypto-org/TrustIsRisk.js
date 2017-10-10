@@ -96,7 +96,7 @@ describe("SPVNode", () => {
 
   afterEach("disconnect and close walletDBs", async () => {
     await spvWalletDB.disconnect();
-    await minerWalletDB.disconnet();
+    await minerWalletDB.disconnect();
 
     await spvWalletDB.close();
     await minerWalletDB.close();
