@@ -50,6 +50,11 @@ describe("SPVNode", () => {
     await spvNode.open();
   });
 
+  beforeEach("get connected walletDBs", async () => {
+    minerWalletDB = await testHelpers.getWalletDB(miner);
+    spvWalletDB = await testHelpers.getWalletDB(spvNode);
+  });
+
   beforeEach("connect nodes", async () => {
     await miner.connect();
     await spvNode.connect();
@@ -65,10 +70,6 @@ describe("SPVNode", () => {
     spvWatcher = new testHelpers.NodeWatcher(spvNode);
   });
 
-  beforeEach("get walletDBs", async () => {
-    spvWalletDB = await testHelpers.getWalletDB(spvNode);
-    minerWalletDB = await testHelpers.getWalletDB(miner);
-  });
 
   beforeEach("add miner to spvNode as peer", async () => {
 //    const minerAddr = bcoin.netaddress.fromHostname(miner.http.config.host + ":" + miner.http.config.port, "regtest");
@@ -85,14 +86,25 @@ describe("SPVNode", () => {
 //    });
   });
 
-  afterEach("close walletDBs", async () => {
-    await testHelpers.closeWalletDB(spvWalletDB);
-    await testHelpers.closeWalletDB(minerWalletDB);
+  afterEach("disconnect nodes", async () => {
+    spvNode.stopSync();
+    miner.stopSync();
+
+    await spvNode.disconnect();
+    await miner.disconnect();
+  });
+
+  afterEach("disconnect and close walletDBs", async () => {
+    await spvWalletDB.disconnect();
+    await minerWalletDB.disconnet();
+
+    await spvWalletDB.close();
+    await minerWalletDB.close();
   });
 
   afterEach("close nodes", async () => {
-    await testHelpers.closeNode(spvNode);
-    await testHelpers.closeNode(miner);
+    await spvNode.close();
+    await miner.close();
   });
 
   it("should call trust.addTX() on every transaction", async function() {
