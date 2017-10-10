@@ -8,6 +8,7 @@ var MTX = bcoin.primitives.MTX;
 var Input = bcoin.primitives.Input;
 var Output = bcoin.primitives.Output;
 var Outpoint = bcoin.primitives.Outpoint;
+var WalletDB = bcoin.wallet.WalletDB;
 var testHelpers = require("./helpers");
 var consensus = require("bcoin/lib/protocol/consensus");
 var sinon = require("sinon");
@@ -95,7 +96,8 @@ describe("SPVNode", () => {
   });
 
   it("should call trust.addTX() on every transaction", async function() {
-    var spvSender = await testHelpers.createWallet(spvWalletDB, "spvSender");
+    var spvSender = await WalletDB.create({id: "spvSender", passphrase: "secret", witness: false, type:
+    "pubkeyhash"});//testHelpers.createWallet(spvWalletDB, "spvSender"); TODO: kill redundant walletDBs
     var spvReceiver = await testHelpers.createWallet(spvWalletDB, "spvReceiver");
 
     var minerSender = await testHelpers.createWallet(minerWalletDB, "minerSender");
