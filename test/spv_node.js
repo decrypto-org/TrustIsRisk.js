@@ -70,14 +70,14 @@ describe("SPVNode", () => {
   });
 
   beforeEach("add miner to spvNode as peer", async () => {
-    const minerAddr = miner.http.config.host + ":" + miner.http.config.port;
-
-    (async () => {
-      const result = await spvNode.rpc.execute("addnode", [minerAddr, "add"]);
-      console.log(result);
-    })().catch((err) => {
-      console.error(err.stack);
-    });
+//    const minerAddr = miner.http.config.host + ":" + miner.http.config.port;
+//
+//    (async () => {
+//      const result = await spvNode.rpc.execute("addnode", [minerAddr, "add"]);
+//      console.log(result);
+//    })().catch((err) => {
+//      console.error(err.stack);
+//    });
   });
 
   afterEach("close walletDBs", async () => {
