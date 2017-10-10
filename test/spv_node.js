@@ -76,19 +76,20 @@ describe("SPVNode", () => {
 //    spvNode.pool.peer.connect(minerAddr);
 //    spvNode.pool.peer.tryOpen();
 
-//    const minerAddr = miner.http.config.host + ":" + miner.http.config.port;
-//
-//    (async () => {
-//      const result = await spvNode.rpc.execute("addnode", [minerAddr, "add"]);
-//      console.log(result);
-//    })().catch((err) => {
-//      console.error(err.stack);
-//    });
+    const minerAddr = miner.http.config.host + ":" + miner.http.config.port;
     console.log(minerAddr);
     console.log("Before connecting");
     console.log(miner.pool.peers);
     console.log(spvNode.pool.peers);
     console.log("\n");
+
+    (async () => {
+      const result = await spvNode.rpc.execute("addnode", [minerAddr, "add"]);
+      console.log(result);
+    })().catch((err) => {
+      console.error(err.stack);
+    });
+    await testHelpers.delay(1000);
   });
 
   afterEach("disconnect nodes", async () => {
