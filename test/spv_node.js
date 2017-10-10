@@ -70,6 +70,10 @@ describe("SPVNode", () => {
   });
 
   beforeEach("add miner to spvNode as peer", async () => {
+//    const minerAddr = bcoin.netaddress.fromHostname(miner.http.config.host + ":" + miner.http.config.port, "regtest");
+//    spvNode.pool.peer.connect(minerAddr);
+//    spvNode.pool.peer.tryOpen();
+
 //    const minerAddr = miner.http.config.host + ":" + miner.http.config.port;
 //
 //    (async () => {
