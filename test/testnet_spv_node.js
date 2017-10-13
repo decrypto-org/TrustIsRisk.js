@@ -156,7 +156,7 @@ describe("SPVNode", () => {
         addresses[name] = helpers.pubKeyToEntity(keyRing.getPublicKey());
       }
 
-      // Alice sends 20 BTC to everyone (including herself) via P2PKH
+      // Alice sends 20*10e-3 BTC to everyone (including herself) via P2PKH
       var sendAmount = 20;
       var outputs = fixtures.names.map((name) => {
         return testHelpers.getP2PKHOutput(
