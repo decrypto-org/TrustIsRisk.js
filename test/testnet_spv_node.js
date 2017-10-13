@@ -18,7 +18,7 @@ var fixtures = require("./fixtures");
 var testnetFixtures = require("./testnetFixtures");
 require("should-sinon");
 
-const COIN = consensus.COIN;
+const COIN = 10000;
 
 describe("SPVNode", () => {
   var spvNode = null;
