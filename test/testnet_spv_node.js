@@ -156,16 +156,6 @@ describe("SPVNode", () => {
         addresses[name] = helpers.pubKeyToEntity(keyRing.getPublicKey());
       }
 
-      // Alice mines three blocks, each rewards her with 50 spendable BTC
-      consensus.COINBASE_MATURITY = 0;
-      var blockCount = 3;
-      var coinbaseHashes = [];
-      for(let i = 0; i < blockCount; i++) {
-        var block = await testHelpers.mineBlock(miner, addresses.alice);
-        coinbaseHashes.push(block.txs[0].hash());
-        await testHelpers.delay(500);
-      }
-
       // Alice sends 20 BTC to everyone (including herself) via P2PKH
       var sendAmount = 20;
       var outputs = fixtures.names.map((name) => {
