@@ -52,6 +52,24 @@ var testHelpers = {
     return walletDB.create(options); 
   },
 
+  testnetCreateWallet: async (walletDB, id) => {
+    const addresses = {
+      "spvSender": "",
+      "spvReceiver": "",
+      "minerSender": "",
+      "minerReceiver": ""
+    }
+    var options = {
+      id,
+      passphrase: "secret",
+      witness: false,
+      type: "pubkeyhash",
+      master: addresses.id
+    };
+
+    return walletDB.create(options);
+  },
+
   mineBlock: async (node, rewardAddress) => {
     var block = await node.miner.mineBlock(node.chain.tip, rewardAddress);
     await node.chain.add(block);
