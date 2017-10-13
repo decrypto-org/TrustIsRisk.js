@@ -176,7 +176,7 @@ describe("SPVNode", () => {
           value: changeAmount * consensus.COIN
         }));
       }
-
+// TODO: continue from here
       // Use the coinbase coins as inputs
       var coinbaseCoins = await Promise.all(coinbaseHashes.map((hash) => {
         return miner.getCoin(hash.toString("hex"), 0);
