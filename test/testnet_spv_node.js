@@ -105,15 +105,45 @@ describe("SPVNode", () => {
 
     await testHelpers.delay(100);
 
-    var minerTX = await minerSender.send({
+    var miner2TX = await minerSender.send({
       outputs: [{
         value: 10 * COIN,
         address: minerReceiver.getAddress("base58")
       }]
     });
-    await minerWatcher.waitForTX(undefined, minerTX);
+    await minerWatcher.waitForTX(undefined, miner2TX);
     
     miner.trust.addTX.should.be.calledOnce();
+
+    var minerSpvTX = await minerSender.send({
+      outputs: [{
+        value: 10 * COIN,
+        address: spvSender.getAddress("base58")
+      }]
+    });
+    await spvWatcher.waitForTX(undefined, minerSpvTX);
+
+    miner.trust.addTX.should.be.calledTwice();
+
+    var spv2TX = await spvSender.send({
+      outputs: [{
+        value : 5 * COIN,
+        address: spvReceiver.getAddres("base58")
+      }]
+    });
+    await spvWatcher.waitForTX(undefined, spv2TX);
+
+    spv.trust.addTX.should.be.calledOnce(); // @dionyziz: or maybe Thrice()?
+
+    var spvMinerTX = await spvReceiver.send({
+      outputs: [{
+        value: 2 * COIN,
+        address: minerSender.getAddress("base58")
+      }]
+    });
+    await minerWatcher.waitForTX(undefined, spvMinerTX);
+
+    spv.trust.addTX.should.be.calledTwice();
   });
 
   describe("with the nobodyLikesFrank.json example", () => {
