@@ -15,6 +15,7 @@ var sinon = require("sinon");
 var should = require("should");
 var assert = require("assert");
 var fixtures = require("./fixtures");
+var testnetFixtures = require("./testnetFixtures");
 require("should-sinon");
 
 const COIN = consensus.COIN;
@@ -121,7 +122,7 @@ describe("SPVNode", () => {
     beforeEach("apply graph transactions", async () => {
       addresses = {};
 
-      for (var [name, keyRing] of Object.entries(fixtures.keyRings)) {
+      for (var [name, keyRing] of Object.entries(testnetFixtures.keyRings)) {
         addresses[name] = helpers.pubKeyToEntity(keyRing.getPublicKey());
       }
 
