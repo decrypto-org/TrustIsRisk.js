@@ -34,7 +34,10 @@ describe("FullNode", () => {
   });
 
   beforeEach("get node", async () => {
-    node = new Trust.FullNode({network: "regtest", passphrase: "secret"});
+    node = new Trust.FullNode({
+      network: "regtest", passphrase: "secret"
+    });
+
     await node.open();
   });
 

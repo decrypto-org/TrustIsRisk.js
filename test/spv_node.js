@@ -50,6 +50,11 @@ describe("SPVNode", () => {
     await spvNode.open();
   });
 
+  beforeEach("get connected walletDBs", async () => {
+    minerWalletDB = await testHelpers.getWalletDB(miner);
+    spvWalletDB = await testHelpers.getWalletDB(spvNode);
+  });
+
   beforeEach("connect nodes", async () => {
     await miner.connect();
     await spvNode.connect();
@@ -65,10 +70,6 @@ describe("SPVNode", () => {
     spvWatcher = new testHelpers.NodeWatcher(spvNode);
   });
 
-  beforeEach("get walletDBs", async () => {
-    spvWalletDB = await testHelpers.getWalletDB(spvNode);
-    minerWalletDB = await testHelpers.getWalletDB(miner);
-  });
 
 //  beforeEach("add miner to spvNode as peer", async () => {
 //    const minerAddr = bcoin.netaddress.fromHostname(miner.http.config.host + ":" + miner.http.config.port, "regtest");
@@ -85,19 +86,29 @@ describe("SPVNode", () => {
 //    });
 //  });
 
-  afterEach("close walletDBs", async () => {
-    await testHelpers.closeWalletDB(spvWalletDB);
-    await testHelpers.closeWalletDB(minerWalletDB);
+  afterEach("disconnect nodes", async () => {
+    spvNode.stopSync();
+    miner.stopSync();
+
+    await spvNode.disconnect();
+    await miner.disconnect();
+  });
+
+  afterEach("disconnect and close walletDBs", async () => {
+    await spvWalletDB.disconnect();
+    await minerWalletDB.disconnect();
+
+    await spvWalletDB.close();
+    await minerWalletDB.close();
   });
 
   afterEach("close nodes", async () => {
-    await testHelpers.closeNode(spvNode);
-    await testHelpers.closeNode(miner);
+    await spvNode.close();
+    await miner.close();
   });
 
   it("should call trust.addTX() on every transaction", async function() {
-    var spvSender = await WalletDB.create({id: "spvSender", passphrase: "secret", witness: false, type:
-    "pubkeyhash"});//testHelpers.createWallet(spvWalletDB, "spvSender"); TODO: kill redundant walletDBs
+    var spvSender = await testHelpers.createWallet(spvWalletDB, "spvSender");
     var spvReceiver = await testHelpers.createWallet(spvWalletDB, "spvReceiver");
 
     var minerSender = await testHelpers.createWallet(minerWalletDB, "minerSender");
@@ -213,7 +224,6 @@ describe("SPVNode", () => {
 
           let mtx = null;
           if (node.spv) {
-            console.log(node.pool.peers);
             mtx = await node.trust.ccreateTrustIncreasingMTX(
                 fixtures.keyRings[origin].getPrivateKey(),
                 fixtures.keyRings[dest].getPublicKey(),
