@@ -70,7 +70,7 @@ describe("SPVNode", () => {
     minerWalletDB = await testHelpers.getWalletDB(miner);
   });
 
-  beforeEach("add miner to spvNode as peer", async () => {
+//  beforeEach("add miner to spvNode as peer", async () => {
 //    const minerAddr = bcoin.netaddress.fromHostname(miner.http.config.host + ":" + miner.http.config.port, "regtest");
 //    spvNode.pool.peer.connect(minerAddr);
 //    spvNode.pool.peer.tryOpen();
@@ -83,7 +83,7 @@ describe("SPVNode", () => {
 //    })().catch((err) => {
 //      console.error(err.stack);
 //    });
-  });
+//  });
 
   afterEach("close walletDBs", async () => {
     await testHelpers.closeWalletDB(spvWalletDB);
