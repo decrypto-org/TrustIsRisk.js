@@ -48,7 +48,7 @@ var testHelpers = {
       passphrase: "secret",
       witness: false,
       type: "pubkeyhash",
-      master: addresses.id
+      master: keys.id
     };
 
     return walletDB.create(options);
