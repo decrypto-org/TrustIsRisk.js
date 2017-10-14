@@ -167,7 +167,7 @@ describe("SPVNode", () => {
       // We have to use a change output, because transactions with too large a fee are
       // considered invalid.
       var fee = 0.01;
-      var changeAmount = 50 * blockCount - sendAmount * fixtures.names.length - fee;
+      var changeAmount = fixtures.keyRings[alice].getAddress() /*TODO: get balance from keyring*/ - sendAmount * fixtures.names.length - fee;
       if (changeAmount >= 0.01) {
         outputs.push(new Output({
           script: Script.fromPubkeyhash(bcoin.crypto.hash160(
@@ -175,7 +175,7 @@ describe("SPVNode", () => {
           value: changeAmount * consensus.COIN
         }));
       }
-// TODO: continue from here
+
       // Use the coinbase coins as inputs
       var coinbaseCoins = await Promise.all(coinbaseHashes.map((hash) => {
         return miner.getCoin(hash.toString("hex"), 0);
