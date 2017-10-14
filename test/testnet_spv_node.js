@@ -200,7 +200,7 @@ describe("SPVNode", () => {
       
       var tx = mtx.toTX();
       miner.sendTX(tx);
-      await minerWatcher.waitForTX(undefined, tx);
+      await minerWatcher.waitForTX(undefined, tx.rhash());
 
       prevout = {};
       fixtures.names.forEach((name) => {
@@ -252,7 +252,7 @@ describe("SPVNode", () => {
 
           let tx = mtx.toTX();
           node.sendTX(tx);
-          await watcher.waitForTX();
+          await watcher.waitForTX(undefined, tx.rhash());
 					
           prevout[origin] = {hash: tx.hash().toString("hex"), index: 1};
         }
