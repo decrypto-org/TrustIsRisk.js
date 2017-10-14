@@ -148,7 +148,7 @@ describe("SPVNode", () => {
   describe("with the nobodyLikesFrank.json example", () => {
     var addresses, rings = {}, wallets;
 
-    beforeEach("apply graph transactions", async () => {
+    before("apply graph transactions", async () => {
       addresses = {};
       wallets = {};
 
