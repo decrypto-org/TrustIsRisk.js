@@ -40,7 +40,7 @@ var testHelpers = {
     const keys = {
       "spvSender": "cQzGHhucP26iPJf4fFSpLBXBN7V99mx7hBXDXm3FfQAEz9UKiDHT",
       "spvReceiver": "cSapdQj9U6XwhePBjv3YeQrctodr2imWm2dV1u83e1SWdBFUuVo1",
-      "minerSender": "cVGmuxkPKwwnMqEw69t2sjr4d7j3XJRF7LbC7yeGwrv9qarxMTLc", // this has the faucet coins
+      "minerSender": "cUw1SoP2DBd6RufEs2bV7nHwoUFi382h5SpaLtBy9zXrjGqs9S3U", // this has the faucet coins
       "minerReceiver": "cMjHoh7LRspQSVzJ6wps5XSGvn7jdidj2QhCRXDmaW48Pm9SGqCN"
     }
     var options = {
