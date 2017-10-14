@@ -14,8 +14,7 @@ var consensus = require("bcoin/lib/protocol/consensus");
 var sinon = require("sinon");
 var should = require("should");
 var assert = require("assert");
-var fixtures = require("./fixtures");
-var testnetFixtures = require("./testnetFixtures");
+var fixtures = require("./testnet_fixtures");
 require("should-sinon");
 
 const COIN = 10000;
@@ -152,7 +151,7 @@ describe("SPVNode", () => {
     beforeEach("apply graph transactions", async () => {
       addresses = {};
 
-      for (var [name, keyRing] of Object.entries(testnetFixtures.keyRings)) {
+      for (var [name, keyRing] of Object.entries(fixtures.keyRings)) {
         addresses[name] = helpers.pubKeyToEntity(keyRing.getPublicKey());
       }
 
