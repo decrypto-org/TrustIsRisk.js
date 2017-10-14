@@ -17,7 +17,7 @@ var assert = require("assert");
 var fixtures = require("./testnet_fixtures");
 require("should-sinon");
 
-const COIN = 10000;
+const COIN = 1000;
 
 describe("SPVNode", () => {
   var spvNode = null;
