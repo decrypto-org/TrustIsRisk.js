@@ -210,11 +210,6 @@ describe("SPVNode", () => {
         };
       });
       
-      // Alice mines another block
-      await testHelpers.mineBlock(miner, helpers.pubKeyToEntity(
-          fixtures.keyRings.alice.getPublicKey()));
-      await testHelpers.delay(500);
-
       var graph = require("./graphs/nobodyLikesFrank.json");
       for (var origin in graph) {
         var neighbours = graph[origin];
@@ -262,11 +257,6 @@ describe("SPVNode", () => {
           prevout[origin] = {hash: tx.hash().toString("hex"), index: 1};
         }
       }
-      
-      // Alice mines yet another block
-      await testHelpers.mineBlock(miner, helpers.pubKeyToEntity(
-          fixtures.keyRings.alice.getPublicKey()));
-      await testHelpers.delay(500);
     });
 
     it("lets the miner compute trusts correctly", () => {
