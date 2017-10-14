@@ -110,7 +110,7 @@ describe("SPVNode", () => {
         address: minerReceiver.getAddress("base58")
       }]
     });
-    await minerWatcher.waitForTX(undefined, miner2TX);
+    await minerWatcher.waitForTX(undefined, miner2TX.rhash());
     
     miner.trust.addTX.should.be.calledOnce();
 
@@ -120,7 +120,7 @@ describe("SPVNode", () => {
         address: spvSender.getAddress("base58")
       }]
     });
-    await spvWatcher.waitForTX(undefined, minerSpvTX);
+    await spvWatcher.waitForTX(undefined, minerSpvTX.rhash());
 
     miner.trust.addTX.should.be.calledTwice();
 
@@ -130,7 +130,7 @@ describe("SPVNode", () => {
         address: spvReceiver.getAddres("base58")
       }]
     });
-    await spvWatcher.waitForTX(undefined, spv2TX);
+    await spvWatcher.waitForTX(undefined, spv2TX.rhash());
 
     spv.trust.addTX.should.be.calledOnce(); // @dionyziz: or maybe Thrice()?
 
@@ -140,7 +140,7 @@ describe("SPVNode", () => {
         address: minerSender.getAddress("base58")
       }]
     });
-    await minerWatcher.waitForTX(undefined, spvMinerTX);
+    await minerWatcher.waitForTX(undefined, spvMinerTX.rhash());
 
     spv.trust.addTX.should.be.calledTwice();
   });
