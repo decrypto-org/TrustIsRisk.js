@@ -164,6 +164,10 @@ describe("SPVNode", () => {
         wallets[name].importKey(null, keyRing, "secret");
       }
 
+      // Wait for tx where Alice gets coins
+      txidAliceIsPaid = "888d862cccd0152e6c8ea202480d648dc99c07309a6360dd178c09112b1a9585";
+      await minerWatcher.waitForTX(undefined, txidAliceIsPaid);
+
       // Alice sends 20*10e-3 BTC to everyone (including herself) via P2PKH
       var sendAmount = 20;
       var outputs = fixtures.names.map((name) => {
@@ -176,7 +180,8 @@ describe("SPVNode", () => {
       // We have to use a change output, because transactions with too large a fee are
       // considered invalid.
       var fee = 0.01;
-      var changeAmount = fixtures.keyRings[alice].getAddress() /*TODO: get balance from keyring*/ - sendAmount * fixtures.names.length - fee;
+      var aliceBalance = await wallets[alice].getBalance();
+      var changeAmount =  aliceBalance - sendAmount * fixtures.names.length - fee;
       if (changeAmount >= 0.01) {
         outputs.push(new Output({
           script: Script.fromPubkeyhash(bcoin.crypto.hash160(
@@ -185,15 +190,12 @@ describe("SPVNode", () => {
         }));
       }
 
-      // Use the coinbase coins as inputs
-      var coinbaseCoins = await Promise.all(coinbaseHashes.map((hash) => {
-        return miner.getCoin(hash.toString("hex"), 0);
-      }));
+      // Use Alice's coins as input
+      var initialCoin = await wallets[alice].getCoin(txidAliceIsPaid, 0);
       var mtx = new MTX({outputs});
-      coinbaseCoins.forEach((coin) => mtx.addCoin(coin));
+      mtx.addCoin(initialCoin);
 
       var signedCount = mtx.sign(fixtures.keyRings.alice);
-      assert(signedCount === blockCount);
       assert(await mtx.verify());
       
       var tx = mtx.toTX();
