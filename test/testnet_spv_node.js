@@ -186,7 +186,7 @@ describe("SPVNode", () => {
         outputs.push(new Output({
           script: Script.fromPubkeyhash(bcoin.crypto.hash160(
               fixtures.keyRings.alice.getPublicKey())),
-          value: changeAmount * consensus.COIN
+          value: changeAmount * COIN
         }));
       }
 
