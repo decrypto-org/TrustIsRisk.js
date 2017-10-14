@@ -146,6 +146,7 @@ class TrustIsRisk {
   async ccreateTrustIncreasingMTX(origin : Key, dest : Key, outpoint : bcoin$Outpoint,
       trustAmount : number, node : (bcoin$FullNode | bcoin$SPVNode), fee : ?number)
       : Promise<bcoin$MTX> {
+    assert(node.spv, "Only spv nodes should call this");
     if (!fee) fee = 1000; // TODO: estimate this
     if (origin === dest) throw new Error("Can not increase self-trust.");
 
@@ -163,48 +164,27 @@ class TrustIsRisk {
 
     var changeAmount = null;
 
-    if (node.spv) {
-      var txid = outpoint.txid();
-      var watcher = new helpers.NodeWatcher(node);
-      var tx = null;
-      node.pool.watchAddress(txid);
-      helpers.delay(1000); // TODO: wait adaptively (like waitForTX() from testHelpers)
-      await watcher.waitForTX();
+    var txid = outpoint.txid();
+    var watcher = new helpers.NodeWatcher(node);
+    var tx = null;
+    node.pool.watchAddress(txid);
+    helpers.delay(1000); // TODO: wait adaptively (like waitForTX() from testHelpers)
+    await watcher.waitForTX();
 
-      // var coin = await this.node.getCoin(outpoint.hash, outpoint.index);
-      if (!tx) throw new Error("Could not find tx");
-  
-  
-      changeAmount = tx.getOutputValue() - trustAmount - fee; // TODO: find how to get the value another way
-      assert(changeAmount >= 0);
-      if (changeAmount) {
-        mtx.addOutput(new Output({
-          script: bcoin.script.fromPubkeyhash(bcoin.crypto.hash160(originPubKey)),
-          value: changeAmount
-        }));
-      }
-  
-      // mtx.addCoin(coin); // TODO: use addInput() instead
+    // var coin = await this.node.getCoin(outpoint.hash, outpoint.index);
+    if (!tx) throw new Error("Could not find tx");
+
+
+    changeAmount = tx.getOutputValue() - trustAmount - fee; // TODO: find how to get the value another way
+    assert(changeAmount >= 0);
+    if (changeAmount) {
+      mtx.addOutput(new Output({
+        script: bcoin.script.fromPubkeyhash(bcoin.crypto.hash160(originPubKey)),
+        value: changeAmount
+      }));
     }
 
-    else { // it is a full node
-      var coin = await this.node.getCoin(outpoint.hash, outpoint.index);
-      if (!coin) throw new Error("Could not find coin");
-  
-  
-      changeAmount = coin.value - trustAmount - fee; // TODO: find how to get the value another way
-      assert(changeAmount >= 0);
-      if (changeAmount) {
-        mtx.addOutput(new Output({
-          script: bcoin.script.fromPubkeyhash(bcoin.crypto.hash160(originPubKey)),
-          value: changeAmount
-        }));
-      }
-  
-      mtx.addCoin(coin); // TODO: use addInput() instead
-      var success = mtx.scriptVector(coin.script, mtx.inputs[0].script, originKeyRing);
-      assert(success);
-    }
+    // mtx.addCoin(coin); // TODO: use addInput() instead
 
     var signedCount = mtx.sign(originKeyRing);
     assert(signedCount === 1);
