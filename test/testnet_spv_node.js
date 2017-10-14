@@ -146,13 +146,22 @@ describe("SPVNode", () => {
   });
 
   describe("with the nobodyLikesFrank.json example", () => {
-    var addresses, rings = {};
+    var addresses, rings = {}, wallets;
 
     beforeEach("apply graph transactions", async () => {
       addresses = {};
+      wallets = {};
 
       for (var [name, keyRing] of Object.entries(fixtures.keyRings)) {
         addresses[name] = helpers.pubKeyToEntity(keyRing.getPublicKey());
+        // Create wallet for the keyrings
+        if (name === "charlie" || name === "dave") {
+          wallets[name] = await testHelpers.testnetCreateWallet(spvWallet, name + "Wallet");
+        };
+        else {
+          wallets[name] = await testHelpers.testnetCreateWallet(minerWallet, name + "Wallet");
+        }
+        wallets[name].importKey(null, keyRing, "secret");
       }
 
       // Alice sends 20*10e-3 BTC to everyone (including herself) via P2PKH
