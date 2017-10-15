@@ -165,8 +165,7 @@ class TrustIsRisk {
     var txid = outpoint.txid();
     var watcher = new helpers.NodeWatcher(node);
     node.pool.watchAddress(txid);
-    helpers.delay(1000); // TODO: wait adaptively (like waitForTX() from testHelpers)
-    await watcher.waitForTX();
+    await watcher.waitForTX(txid);
 
     // var coin = await this.node.getCoin(outpoint.hash, outpoint.index);
     var tx = await node.chain.getTX(txid);
