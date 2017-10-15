@@ -167,7 +167,6 @@ class TrustIsRisk {
     node.pool.watchAddress(txid);
     await watcher.waitForTX(txid);
 
-    // var coin = await this.node.getCoin(outpoint.hash, outpoint.index);
     var tx = await node.chain.getTX(txid);
     if (!tx) throw new Error("Could not find tx");
 
@@ -181,7 +180,10 @@ class TrustIsRisk {
       }));
     }
 
-    // mtx.addCoin(coin); // TODO: use addInput() instead
+    mtx.addInput({
+      prevout: outpoint,
+      script: // TODO: Find script content
+    });
 
     var signedCount = mtx.sign(originKeyRing);
     assert(signedCount === 1);
