@@ -162,20 +162,18 @@ class TrustIsRisk {
       ]
     });
 
-    var changeAmount = null;
-
     var txid = outpoint.txid();
     var watcher = new helpers.NodeWatcher(node);
-    var tx = null;
     node.pool.watchAddress(txid);
     helpers.delay(1000); // TODO: wait adaptively (like waitForTX() from testHelpers)
     await watcher.waitForTX();
 
     // var coin = await this.node.getCoin(outpoint.hash, outpoint.index);
+    var tx = await node.chain.getTX(txid);
     if (!tx) throw new Error("Could not find tx");
 
 
-    changeAmount = tx.getOutputValue() - trustAmount - fee; // TODO: find how to get the value another way
+    var changeAmount = tx.getOutputValue() - trustAmount - fee;
     assert(changeAmount >= 0);
     if (changeAmount) {
       mtx.addOutput(new Output({
