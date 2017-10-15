@@ -157,28 +157,19 @@ class NodeWatcher {
     });
   }
 
-  async waitForTX(initialCount, tx) {
-    if (initialCount === undefined) initialCount = this.txCount;
-    if (tx === undefined) {
+  async waitForTX(txid) {
+    var initialCount = this.txCount;
       await new Promise((resolve, reject) => {
-        var check = (() => {
-          if (this.txCount > initialCount) resolve();
-          else setTimeout(check, 100);
-        }).bind(this);
+      var check = (() => {
+        if (this.txCount > initialCount &&
+          (tx === undefined ||
+          this.node.pool.hasTX(txid)))
+          resolve();
+        else setTimeout(check, 100);
+      }).bind(this);
 
-        check();
-      });
-    }
-    else {
-      await new Promise((resolve, reject) => {
-        var check = (() => {
-          if (this.txCount > initialCount && this.node.pool.hasTX(tx)) resolve();
-          else setTimeout(check, 100);
-        }).bind(this);
-
-        check();
-      });
-    }
+      check();
+    });
   }
 }
 

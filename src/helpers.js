@@ -37,13 +37,14 @@ class NodeWatcher {
     });
   }
 
-  async waitForTX(initialCount : ?number) : Promise<void> {
-    var localInitialCount : number;
-    if (initialCount === undefined) localInitialCount = this.txCount;
-    else if (typeof initialCount === "number") localInitialCount = initialCount;
+  async waitForTX(txid : ?number) : Promise<void> {
+    var initialCount : number = this.txCount;
     await new Promise((resolve, reject) => {
       var check = (() => {
-        if (this.txCount > localInitialCount) resolve();
+        if (this.txCount > initialCount &&
+          (tx === undefined ||
+          this.node.pool.hasTX(txid)))
+          resolve();
         else setTimeout(check, 100);
       }).bind(this);
 
