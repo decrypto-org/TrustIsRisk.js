@@ -37,7 +37,7 @@ class NodeWatcher {
     });
   }
 
-  async waitForTX(txid : ?number) : Promise<void> {
+  async waitForTX(txid : Hash) : Promise<void> {
     var initialCount : number = this.txCount;
     await new Promise((resolve, reject) => {
       var check = (() => {
