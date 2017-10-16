@@ -42,7 +42,7 @@ var testHelpers = {
       "spvReceiver": "cSapdQj9U6XwhePBjv3YeQrctodr2imWm2dV1u83e1SWdBFUuVo1",
       "minerSender": "cUw1SoP2DBd6RufEs2bV7nHwoUFi382h5SpaLtBy9zXrjGqs9S3U", // this has the faucet coins
       "minerReceiver": "cMjHoh7LRspQSVzJ6wps5XSGvn7jdidj2QhCRXDmaW48Pm9SGqCN"
-    }
+    };
     var options = {
       id,
       passphrase: "secret",

@@ -180,7 +180,7 @@ class TrustIsRisk {
       }));
     }
 
-    mtx.addInput(Input.fromOutpoint(outpoint))
+    mtx.addInput(Input.fromOutpoint(outpoint));
 
     var signedCount = mtx.sign(originKeyRing);
     assert(signedCount === 1);
