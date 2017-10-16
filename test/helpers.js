@@ -159,7 +159,7 @@ class NodeWatcher {
 
   async waitForTX(txid) {
     var initialCount = this.txCount;
-      await new Promise((resolve, reject) => {
+    await new Promise((resolve, reject) => {
       var check = (() => {
         if (this.txCount > initialCount &&
           (tx === undefined ||
