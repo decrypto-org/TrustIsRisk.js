@@ -5,6 +5,8 @@ type Network = any;
 
 declare class bcoin$FullNode {
   pool : bcoin$Pool;
+  spv : boolean;
+  chain : bcoin$Chain;
 
   on(eventName : string, eventHandler : Function) : void;
   getTX(hash : Hash) : Promise<bcoin$TX>;
@@ -13,10 +15,16 @@ declare class bcoin$FullNode {
 
 declare class bcoin$SPVNode {
   pool : bcoin$Pool;
+  spv : boolean;
+  chain : bcoin$Chain;
 
   on(eventName : string, eventHandler : Function) : void;
   getTX(hash : Hash) : Promise<bcoin$TX>;
   getCoin(hash : Hash, index : number) : bcoin$Coin;
+}
+
+declare class bcoin$Chain {
+  getTX(hash : Hash) : bcoin$TX;
 }
 
 declare class bcoin$WalletDB {}
@@ -29,6 +37,7 @@ declare class bcoin$Pool {
   peers : bcoin$PeerList;
 
   watchAddress(address : Buffer) : void;
+  hasTX(hash : Hash) : boolean;
 }
 
 declare class bcoin$Peer {}
