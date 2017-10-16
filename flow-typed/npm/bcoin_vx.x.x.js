@@ -17,7 +17,6 @@ declare class bcoin$SPVNode {
   on(eventName : string, eventHandler : Function) : void;
   getTX(hash : Hash) : Promise<bcoin$TX>;
   getCoin(hash : Hash, index : number) : bcoin$Coin;
-  //TODO Check if changes/additions are needed
 }
 
 declare class bcoin$WalletDB {}
