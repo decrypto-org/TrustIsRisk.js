@@ -92,24 +92,24 @@ describe.only("SPVNode", () => {
   });
 
   it("should call trust.addTX() on every transaction", async function() {
-    var spvSender = await testHelpers.createWallet(spvWalletDB, "spvSender");
-    var spvReceiver = await testHelpers.createWallet(spvWalletDB, "spvReceiver");
+    var spvAlpha = await testHelpers.createWallet(spvWalletDB, "spvAlpha");
+    var spvBeta = await testHelpers.createWallet(spvWalletDB, "spvBeta");
 
-    var minerSender = await testHelpers.createWallet(minerWalletDB, "minerSender");
-    var minerReceiver = await testHelpers.createWallet(minerWalletDB, "minerReceiver");
+    var minerAlpha = await testHelpers.createWallet(minerWalletDB, "minerAlpha");
+    var minerBeta = await testHelpers.createWallet(minerWalletDB, "minerBeta");
 
     await testHelpers.delay(1000);
-    // Produce a block and reward the minerSender, so that we have a coin to spend.
-    await testHelpers.mineBlock(miner, minerSender.getAddress("base58"));
+    // Produce a block and reward the minerAlpha, so that we have a coin to spend.
+    await testHelpers.mineBlock(miner, minerAlpha.getAddress("base58"));
 
     // Make the coin spendable.
     consensus.COINBASE_MATURITY = 0;
     await testHelpers.delay(100);
 
-    await minerSender.send({
+    await minerAlpha.send({
       outputs: [{
         value: 10 * COIN,
-        address: minerReceiver.getAddress("base58")
+        address: minerBeta.getAddress("base58")
       }]
     });
     await minerWatcher.waitForTX();
