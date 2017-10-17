@@ -50,7 +50,7 @@ describe("SPVNode", () => {
     await spvNode.open();
   });
 
-  beforeEach("get connected walletDBs", async () => {
+  beforeEach("get walletDBs", async () => {
     minerWalletDB = await testHelpers.getWalletDB(miner);
     spvWalletDB = await testHelpers.getWalletDB(spvNode);
   });
