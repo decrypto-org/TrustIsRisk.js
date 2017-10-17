@@ -107,7 +107,7 @@ describe.only("SPVNode", () => {
       }]
     });
     await minerWatcher.waitForTX(undefined, miner2TX.rhash());
-    
+
     miner.trust.addTX.should.be.calledOnce();
 
     var minerSpvTX = await minerSender.send({
@@ -192,7 +192,7 @@ describe.only("SPVNode", () => {
 
       var signedCount = mtx.sign(fixtures.keyRings.alice);
       assert(await mtx.verify());
-      
+
       var tx = mtx.toTX();
       miner.sendTX(tx);
       await minerWatcher.waitForTX(undefined, tx.rhash());
@@ -204,7 +204,7 @@ describe.only("SPVNode", () => {
           index: fixtures.names.indexOf(name)
         };
       });
-      
+
       var graph = require("./graphs/nobodyLikesFrank.json");
       for (var origin in graph) {
         var neighbours = graph[origin];
@@ -242,13 +242,13 @@ describe.only("SPVNode", () => {
                 outpoint,
                 value * consensus.COIN);
           }
-					
+
           assert(await mtx.verify());
 
           let tx = mtx.toTX();
           node.sendTX(tx);
           await watcher.waitForTX(undefined, tx.rhash());
-					
+
           prevout[origin] = {hash: tx.hash().toString("hex"), index: 1};
         }
       }
