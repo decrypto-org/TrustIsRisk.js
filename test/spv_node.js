@@ -19,7 +19,7 @@ require("should-sinon");
 
 const COIN = consensus.COIN;
 
-describe("SPVNode", () => {
+describe.only("SPVNode", () => {
   var spvNode = null;
   var miner = null;
   var spvWalletDB = null;
