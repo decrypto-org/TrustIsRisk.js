@@ -162,7 +162,7 @@ class NodeWatcher {
     await new Promise((resolve, reject) => {
       var check = (() => {
         if (this.txCount > initialCount &&
-          (tx === undefined ||
+          (txid === undefined ||
           this.node.pool.hasTX(txid)))
           resolve();
         else setTimeout(check, 100);
