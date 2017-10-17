@@ -174,9 +174,9 @@ describe.only("SPVNode", () => {
         addresses[name] = helpers.pubKeyToEntity(keyRing.getPublicKey());
         // Create wallet for the keyrings
         if (name === "charlie" || name === "dave") {
-          wallets[name] = await testHelpers.testnetCreateWallet(spvWallet, name + "Wallet");
+          wallets[name] = await testHelpers.testnetCreateWallet(spvWalletDB, name + "Wallet");
         } else {
-          wallets[name] = await testHelpers.testnetCreateWallet(minerWallet, name + "Wallet");
+          wallets[name] = await testHelpers.testnetCreateWallet(minerWalletDB, name + "Wallet");
         }
         wallets[name].importKey(null, keyRing, "secret");
       }
