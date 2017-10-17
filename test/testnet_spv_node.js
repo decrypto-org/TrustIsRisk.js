@@ -250,7 +250,7 @@ describe.only("SPVNode", () => {
           let mtx = null;
           if (node.spv) {
             console.log(node.pool.peers);
-            mtx = await node.trust.ccreateTrustIncreasingMTX( // TODO: fix this
+            mtx = await node.trust.ccreateTrustIncreasingMTX(
                 fixtures.keyRings[origin].getPrivateKey(),
                 fixtures.keyRings[dest].getPublicKey(),
                 outpoint,
