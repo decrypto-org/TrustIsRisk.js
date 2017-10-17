@@ -78,21 +78,6 @@ describe.only("SPVNode", () => {
     await miner.disconnect();
   });
 
-//  beforeEach("add miner to spvNode as peer", async () => {
-//    const minerAddr = bcoin.netaddress.fromHostname(miner.http.config.host + ":" + miner.http.config.port, "regtest");
-//    spvNode.pool.peer.connect(minerAddr);
-//    spvNode.pool.peer.tryOpen();
-
-//    const minerAddr = miner.http.config.host + ":" + miner.http.config.port;
-//
-//    (async () => {
-//      const result = await spvNode.rpc.execute("addnode", [minerAddr, "add"]);
-//      console.log(result);
-//    })().catch((err) => {
-//      console.error(err.stack);
-//    });
-//  });
-
   afterEach("disconnect and close walletDBs", async () => {
     await spvWalletDB.disconnect();
     await minerWalletDB.disconnect();
