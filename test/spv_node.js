@@ -72,6 +72,10 @@ describe.only("SPVNode", () => {
   beforeEach("start syncing nodes", () => {
     miner.startSync();
     spvNode.startSync();
+    spvNode.pool.on("tx", async (tx) => {
+      console.log("TX added!");
+      await spvWalletDB.addTX(tx);
+    });
   });
 
   beforeEach("get watchers", () => {
