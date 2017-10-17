@@ -155,6 +155,9 @@ describe.only("SPVNode", () => {
       await miner.open();
       await spvNode.open();
 
+      spvWalletDB = await testHelpers.getWalletDB(spvNode);
+      minerWalletDB = await testHelpers.getWalletDB(miner);
+
       await miner.connect();
       await spvNode.connect();
 
@@ -278,6 +281,9 @@ describe.only("SPVNode", () => {
 
       await spvWalletDB.disconnect();
       await minerWalletDB.disconnect();
+
+      await spvWalletDB.close();
+      await minerWalletDB.close();
 
       await spvNode.close();
       await miner.close();
