@@ -186,6 +186,7 @@ describe.only("SPVNode", () => {
       spvNode.pool.watchAddress(fixtures.keyRings.alice.getPublicKey());
       miner.sendTX(tx);
       await minerWatcher.waitForTX();
+      await spvWatcher.waitForTX(); // TODO: find why spv doesn't see TX
 
       prevout = {};
       fixtures.names.forEach((name) => {
