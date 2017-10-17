@@ -19,7 +19,7 @@ require("should-sinon");
 
 const COIN = 1000;
 
-describe("SPVNode", () => {
+describe.only("SPVNode", () => {
   var spvNode = null;
   var miner = null;
   var spvWalletDB = null;
