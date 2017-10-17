@@ -145,6 +145,21 @@ describe.only("SPVNode", () => {
     var addresses, rings = {}, wallets;
 
     before("apply graph transactions", async () => {
+      miner = new Trust.FullNode({
+        network: "testnet", passphrase: "secret"
+      });
+      spvNode = new Trust.SPVNode({
+        network: "testnet", passphrase: "secret", port: 48333
+      });
+
+      await miner.open();
+      await spvNode.open();
+
+      await miner.connect();
+      await spvNode.connect();
+
+      miner.startSync();
+      spvNode.startSync();
       addresses = {};
       wallets = {};
 
@@ -252,6 +267,20 @@ describe.only("SPVNode", () => {
           prevout[origin] = {hash: tx.hash().toString("hex"), index: 1};
         }
       }
+    });
+
+    after("close nodes and walletDBs", async () => {
+      spvNode.stopSync();
+      miner.stopSync();
+
+      await spvNode.disconnect();
+      await miner.disconnect();
+
+      await spvWalletDB.disconnect();
+      await minerWalletDB.disconnect();
+
+      await spvNode.close();
+      await miner.close();
     });
 
     it("lets the miner compute trusts correctly", () => {
