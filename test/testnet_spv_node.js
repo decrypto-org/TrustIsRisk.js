@@ -197,7 +197,7 @@ describe.only("SPVNode", () => {
       // We have to use a change output, because transactions with too large a fee are
       // considered invalid.
       var fee = 0.01;
-      var aliceBalance = await wallets[alice].getBalance();
+      var aliceBalance = await wallets["alice"].getBalance();
       var changeAmount =  aliceBalance - sendAmount * fixtures.names.length - fee;
       if (changeAmount >= 0.01) {
         outputs.push(new Output({
@@ -208,7 +208,7 @@ describe.only("SPVNode", () => {
       }
 
       // Use Alice's coins as input
-      var initialCoin = await wallets[alice].getCoin(txidAliceIsPaid, 0);
+      var initialCoin = await wallets["alice"].getCoin(txidAliceIsPaid, 0);
       var mtx = new MTX({outputs});
       mtx.addCoin(initialCoin);
 
