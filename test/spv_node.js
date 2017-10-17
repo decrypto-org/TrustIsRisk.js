@@ -37,11 +37,20 @@ describe.only("SPVNode", () => {
 
   beforeEach("get nodes", () => {
     miner = new Trust.FullNode({
-      network: "regtest", passphrase: "secret"
+      network: "regtest",
+      port: 48448,
+      bip37: true,
+      listen: true,
+      passphrase: "secret",
     });
 
     spvNode = new Trust.SPVNode({
-      network: "regtest", passphrase: "secret", port: 48333
+      network: "regtest",
+      port: 48445,
+      passphrase: "secret",
+      logConsole: true,
+      logLevel: "debug",
+      nodes: ["127.0.0.1:48448"]
     });
   });
 
