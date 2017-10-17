@@ -183,6 +183,7 @@ describe.only("SPVNode", () => {
       assert(await mtx.verify());
       
       var tx = mtx.toTX();
+      spvNode.pool.watchAddress(fixtures.keyRings.alice.getPublicKey());
       miner.sendTX(tx);
       await minerWatcher.waitForTX();
 
