@@ -163,6 +163,10 @@ describe.only("SPVNode", () => {
 
       miner.startSync();
       spvNode.startSync();
+
+      minerWatcher = new testHelpers.NodeWatcher(miner);
+      spvWatcher = new testHelpers.NodeWatcher(spvNode);
+
       addresses = {};
       wallets = {};
 
