@@ -48,8 +48,8 @@ describe.only("SPVNode", () => {
       network: "regtest",
       port: 48445,
       passphrase: "secret",
-      logConsole: true,
-      logLevel: "debug",
+      // logConsole: true,
+      // logLevel: "debug",
       nodes: ["127.0.0.1:48448"]
     });
   });
