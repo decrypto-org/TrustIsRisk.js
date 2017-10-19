@@ -65,8 +65,8 @@ describe.only("SPVNode", () => {
   });
 
   beforeEach("connect nodes", async () => {
-    await miner.connect();
     await spvNode.connect();
+    await miner.connect();
   });
 
   beforeEach("start syncing nodes", () => {
