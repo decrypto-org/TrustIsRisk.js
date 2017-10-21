@@ -74,10 +74,6 @@ describe("SPVNode", () => {
   beforeEach("start syncing nodes", () => {
     miner.startSync();
     spvNode.startSync();
-    spvNode.pool.on("tx", async (tx) => {
-      console.log("TX added!");
-      await spvWalletDB.addTX(tx);
-    });
   });
 
   beforeEach("get watchers", () => {
@@ -125,11 +121,15 @@ describe("SPVNode", () => {
       outputs: [{
         value: 10 * COIN,
         address: minerBeta.getAddress("base58")
+    await spvWalletDB.addTX(miner2TX);
+    await spvWalletDB.addTX(minerSpvTX);
+    await minerWalletDB.addTX(spv2TX);
       }]
     });
     await minerWatcher.waitForTX();
     
     miner.trust.addTX.should.be.calledOnce();
+    await minerWalletDB.addTX(spvMinerTX);
   });
 
   describe("with the nobodyLikesFrank.json example", () => {
