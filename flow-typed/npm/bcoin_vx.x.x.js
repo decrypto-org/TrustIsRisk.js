@@ -23,9 +23,7 @@ declare class bcoin$SPVNode {
   getCoin(hash : Hash, index : number) : bcoin$Coin;
 }
 
-declare class bcoin$Chain {
-  getTX(hash : Hash) : bcoin$TX;
-}
+declare class bcoin$Chain {}
 
 declare class bcoin$WalletDB {}
 
