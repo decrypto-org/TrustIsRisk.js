@@ -272,7 +272,7 @@ describe("SPVNode", () => {
                 fixtures.keyRings[dest].getPublicKey(),
                 outpoint,
                 value * consensus.COIN,
-                node);
+                wallet); // Must pass some wallet to getTX from that
           }
           else { // if full node
             mtx = await node.trust.createTrustIncreasingMTX(

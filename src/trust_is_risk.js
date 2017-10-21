@@ -145,7 +145,7 @@ class TrustIsRisk {
 
   async ccreateTrustIncreasingMTX(origin : Key, dest : Key,
       outpoint : bcoin$Outpoint, trustAmount : number,
-      node : (bcoin$FullNode | bcoin$SPVNode), fee : ?number)
+      wallet : bcoin$Wallet, fee : ?number)
       : Promise<bcoin$MTX> {
     assert(node.spv, "Only spv nodes should call this");
     if (!fee) fee = 1000; // TODO: estimate this
@@ -170,7 +170,7 @@ class TrustIsRisk {
     node.pool.watchAddress(txid);
     await watcher.waitForTX(txid);
 
-    var tx = await node.chain.getTX(txid);
+    var tx = await wallet.getTX(hash);
     if (!tx) throw new Error("Could not find tx");
 
 
