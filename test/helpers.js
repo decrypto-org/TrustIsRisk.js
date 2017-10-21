@@ -157,19 +157,52 @@ class NodeWatcher {
     });
   }
 
-  async waitForTX(txid) {
-    var initialCount = this.txCount;
-    await new Promise((resolve, reject) => {
-      var check = (() => {
-        if (this.txCount > initialCount &&
-          (txid === undefined ||
-          this.node.pool.hasTX(txid)))
-          resolve();
-        else setTimeout(check, 100);
-      }).bind(this);
+  async waitForTX(input) {
+    var initialCount = null;
+    switch (typeof input) {
+    case "number":
+      initialCount = input;
+      await new Promise((resolve, reject) => {
+        var check = (() => {
+          if (this.txCount > initialCount)
+            resolve();
+          else setTimeout(check, 100);
+        }).bind(this);
 
-      check();
-    });
+        check();
+      });
+      break;
+
+    case "undefined": // TODO: reuse code
+      initialCount = this.txCount;
+      await new Promise((resolve, reject) => {
+        var check = (() => {
+          if (this.txCount > initialCount)
+            resolve();
+          else setTimeout(check, 100);
+        }).bind(this);
+
+        check();
+      });
+      break;
+
+    case "object":
+      var tx = input;
+      await new Promise((resolve, reject) => {
+        var check = (() => {
+          // This breaks node.pool.on("tx", ...)
+          if (this.node.pool.hasTX(tx.hash().toString("hex")))
+            resolve();
+          else setTimeout(check, 100);
+        }).bind(this);
+
+        check();
+      });
+      break;
+
+    default:
+      throw new Error("input cannot be " + typeof input); // TODO: throw correct error
+    }
   }
 }
 
