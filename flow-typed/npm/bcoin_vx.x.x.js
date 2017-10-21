@@ -28,7 +28,7 @@ declare class bcoin$Chain {}
 declare class bcoin$WalletDB {}
 
 declare class bcoin$Wallet {
-  getTX() : bcoin$TX;
+  getTX(hash : Hash) : Promise<bcoin$TX>;
 }
 
 declare class bcoin$Pool {
