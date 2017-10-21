@@ -143,12 +143,14 @@ class TrustIsRisk {
     return mtx;
   }
 
-  async ccreateTrustIncreasingMTX(origin : Key, dest : Key, outpoint : bcoin$Outpoint,
-      trustAmount : number, node : (bcoin$FullNode | bcoin$SPVNode), fee : ?number)
+  async ccreateTrustIncreasingMTX(origin : Key, dest : Key,
+      outpoint : bcoin$Outpoint, trustAmount : number,
+      node : (bcoin$FullNode | bcoin$SPVNode), fee : ?number)
       : Promise<bcoin$MTX> {
     assert(node.spv, "Only spv nodes should call this");
     if (!fee) fee = 1000; // TODO: estimate this
-    if (origin === dest) throw new Error("Can not increase self-trust.");
+    if (origin === dest)
+      throw new Error("Can not increase self-trust.");
 
     var originKeyRing = KeyRing.fromPrivate(origin);
     var originPubKey = originKeyRing.getPublicKey();
@@ -156,7 +158,8 @@ class TrustIsRisk {
     var mtx = new MTX({
       outputs: [
         new Output({
-          script: bcoin.script.fromMultisig(1, 3, [originPubKey, dest, this.fakePubKey]),
+          script: bcoin.script.fromMultisig(1, 3,
+              [originPubKey, dest, this.fakePubKey]),
           value: trustAmount
         })
       ]
@@ -175,7 +178,8 @@ class TrustIsRisk {
     assert(changeAmount >= 0);
     if (changeAmount) {
       mtx.addOutput(new Output({
-        script: bcoin.script.fromPubkeyhash(bcoin.crypto.hash160(originPubKey)),
+        script: bcoin.script.fromPubkeyhash(
+            bcoin.crypto.hash160(originPubKey)),
         value: changeAmount
       }));
     }
