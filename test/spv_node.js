@@ -41,7 +41,7 @@ describe("SPVNode", () => {
       port: 48448,
       bip37: true,
       listen: true,
-      passphrase: "secret",
+      passphrase: "secret"
     });
 
     spvNode = new Trust.SPVNode({
