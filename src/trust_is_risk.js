@@ -165,7 +165,7 @@ class TrustIsRisk {
       ]
     });
 
-    var txid = outpoint.txid();
+    var hash = outpoint.hash;
 
     var tx = await wallet.getTX(hash);
     if (!tx) throw new Error("Could not find tx");
