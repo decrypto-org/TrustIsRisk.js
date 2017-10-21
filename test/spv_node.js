@@ -127,14 +127,50 @@ describe("SPVNode", () => {
       outputs: [{
         value: 10 * COIN,
         address: minerWallet2.getAddress("base58")
-    await spvWalletDB.addTX(miner2TX);
-    await spvWalletDB.addTX(minerSpvTX);
-    await minerWalletDB.addTX(spv2TX);
       }]
     });
-    await minerWatcher.waitForTX();
-    
-    miner.trust.addTX.should.be.calledOnce();
+    await minerWatcher.waitForTX(miner2TX);
+    await spvWatcher.waitForTX(miner2TX);
+    await spvWalletDB.addTX(miner2TX);
+    await testHelpers.delay(300);
+
+    miner.trust.addTX.should.have.been.calledOnce();
+    spvNode.trust.addTX.should.have.been.calledOnce();
+
+    var minerSpvTX = await minerWallet2.send({
+      outputs: [{
+        value: 9 * COIN,
+        address: spvWallet1.getAddress("base58")
+      }]
+    });
+    await minerWatcher.waitForTX(minerSpvTX);
+    await spvWatcher.waitForTX(minerSpvTX);
+    await spvWalletDB.addTX(minerSpvTX);
+
+    miner.trust.addTX.should.have.been.calledTwice();
+    spvNode.trust.addTX.should.have.been.calledTwice();
+
+    var spv2TX = await spvWallet1.send({
+      outputs: [{
+        value: 8 * COIN,
+        address: spvWallet2.getAddress("base58")
+      }]
+    });
+    await minerWatcher.waitForTX(spv2TX);
+    await spvWatcher.waitForTX(spv2TX);
+    await minerWalletDB.addTX(spv2TX);
+
+    miner.trust.addTX.should.have.been.calledThrice();
+    spvNode.trust.addTX.should.have.been.calledThrice();
+
+    var spvMinerTX = await spvWallet2.send({
+      outputs: [{
+        value: 7 * COIN,
+        address: minerWallet1.getAddress("base58")
+      }]
+    });
+    await minerWatcher.waitForTX(spvMinerTX);
+    await spvWatcher.waitForTX(spvMinerTX);
     await minerWalletDB.addTX(spvMinerTX);
   });
 
