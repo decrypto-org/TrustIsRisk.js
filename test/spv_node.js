@@ -65,6 +65,8 @@ describe("SPVNode", () => {
   });
 
   beforeEach("connect nodes", async () => {
+    // The spv node must connect BEFORE the full node
+    // in order for the spv node to correctly receive txs
     await spvNode.connect();
     await miner.connect();
   });
