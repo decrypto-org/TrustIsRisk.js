@@ -184,6 +184,9 @@ describe("SPVNode", () => {
         addresses[name] = helpers.pubKeyToEntity(keyRing.getPublicKey());
       }
 
+      spvNode.pool.watchAddress(addresses["charlie"]);
+      spvNode.pool.watchAddress(addresses["dave"]);
+
       // Alice mines three blocks, each rewards her with 50 spendable BTC
       consensus.COINBASE_MATURITY = 0;
       var blockCount = 3;
