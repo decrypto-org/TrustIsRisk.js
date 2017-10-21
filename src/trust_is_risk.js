@@ -166,9 +166,6 @@ class TrustIsRisk {
     });
 
     var txid = outpoint.txid();
-    var watcher = new helpers.NodeWatcher(node);
-    node.pool.watchAddress(txid);
-    await watcher.waitForTX(txid);
 
     var tx = await wallet.getTX(hash);
     if (!tx) throw new Error("Could not find tx");
