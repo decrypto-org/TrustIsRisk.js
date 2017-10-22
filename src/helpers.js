@@ -37,19 +37,67 @@ class NodeWatcher {
     });
   }
 
-  async waitForTX(txid : Hash) : Promise<void> {
-    var initialCount : number = this.txCount;
-    await new Promise((resolve, reject) => {
-      var check = (() => {
-        if (this.txCount > initialCount &&
-          (txid === undefined ||
-          this.node.pool.hasTX(txid)))
-          resolve();
-        else setTimeout(check, 100);
-      }).bind(this);
+  async waitForTX(input : (number | bcoin$TX |
+      Hash | typeof undefined)) : Promise<void> {
+    var initialCount : number = Number.MAX_VALUE;
+    switch (typeof input) {
+    case "number":
+      initialCount = input;
+      await new Promise((resolve, reject) => {
+        var check = (() => {
+          if (this.txCount > initialCount)
+            resolve();
+          else setTimeout(check, 100);
+        }).bind(this);
 
-      check();
-    });
+        check();
+      });
+      break;
+
+    case "object":
+      var tx : bcoin$TX = input;
+      await new Promise((resolve, reject) => {
+        var check = (() => {
+            // This breaks node.pool.on("tx", ...)
+          if (this.node.pool.hasTX(tx.hash().toString("hex")))
+            resolve();
+          else setTimeout(check, 100);
+        }).bind(this);
+
+        check();
+      });
+      break;
+
+    case "string": // TODO: reuse code
+      var hash : Hash = input;
+      await new Promise((resolve, reject) => {
+        var check = (() => {
+            // This breaks node.pool.on("tx", ...)
+          if (this.node.pool.hasTX(hash))
+            resolve();
+          else setTimeout(check, 100);
+        }).bind(this);
+
+        check();
+      });
+      break;
+
+    case "undefined": // TODO: reuse code
+      initialCount = this.txCount;
+      await new Promise((resolve, reject) => {
+        var check = (() => {
+          if (this.txCount > initialCount)
+            resolve();
+          else setTimeout(check, 100);
+        }).bind(this);
+
+        check();
+      });
+      break;
+
+    default:
+      throw new TypeError("input cannot be " + typeof input);
+    }
   }
 }
 
