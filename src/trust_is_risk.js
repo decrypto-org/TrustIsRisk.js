@@ -152,6 +152,12 @@ class TrustIsRisk {
     if (origin === dest)
       throw new Error("Can not increase self-trust.");
 
+    var hash : Hash = outpoint.hash;
+    if (!this.node.pool.spvFilter.test(outpoint.hash)) {
+      this.node.pool.watchOutpoint(outpoint);
+    }
+    var watcher = new helpers.NodeWatcher(this.node);
+    await watcher.waitForTX(hash);
     var originKeyRing = KeyRing.fromPrivate(origin);
     var originPubKey = originKeyRing.getPublicKey();
 
@@ -164,8 +170,6 @@ class TrustIsRisk {
         })
       ]
     });
-
-    var hash = outpoint.hash;
 
     var tx = await wallet.getTX(hash);
     if (!tx) throw new Error("Could not find tx");
