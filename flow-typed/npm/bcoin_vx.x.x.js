@@ -33,9 +33,16 @@ declare class bcoin$Wallet {
 
 declare class bcoin$Pool {
   peers : bcoin$PeerList;
+  spvFilter : bcoin$Bloom;
 
-  watchAddress(address : Buffer) : void;
+  watchAddress(address : (bcoin$Address | Buffer)) : void;
+  watchOutpoint(outpoint : bcoin$Outpoint) : void;
   hasTX(hash : Hash) : boolean;
+}
+
+declare class bcoin$Bloom {
+  test(val : (Buffer | string), enc :
+    (typeof undefined | string)) : boolean;
 }
 
 declare class bcoin$Peer {}
@@ -129,6 +136,10 @@ declare module 'bcoin' {
     spvnode : Class<bcoin$SPVNode>,
     script : Class<bcoin$Script>,
     pool : Class<bcoin$Pool>,
+    wallet : {
+      Wallet : Class<bcoin$Wallet>,
+      WalletDB : Class<bcoin$WalletDB>
+    },
     primitives : {
       Address : Class<bcoin$Address>,
       TX : Class<bcoin$TX>,
