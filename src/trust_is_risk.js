@@ -155,9 +155,9 @@ class TrustIsRisk {
     var hash : Hash = outpoint.hash;
     if (!this.node.pool.spvFilter.test(outpoint.hash)) {
       this.node.pool.watchOutpoint(outpoint);
+      var watcher = new helpers.NodeWatcher(this.node);
+      await watcher.waitForTX(hash);
     }
-    var watcher = new helpers.NodeWatcher(this.node);
-    await watcher.waitForTX(hash);
     var originKeyRing = KeyRing.fromPrivate(origin);
     var originPubKey = originKeyRing.getPublicKey();
 
