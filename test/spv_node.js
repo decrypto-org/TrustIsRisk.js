@@ -273,8 +273,7 @@ describe("SPVNode", () => {
                 fixtures.keyRings[origin].getPrivateKey(),
                 fixtures.keyRings[dest].getPublicKey(),
                 outpoint,
-                value * consensus.COIN,
-                wallet); // Must pass some wallet to getTX from that
+                value * consensus.COIN);
           }
           else { // if full node
             mtx = await node.trust.createTrustIncreasingMTX(

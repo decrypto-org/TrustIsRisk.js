@@ -3,6 +3,8 @@ import type {Entity, TXHash, Key} from "./types";
 var bcoin = require("bcoin");
 var Address = bcoin.primitives.Address;
 var KeyRing = bcoin.primitives.KeyRing;
+var WalletDB = bcoin.wallet.WalletDB;
+var Wallet = bcoin.wallet.Wallet;
 var MTX = bcoin.primitives.MTX;
 var Input = bcoin.primitives.Input;
 var Output = bcoin.primitives.Output;
@@ -145,12 +147,25 @@ class TrustIsRisk {
 
   async ccreateTrustIncreasingMTX(origin : Key, dest : Key,
       outpoint : bcoin$Outpoint, trustAmount : number,
-      wallet : bcoin$Wallet, fee : ?number)
+       fee : ?number)
       : Promise<bcoin$MTX> {
     assert(this.node.spv, "Only spv nodes should call this");
     if (!fee) fee = 1000; // TODO: estimate this
     if (origin === dest)
       throw new Error("Can not increase self-trust.");
+
+    var walletDB : bcoin$WalletDB = new WalletDB({
+      network: this.node.network,
+      db: "memory",
+      client: new bcoin.node.NodeClient(this.node)
+    });
+    await walletDB.open();
+    await walletDB.connect();
+    var wallet : bcoin$Wallet = await walletDB.create({
+      id: "local",
+      witness: false,
+      type: "pubkeyhash"
+    });
 
     var hash : Hash = outpoint.hash;
     if (!this.node.pool.spvFilter.test(outpoint.hash)) {
@@ -158,6 +173,9 @@ class TrustIsRisk {
       var watcher = new helpers.NodeWatcher(this.node);
       await watcher.waitForTX(hash);
     }
+    var tx : bcoin$TX = await wallet.getTX(hash);
+    if (!tx) throw new Error("Could not find tx");
+
     var originKeyRing = KeyRing.fromPrivate(origin);
     var originPubKey = originKeyRing.getPublicKey();
 
@@ -170,10 +188,6 @@ class TrustIsRisk {
         })
       ]
     });
-
-    var tx = await wallet.getTX(hash);
-    if (!tx) throw new Error("Could not find tx");
-
 
     var changeAmount = tx.getOutputValue() - trustAmount - fee;
     assert(changeAmount >= 0);
