@@ -182,6 +182,7 @@ describe("SPVNode", () => {
 
       for (var [name, keyRing] of Object.entries(fixtures.keyRings)) {
         addresses[name] = helpers.pubKeyToEntity(keyRing.getPublicKey());
+        // TODO: create a wallet for each player
       }
 
       spvNode.pool.watchAddress(addresses["charlie"]);
