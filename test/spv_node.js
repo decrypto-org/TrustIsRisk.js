@@ -174,7 +174,7 @@ describe("SPVNode", () => {
     await minerWalletDB.addTX(spvMinerTX);
   });
 
-  describe("with the nobodyLikesFrank.json example", () => {
+  describe.only("with the nobodyLikesFrank.json example", () => {
     var addresses, rings = {};
 
     beforeEach("apply graph transactions", async () => {
