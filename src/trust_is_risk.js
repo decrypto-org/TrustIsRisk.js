@@ -147,7 +147,7 @@ class TrustIsRisk {
       outpoint : bcoin$Outpoint, trustAmount : number,
       wallet : bcoin$Wallet, fee : ?number)
       : Promise<bcoin$MTX> {
-    assert(node.spv, "Only spv nodes should call this");
+    assert(this.node.spv, "Only spv nodes should call this");
     if (!fee) fee = 1000; // TODO: estimate this
     if (origin === dest)
       throw new Error("Can not increase self-trust.");
