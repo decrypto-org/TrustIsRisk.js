@@ -5,13 +5,6 @@ var fixtures = require("./fixtures");
 var assert = require("assert");
 
 var testHelpers = {
-  getNode: async (type) => {
-    var node = new TrustIsRisk.FullNode({network: "regtest", passphrase: "secret"});
-    await node.open();
-
-    return node;
-  },
-
   getWalletDB: async (node) => {
     var walletDB = new WalletDB({
       network: "regtest",
