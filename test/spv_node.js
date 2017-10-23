@@ -250,7 +250,7 @@ describe("SPVNode", () => {
       var mtx = new MTX({outputs});
       coinbaseCoins.forEach((coin) => mtx.addCoin(coin));
 
-      var signedCount = mtx.sign(fixtures.keyRings.alice);
+      var signedCount = mtx.sign(alicePrivateKey);
       assert(signedCount === blockCount);
       assert(await mtx.verify());
       
