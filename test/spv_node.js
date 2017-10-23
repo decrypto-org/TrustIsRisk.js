@@ -175,46 +175,68 @@ describe("SPVNode", () => {
   });
 
   describe.only("with the nobodyLikesFrank.json example", () => {
-    var addresses, rings = {};
+    var minerNames = {
+      "alice": "alice",
+      "bob": "bob",
+      "frank": "frank",
+      "george": "george"
+    };
+
+    var spvNames = {
+      "charlie": "charlie",
+      "dave": "dave"
+    };
+
+    var minerWallets = {};
+    var spvWallets = {};
+    var name = null;
+
 
     beforeEach("apply graph transactions", async () => {
-      addresses = {};
-
-      for (var [name, keyRing] of Object.entries(fixtures.keyRings)) {
-        addresses[name] = helpers.pubKeyToEntity(keyRing.getPublicKey());
-        // TODO: create a wallet for each player
+      for (name in minerNames) {
+        minerWallets[name] = await testHelpers.createWallet(minerWalletDB, name);
       }
 
-      spvNode.pool.watchAddress(addresses["charlie"]);
-      spvNode.pool.watchAddress(addresses["dave"]);
+      for (name in spvNames) {
+        spvWallets[name] = await testHelpers.createWallet(spvWalletDB, name);
+        spvNode.pool.watchAddress(spvWallets[name].getAddress());
+      }
 
       // Alice mines three blocks, each rewards her with 50 spendable BTC
       consensus.COINBASE_MATURITY = 0;
       var blockCount = 3;
       var coinbaseHashes = [];
       for(let i = 0; i < blockCount; i++) {
-        var block = await testHelpers.mineBlock(miner, addresses.alice);
+        var block = await testHelpers.mineBlock(miner, minerWallets["alice"].getAddress());
         coinbaseHashes.push(block.txs[0].hash());
         await testHelpers.delay(500);
       }
 
       // Alice sends 20 BTC to everyone (including herself) via P2PKH
       var sendAmount = 20;
-      var outputs = fixtures.names.map((name) => {
-        return testHelpers.getP2PKHOutput(
-            Address.fromHash(bcoin.crypto.hash160(fixtures.keyRings[name].getPublicKey()))
-                .toBase58(),
-            sendAmount * consensus.COIN);
-      });
+      outputs = [];
+      for (name in minerNames) {
+        outputs.push(testHelpers.getP2PKHOutput(
+            minerWallets[name].getAddress("base58"),
+            sendAmount * consensus.COIN));
+      }
+
+      for (name in spvNames) {
+        outputs.push(testHelpers.getP2PKHOutput(
+            spvWallets[name].getAddress("base58"),
+            sendAmount * consensus.COIN));
+      }
 
       // We have to use a change output, because transactions with too large a fee are
       // considered invalid.
       var fee = 0.01;
-      var changeAmount = 50 * blockCount - sendAmount * fixtures.names.length - fee;
+      console.log(Object.keys(minerNames).length);
+      var changeAmount = 50 * blockCount - sendAmount *
+         (Object.keys(minerNames).length + Object.keys(spvNames).length) - fee;
       if (changeAmount >= 0.01) {
         outputs.push(new Output({
-          script: Script.fromPubkeyhash(bcoin.crypto.hash160(
-              fixtures.keyRings.alice.getPublicKey())),
+          script: Script.fromPubkeyhash(
+              minerWallets["alice"].getAddress("base58")),
           value: changeAmount * consensus.COIN
         }));
       }
@@ -257,11 +279,13 @@ describe("SPVNode", () => {
 
           let node = null;
           let watcher = null;
-          if (origin === "charlie" || origin == "dave") {
+          if (spvNames[origin]) {
+            console.log("2");
             node = spvNode;
             watcher = spvWatcher;
           }
           else {
+            console.log("4");
             node = miner;
             watcher = minerWatcher;
           }
