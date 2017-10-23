@@ -231,7 +231,6 @@ describe("SPVNode", () => {
       // We have to use a change output, because transactions with too large a fee are
       // considered invalid.
       var fee = 0.01;
-      console.log(Object.keys(minerNames).length);
       var changeAmount = 50 * blockCount - sendAmount *
          (Object.keys(minerNames).length + Object.keys(spvNames).length) - fee;
       if (changeAmount >= 0.01) {
