@@ -234,9 +234,11 @@ describe("SPVNode", () => {
       var changeAmount = 50 * blockCount - sendAmount *
          (Object.keys(minerNames).length + Object.keys(spvNames).length) - fee;
       if (changeAmount >= 0.01) {
+        var alicePrivateKey = await minerWallets["alice"].getPrivateKey(
+            minerWallets["alice"].getAddress("base58"), "secret");
         outputs.push(new Output({
-          script: Script.fromPubkeyhash(
-              minerWallets["alice"].getAddress("base58")),
+          script: Script.fromPubkeyhash(bcoin.crypto.hash160(
+              alicePrivateKey.publicKey)),
           value: changeAmount * consensus.COIN
         }));
       }
