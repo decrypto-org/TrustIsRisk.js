@@ -207,7 +207,8 @@ describe("SPVNode", () => {
       var blockCount = 3;
       var coinbaseHashes = [];
       for(let i = 0; i < blockCount; i++) {
-        var block = await testHelpers.mineBlock(miner, minerWallets["alice"].getAddress());
+        var block = await testHelpers.mineBlock(miner,
+            minerWallets["alice"].getAddress("base58"));
         coinbaseHashes.push(block.txs[0].hash());
         await testHelpers.delay(500);
       }
