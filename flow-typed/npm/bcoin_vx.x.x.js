@@ -3,7 +3,10 @@
 type Hash = (string | Buffer);
 type Network = any;
 
+declare class bcoin$NodeClient {}
+
 declare class bcoin$FullNode {
+  network : bcoin$Network;
   pool : bcoin$Pool;
   spv : boolean;
   chain : bcoin$Chain;
@@ -14,6 +17,7 @@ declare class bcoin$FullNode {
 }
 
 declare class bcoin$SPVNode {
+  network : bcoin$Network;
   pool : bcoin$Pool;
   spv : boolean;
   chain : bcoin$Chain;
@@ -23,9 +27,15 @@ declare class bcoin$SPVNode {
   getCoin(hash : Hash, index : number) : bcoin$Coin;
 }
 
+declare class bcoin$Network {}
+
 declare class bcoin$Chain {}
 
-declare class bcoin$WalletDB {}
+declare class bcoin$WalletDB {
+  open() : Promise<void>;
+  connect() : Promise<void>;
+  create(options : ?Object) : Promise<bcoin$Wallet>;
+}
 
 declare class bcoin$Wallet {
   getTX(hash : Hash) : Promise<bcoin$TX>;
@@ -132,6 +142,9 @@ declare class bcoin$Coin extends bcoin$Output {
 
 declare module 'bcoin' {
   declare module.exports: {
+    node : {
+      NodeClient : Class<bcoin$NodeClient>
+    },
     fullnode : Class<bcoin$FullNode>,
     spvnode : Class<bcoin$SPVNode>,
     script : Class<bcoin$Script>,
