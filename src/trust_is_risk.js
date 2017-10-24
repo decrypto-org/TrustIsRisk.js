@@ -160,7 +160,7 @@ class TrustIsRisk {
       var watcher = new helpers.NodeWatcher(this.node);
       await watcher.waitForTX(hash);
     }
-    var tx : bcoin$TX = await wallet.getTX(hash);
+    var tx : bcoin$TX = (await wallet.getTX(hash)).tx;
     if (!tx) throw new Error("Could not find tx");
 
     //var originKeyRing = KeyRing.fromPrivate(origin);
