@@ -223,8 +223,9 @@ describe("SPVNode", () => {
       var blockCount = 3;
       var coinbaseHashes = [];
       for(let i = 0; i < blockCount; i++) {
-        var block = await testHelpers.mineBlock(miner,
-            minerWallets["alice"].getAddress("base58"));
+        var block = await testHelpers.mineBlock(
+            miner, addresses["alice"]
+        );
         coinbaseHashes.push(block.txs[0].hash());
         await testHelpers.delay(500);
       }
@@ -234,14 +235,14 @@ describe("SPVNode", () => {
       outputs = [];
       for (name in minerNames) {
         outputs.push(testHelpers.getP2PKHOutput(
-            minerWallets[name].getAddress("base58"),
-            sendAmount * consensus.COIN));
+            addresses[name], sendAmount * consensus.COIN
+        ));
       }
 
       for (name in spvNames) {
         outputs.push(testHelpers.getP2PKHOutput(
-            spvWallets[name].getAddress("base58"),
-            sendAmount * consensus.COIN));
+            addresses[name], sendAmount * consensus.COIN
+        ));
       }
 
       // We have to use a change output, because transactions with too large a fee are
@@ -250,11 +251,9 @@ describe("SPVNode", () => {
       var changeAmount = 50 * blockCount - sendAmount *
          (Object.keys(minerNames).length + Object.keys(spvNames).length) - fee;
       if (changeAmount >= 0.01) {
-        var alicePrivateKey = await minerWallets["alice"].getPrivateKey(
-            minerWallets["alice"].getAddress("base58"), "secret");
         outputs.push(new Output({
           script: Script.fromPubkeyhash(bcoin.crypto.hash160(
-              alicePrivateKey.publicKey)),
+              rings["alice"].publicKey)),
           value: changeAmount * consensus.COIN
         }));
       }
@@ -266,7 +265,7 @@ describe("SPVNode", () => {
       var mtx = new MTX({outputs});
       coinbaseCoins.forEach((coin) => mtx.addCoin(coin));
 
-      var signedCount = mtx.sign(alicePrivateKey);
+      var signedCount = mtx.sign(rings["alice"]);
       assert(signedCount === blockCount);
       assert(await mtx.verify());
       
