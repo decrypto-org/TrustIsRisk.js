@@ -189,17 +189,33 @@ describe("SPVNode", () => {
 
     var minerWallets = {};
     var spvWallets = {};
-    var name = null;
 
+    var addresses = {}, rings = {}, name = null;
 
     beforeEach("apply graph transactions", async () => {
       for (name in minerNames) {
-        minerWallets[name] = await testHelpers.createWallet(minerWalletDB, name);
+        minerWallets[name] = await testHelpers.createWallet(
+            minerWalletDB, name
+        );
+        rings[name] = await minerWallets[name].getPrivateKey(
+            minerWallets[name].getAddress("base58"), "secret"
+        );
+        addresses[name] = helpers.pubKeyToEntity(
+            rings[name].getPublicKey()
+        );
       }
 
       for (name in spvNames) {
-        spvWallets[name] = await testHelpers.createWallet(spvWalletDB, name);
-        spvNode.pool.watchAddress(spvWallets[name].getAddress());
+        spvWallets[name] = await testHelpers.createWallet(
+            spvWalletDB, name
+        );
+        rings[name] = await spvWallets[name].getPrivateKey(
+            spvWallets[name].getAddress("base58"), "secret"
+        );
+        addresses[name] = helpers.pubKeyToEntity(
+            rings[name].getPublicKey()
+        );
+        spvNode.pool.watchAddress(addresses[name]);
       }
 
       // Alice mines three blocks, each rewards her with 50 spendable BTC
