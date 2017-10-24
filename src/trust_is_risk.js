@@ -163,14 +163,11 @@ class TrustIsRisk {
     var tx : bcoin$TX = (await wallet.getTX(hash)).tx;
     if (!tx) throw new Error("Could not find tx");
 
-    //var originKeyRing = KeyRing.fromPrivate(origin);
-    var originPubKey = origin.getPublicKey();
-
     var mtx = new MTX({
       outputs: [
         new Output({
           script: bcoin.script.fromMultisig(1, 3,
-              [originPubKey, dest, this.fakePubKey]),
+              [origin.getPublicKey(), dest, this.fakePubKey]),
           value: trustAmount
         })
       ]
@@ -181,7 +178,8 @@ class TrustIsRisk {
     if (changeAmount) {
       mtx.addOutput(new Output({
         script: bcoin.script.fromPubkeyhash(
-            bcoin.crypto.hash160(originPubKey)),
+            bcoin.crypto.hash160(origin.getPublicKey())
+        ),
         value: changeAmount
       }));
     }
