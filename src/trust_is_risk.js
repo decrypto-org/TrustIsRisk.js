@@ -145,13 +145,13 @@ class TrustIsRisk {
     return mtx;
   }
 
-  async ccreateTrustIncreasingMTX(origin : Key, dest : Key,
+  async ccreateTrustIncreasingMTX(origin : bcoin$KeyRing, dest : Key,
       outpoint : bcoin$Outpoint, trustAmount : number,
       wallet : bcoin$Wallet, fee : ?number)
       : Promise<bcoin$MTX> {
     assert(this.node.spv, "Only spv nodes should call this");
     if (!fee) fee = 1000; // TODO: estimate this
-    if (origin === dest)
+    if (origin.getPublicKey() === dest)
       throw new Error("Can not increase self-trust.");
 
     var hash : Hash = outpoint.hash;
@@ -163,8 +163,8 @@ class TrustIsRisk {
     var tx : bcoin$TX = await wallet.getTX(hash);
     if (!tx) throw new Error("Could not find tx");
 
-    var originKeyRing = KeyRing.fromPrivate(origin);
-    var originPubKey = originKeyRing.getPublicKey();
+    //var originKeyRing = KeyRing.fromPrivate(origin);
+    var originPubKey = origin.getPublicKey();
 
     var mtx = new MTX({
       outputs: [
@@ -188,7 +188,7 @@ class TrustIsRisk {
 
     mtx.addInput(Input.fromOutpoint(outpoint));
 
-    var signedCount = mtx.sign(originKeyRing);
+    var signedCount = mtx.sign(origin);
     assert(signedCount === 1);
 
     return mtx;
