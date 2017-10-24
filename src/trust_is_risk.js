@@ -147,25 +147,12 @@ class TrustIsRisk {
 
   async ccreateTrustIncreasingMTX(origin : Key, dest : Key,
       outpoint : bcoin$Outpoint, trustAmount : number,
-       fee : ?number)
+      wallet : bcoin$Wallet, fee : ?number)
       : Promise<bcoin$MTX> {
     assert(this.node.spv, "Only spv nodes should call this");
     if (!fee) fee = 1000; // TODO: estimate this
     if (origin === dest)
       throw new Error("Can not increase self-trust.");
-
-    var walletDB : bcoin$WalletDB = new WalletDB({
-      network: this.node.network,
-      db: "memory",
-      client: new bcoin.node.NodeClient(this.node)
-    });
-    await walletDB.open();
-    await walletDB.connect();
-    var wallet : bcoin$Wallet = await walletDB.create({
-      id: "local",
-      witness: false,
-      type: "pubkeyhash"
-    });
 
     var hash : Hash = outpoint.hash;
     if (!this.node.pool.spvFilter.test(outpoint.hash)) {
