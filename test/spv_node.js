@@ -335,7 +335,8 @@ describe("SPVNode", () => {
           destWallet = (spvNames[dest]) ? spvWallets[dest]
               : minerWallets[dest];
 
-          let outpoint = new Outpoint(prevout[origin].hash, prevout[origin].index);
+          let outpoint = new Outpoint(prevout[origin].hash,
+              prevout[origin].index);
 
           let mtx = null;
           if (node.spv) {
