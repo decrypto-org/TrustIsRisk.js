@@ -36,7 +36,7 @@ declare class bcoin$WalletDB {
 }
 
 declare class bcoin$Wallet {
-  getTX(hash : Hash) : Promise<bcoin$TX>;
+  getTX(hash : Hash) : Promise<bcoin$TXRecord>;
 }
 
 declare class bcoin$Pool {
@@ -77,6 +77,10 @@ declare class bcoin$TX {
   getOutputValue() : number;
 }
 
+declare class bcoin$TXRecord {
+  tx : bcoin$TX;
+  hash : Hash;
+}
 
 declare class bcoin$MTX {
   inputs : bcoin$Input[];
