@@ -178,6 +178,7 @@ describe("SPVNode", () => {
     var minerNames = {
       "alice": "alice",
       "bob": "bob",
+      "eve": "eve",
       "frank": "frank",
       "george": "george"
     };
