@@ -257,7 +257,8 @@ describe("SPVNode", () => {
       var tx = mtx.toTX();
 
       miner.sendTX(tx);
-      await minerWatcher.waitForTX();
+      await minerWatcher.waitForTX(tx);
+      await spvWatcher.waitForTX(tx);
 
       prevout = {};
       fixtures.names.forEach((name) => {
