@@ -276,53 +276,80 @@ describe("SPVNode", () => {
       await minerWatcher.waitForTX(tx);
       await spvWatcher.waitForTX(tx);
 
-      prevout = {};
-      fixtures.names.forEach((name) => {
+      for(name in minerNames) {
+        minerWallets[name].db.addTX(tx);
+      }
+
+      for(name in spvNames) {
+        spvWallets[name].db.addTX(tx);
+      }
+
+      var prevout = {};
+      var counter = 0;
+
+      for (name in minerNames) {
         prevout[name] = {
           hash: tx.hash().toString("hex"),
-          index: fixtures.names.indexOf(name)
+          index: counter++
         };
-      });
+      }
+
+      for (name in spvNames) {
+        prevout[name] = {
+          hash: tx.hash().toString("hex"),
+          index: counter++
+        };
+      }
       
       // Alice mines another block
-      await testHelpers.mineBlock(miner, helpers.pubKeyToEntity(
-          fixtures.keyRings.alice.getPublicKey()));
+      await testHelpers.mineBlock(miner, addresses["alice"]);
       await testHelpers.delay(500);
 
       var graph = require("./graphs/nobodyLikesFrank.json");
       for (var origin in graph) {
+        let node = null;
+        let watcher = null;
+        let originWallet = null;
+        let destWallet = null;
+
+        if (spvNames[origin]) {
+          console.log("2", origin);
+          node = spvNode;
+          watcher = spvWatcher;
+          originWallet = spvWallets[origin];
+        }
+
+        else {
+          console.log("5", origin);
+          node = miner;
+          watcher = minerWatcher;
+          originWallet = minerWallets[origin];
+        }
+
         var neighbours = graph[origin];
+
         for (var dest in neighbours) {
           var value = neighbours[dest];
           if (!value || value < 1) continue;
 
-          let node = null;
-          let watcher = null;
-          if (spvNames[origin]) {
-            console.log("2");
-            node = spvNode;
-            watcher = spvWatcher;
-          }
-          else {
-            console.log("4");
-            node = miner;
-            watcher = minerWatcher;
-          }
+          destWallet = (spvNames[dest]) ? spvWallets[dest]
+              : minerWallets[dest];
 
           let outpoint = new Outpoint(prevout[origin].hash, prevout[origin].index);
 
           let mtx = null;
           if (node.spv) {
             mtx = await node.trust.ccreateTrustIncreasingMTX(
-                fixtures.keyRings[origin].getPrivateKey(),
-                fixtures.keyRings[dest].getPublicKey(),
+                rings[origin],
+                rings[dest].getPublicKey(),
                 outpoint,
-                value * consensus.COIN);
+                value * consensus.COIN,
+                spvWallets[origin]);
           }
           else { // if full node
             mtx = await node.trust.createTrustIncreasingMTX(
-                fixtures.keyRings[origin].getPrivateKey(),
-                fixtures.keyRings[dest].getPublicKey(),
+                rings[origin].getPrivateKey(),
+                rings[dest].getPublicKey(),
                 outpoint,
                 value * consensus.COIN);
           }
@@ -332,6 +359,9 @@ describe("SPVNode", () => {
           let tx = mtx.toTX();
           node.sendTX(tx);
           await watcher.waitForTX();
+
+          originWallet.db.addTX(tx);
+          destWallet.db.addTX(tx);
 					
           prevout[origin] = {hash: tx.hash().toString("hex"), index: 1};
         }
@@ -339,7 +369,7 @@ describe("SPVNode", () => {
       
       // Alice mines yet another block
       await testHelpers.mineBlock(miner, helpers.pubKeyToEntity(
-          fixtures.keyRings.alice.getPublicKey()));
+          rings["alice"].getPublicKey()));
       await testHelpers.delay(500);
     });
 
@@ -378,29 +408,37 @@ describe("SPVNode", () => {
     });
 
     it("after decreasing some trusts lets both nodes compute trusts correctly", async () => {
-      var mtxs = miner.trust.createTrustDecreasingMTXs(fixtures.keyRings.alice.getPrivateKey(),
-          fixtures.keyRings.bob.getPublicKey(), 3 * COIN);
+      var mtxs = miner.trust.createTrustDecreasingMTXs(
+          rings["alice"].getPrivateKey(),
+          rings["bob"].getPublicKey(), 3 * COIN
+      );
       mtxs.length.should.equal(1);
       var mtx = mtxs[0];
 
       should(await mtx.verify());
       miner.sendTX(mtx.toTX());
 
-      await testHelpers.delay(750);
-      should(miner.trust.getIndirectTrust(addresses.alice, addresses.bob)).equal(7 * COIN);
-      should(spvNode.trust.getIndirectTrust(addresses.alice, addresses.bob)).equal(7 * COIN);
+      await testHelpers.delay(3000);
+      should(miner.trust.getIndirectTrust(addresses["alice"],
+          addresses["bob"])).equal(7 * COIN);
+      should(spvNode.trust.getIndirectTrust(addresses["alice"],
+          addresses["bob"])).equal(7 * COIN);
 
-      mtxs = spvNode.trust.createTrustDecreasingMTXs(fixtures.keyRings.dave.getPrivateKey(),
-      fixtures.keyRings.eve.getPublicKey(), 2 * COIN);
+      mtxs = spvNode.trust.createTrustDecreasingMTXs(
+          rings["dave"].getPrivateKey(),
+          rings["eve"].getPublicKey(), 2 * COIN
+      );
       mtxs.length.should.equal(1);
       mtx = mtxs[0];
 
       should(await mtx.verify());
       spvNode.sendTX(mtx.toTX());
 
-      await testHelpers.delay(750);
-      should(miner.trust.getIndirectTrust(addresses.dave, addresses.eve)).equal(10 * COIN);
-      should(spvNode.trust.getIndirectTrust(addresses.dave, addresses.eve)).equal(10 * COIN);
+      await testHelpers.delay(3000);
+      should(miner.trust.getIndirectTrust(addresses["dave"],
+          addresses["eve"])).equal(10 * COIN);
+      should(spvNode.trust.getIndirectTrust(addresses["dave"],
+          addresses["eve"])).equal(10 * COIN);
     });
   });
 
