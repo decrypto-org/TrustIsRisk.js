@@ -12,7 +12,6 @@ declare class bcoin$FullNode {
   chain : bcoin$Chain;
 
   on(eventName : string, eventHandler : Function) : void;
-  getTX(hash : Hash) : Promise<bcoin$TX>;
   getCoin(hash : Hash, index : number) : bcoin$Coin;
 }
 
@@ -23,7 +22,6 @@ declare class bcoin$SPVNode {
   chain : bcoin$Chain;
 
   on(eventName : string, eventHandler : Function) : void;
-  getTX(hash : Hash) : Promise<bcoin$TX>;
   getCoin(hash : Hash, index : number) : bcoin$Coin;
 }
 
