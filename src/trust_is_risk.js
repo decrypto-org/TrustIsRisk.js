@@ -151,17 +151,13 @@ class TrustIsRisk {
       : Promise<bcoin$MTX> {
     assert(this.node.spv, "Only spv nodes should call this");
     if (!fee) fee = 1000; // TODO: estimate this
+    var coin = await bcoin.coin.fromTX(
+        (await wallet.getTX(outpoint.hash)).tx, outpoint.index, -1
+    );
+    if (!coin) throw new Error("Could not find coin");
     if (origin === dest)
       throw new Error("Can not increase self-trust.");
 
-    var hash : Hash = outpoint.hash;
-    if (!this.node.pool.spvFilter.test(outpoint.hash)) {
-      this.node.pool.watchOutpoint(outpoint);
-      var watcher = new helpers.NodeWatcher(this.node);
-      await watcher.waitForTX(hash);
-    }
-    var tx : bcoin$TX = (await wallet.getTX(hash)).tx;
-    if (!tx) throw new Error("Could not find tx");
     var originKeyRing = KeyRing.fromPrivate(origin);
     var originPubKey = originKeyRing.getPublicKey();
 
@@ -174,7 +170,7 @@ class TrustIsRisk {
       ]
     });
 
-    var changeAmount = tx.getOutputValue() - trustAmount - fee;
+    var changeAmount = coin.value - trustAmount - fee;
     assert(changeAmount >= 0);
     if (changeAmount) {
       mtx.addOutput(new Output({
@@ -183,7 +179,9 @@ class TrustIsRisk {
       }));
     }
 
-    mtx.addInput(Input.fromOutpoint(outpoint));
+    mtx.addCoin(coin);
+    var success = mtx.scriptVector(coin.script, mtx.inputs[0].script, originKeyRing);
+    assert(success);
 
     var signedCount = mtx.sign(originKeyRing);
     assert(signedCount === 1);
