@@ -341,7 +341,7 @@ describe("SPVNode", () => {
           let mtx = null;
           if (node.spv) {
             mtx = await node.trust.ccreateTrustIncreasingMTX(
-                rings[origin],
+                rings[origin].getPrivateKey(),
                 rings[dest].getPublicKey(),
                 outpoint,
                 value * consensus.COIN,
