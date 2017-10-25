@@ -187,7 +187,6 @@ class TrustIsRisk {
     mtx.addInput(Input.fromOutpoint(outpoint));
 
     var signedCount = mtx.sign(origin);
-    console.log(signedCount);
     assert(signedCount === 1);
 
     return mtx;
