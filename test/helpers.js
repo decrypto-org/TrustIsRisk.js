@@ -29,24 +29,6 @@ var testHelpers = {
     return walletDB.create(options); 
   },
 
-  testnetCreateWallet: async (walletDB, id) => {
-    const keys = {
-      "spvSender": "cQzGHhucP26iPJf4fFSpLBXBN7V99mx7hBXDXm3FfQAEz9UKiDHT",
-      "spvReceiver": "cSapdQj9U6XwhePBjv3YeQrctodr2imWm2dV1u83e1SWdBFUuVo1",
-      "minerSender": "cUw1SoP2DBd6RufEs2bV7nHwoUFi382h5SpaLtBy9zXrjGqs9S3U", // this has the faucet coins
-      "minerReceiver": "cMjHoh7LRspQSVzJ6wps5XSGvn7jdidj2QhCRXDmaW48Pm9SGqCN"
-    };
-    var options = {
-      id,
-      passphrase: "secret",
-      witness: false,
-      type: "pubkeyhash",
-      master: keys.id
-    };
-
-    return walletDB.create(options);
-  },
-
   mineBlock: async (node, rewardAddress) => {
     var block = await node.miner.mineBlock(node.chain.tip, rewardAddress);
     await node.chain.add(block);
