@@ -151,7 +151,7 @@ class TrustIsRisk {
       : Promise<bcoin$MTX> {
     assert(this.node.spv, "Only spv nodes should call this");
     if (!fee) fee = 1000; // TODO: estimate this
-    var coin = await bcoin.coin.fromTX(
+    var coin = await bcoin.primitives.Coin.fromTX(
         (await wallet.getTX(outpoint.hash)).tx, outpoint.index, -1
     );
     if (!coin) throw new Error("Could not find coin");
