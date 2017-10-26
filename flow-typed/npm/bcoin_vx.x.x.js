@@ -140,6 +140,8 @@ declare class bcoin$KeyRing {
 declare class bcoin$Coin extends bcoin$Output {
   script : bcoin$Script;
   value : number;
+
+  static fromTX(tx : bcoin$TX, index : number, height : number) : bcoin$Coin;
 }
 
 declare module 'bcoin' {
