@@ -361,8 +361,8 @@ describe("SPVNode", () => {
           node.sendTX(tx);
           await watcher.waitForTX();
 
-          originWallet.db.addTX(tx);
-          destWallet.db.addTX(tx);
+          await originWallet.db.addTX(tx);
+          await destWallet.db.addTX(tx);
 					
           prevout[origin] = {hash: tx.hash().toString("hex"), index: 1};
         }
