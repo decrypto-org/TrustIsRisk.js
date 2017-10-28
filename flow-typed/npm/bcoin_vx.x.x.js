@@ -63,8 +63,12 @@ declare class bcoin$PeerList {
 }
 
 declare class bcoin$Address {
-  toBase58() : string;
   hash : Buffer;
+  static types : {
+     PUBKEYHASH : number
+  };
+
+  toBase58() : string;
   static fromHash(Hash) : bcoin$Address;
   static fromBase58(string) : bcoin$Address;
 }
