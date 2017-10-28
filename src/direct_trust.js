@@ -16,7 +16,7 @@ type DirectTrustOptions = {
   prev? : DirectTrust,
   next? : DirectTrust,
 
-  network? : string
+  network? : bcoin$Network
 }
 
 class DirectTrust {
@@ -33,6 +33,8 @@ class DirectTrust {
 
   prev : (DirectTrust | null)
   next : (DirectTrust  | null)
+
+  network : bcoin$Network
 
   constructor(options : DirectTrustOptions) {
     this.outputIndex = null;

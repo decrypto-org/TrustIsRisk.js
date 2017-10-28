@@ -104,7 +104,7 @@ class NodeWatcher {
 var helpers = {
   NodeWatcher : NodeWatcher,
 
-  pubKeyToEntity: (key : Key, network : string) : Entity => {
+  pubKeyToEntity: (key : Key, network : bcoin$Network) : Entity => {
     return Address.fromHash(bcoin.crypto.hash160(key),
         Address.types.PUBKEYHASH, -1, network).toBase58();
   },
