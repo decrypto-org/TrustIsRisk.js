@@ -213,8 +213,10 @@ describe("FullNode", () => {
     });
 
     it("after decreasing some trusts computes trusts correctly", async () => {
-      var mtxs = node.trust.createTrustDecreasingMTXs(fixtures.keyRings.alice.getPrivateKey(),
-          fixtures.keyRings.bob.getPublicKey(), 3 * COIN);
+      var mtxs = node.trust.createTrustDecreasingMTXs(
+          fixtures.keyRings.alice.getPrivateKey(),
+          fixtures.keyRings.bob.getPublicKey(), 3 * COIN
+      );
       mtxs.length.should.equal(1);
       var mtx = mtxs[0];
 

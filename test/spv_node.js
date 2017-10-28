@@ -358,6 +358,7 @@ describe("SPVNode", () => {
           assert(await mtx.verify());
 
           let tx = mtx.toTX();
+
           node.sendTX(tx);
           await watcher.waitForTX();
 

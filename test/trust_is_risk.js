@@ -287,23 +287,29 @@ describe("TrustIsRisk", () => {
     };
 
     it("creates correct trust decreasing transactions", () => {
-      var mtxs = tir.createTrustDecreasingMTXs(addr.alice.privKey, addr.bob.pubKey, 82 * COIN);
+      var mtxs = tir.createTrustDecreasingMTXs(
+          addr.alice.privKey, addr.bob.pubKey, 82 * COIN
+      );
       checkMTXs(mtxs, alice);
     });
 
     it("creates correct trust stealing transactions", () => {
-      var mtxs = tir.createTrustDecreasingMTXs(addr.alice.privKey, addr.bob.pubKey, 82 * COIN, charlie);
+      var mtxs = tir.createTrustDecreasingMTXs(
+          addr.alice.privKey, addr.bob.pubKey, 82 * COIN, charlie
+      );
       checkMTXs(mtxs, charlie);
     });
 
     it("throws when trying to decrease self-trust", () => {
-      should.throws(() => tir.createTrustDecreasingMTXs(addr.alice.privKey, addr.alice.pubKey, 10 * COIN)
-          , /self-trust/i);
+      should.throws(() => tir.createTrustDecreasingMTXs(
+          addr.alice.privKey, addr.alice.pubKey, 10 * COIN
+      ), /self-trust/i);
     });
 
     it("throws when there is not enough trust", () => {
-      should.throws(() => tir.createTrustDecreasingMTXs(addr.alice.privKey, addr.bob.pubKey, 700 * COIN)
-        , /insufficient trust/i);
+      should.throws(() => tir.createTrustDecreasingMTXs(
+          addr.alice.privKey, addr.bob.pubKey, 700 * COIN
+      ), /insufficient trust/i);
       
     });
   });

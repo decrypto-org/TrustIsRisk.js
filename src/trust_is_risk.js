@@ -196,7 +196,8 @@ class TrustIsRisk {
   // and the `dest` key is expected to be a public key. If steal is set to true, then `origin` is
   // expected to be a public key and `dest` is expected to be a private key. The private key will be
   // used to sign the transaction.
-  createTrustDecreasingMTXs(origin : Key, dest : Key, trustDecreaseAmount : number, payee : ?Entity,
+  createTrustDecreasingMTXs(origin : Key, dest : Key,
+      trustDecreaseAmount : number, payee : ?Entity,
       steal : ?boolean, fee : ?number) : bcoin$MTX[] {
     if (steal === undefined) steal = false;
 
@@ -335,8 +336,8 @@ class TrustIsRisk {
             && (output.getAddress().toBase58() === origin);
   }
 
-  parseOutputAsDirectTrust(tx : bcoin$TX, outputIndex : number, origin : Entity)
-      : (DirectTrust | null) {
+  parseOutputAsDirectTrust(tx : bcoin$TX, outputIndex : number,
+      origin : Entity) : (DirectTrust | null) {
     var txHash = tx.hash().toString("hex");
     var output = tx.outputs[outputIndex];
     if (output.getType() !== "multisig") return null;

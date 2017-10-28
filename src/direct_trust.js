@@ -99,7 +99,7 @@ class DirectTrust {
       network: this.network,
 
       prev: this,
-      txHash,
+      txHash
     });
   }
 }
