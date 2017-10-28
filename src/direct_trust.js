@@ -14,7 +14,9 @@ type DirectTrustOptions = {
   script? : bcoin$Script,
 
   prev? : DirectTrust,
-  next? : DirectTrust
+  next? : DirectTrust,
+
+  network? : string
 }
 
 class DirectTrust {
@@ -72,11 +74,11 @@ class DirectTrust {
   }
 
   getOriginEntity() : Entity {
-    return helpers.pubKeyToEntity(this.origin);
+    return helpers.pubKeyToEntity(this.origin, this.network);
   }
 
   getDestEntity() : Entity {
-    return helpers.pubKeyToEntity(this.dest);
+    return helpers.pubKeyToEntity(this.dest, this.network);
   }
 
   spend(next : DirectTrust) : void {
@@ -93,6 +95,8 @@ class DirectTrust {
       origin: this.origin,
       dest: this.dest,
       amount: 0,
+
+      network: this.network,
 
       prev: this,
       txHash,

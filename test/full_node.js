@@ -98,7 +98,9 @@ describe("FullNode", () => {
       addresses = {};
 
       for (var [name, keyRing] of Object.entries(fixtures.keyRings)) {
-        addresses[name] = helpers.pubKeyToEntity(keyRing.getPublicKey());
+        addresses[name] = helpers.pubKeyToEntity(
+            keyRing.getPublicKey(), node.network
+        );
       }
 
       // Alice mines three blocks, each rewards her with 50 spendable BTC
@@ -157,7 +159,8 @@ describe("FullNode", () => {
       
       // Alice mines another block
       await testHelpers.mineBlock(node, helpers.pubKeyToEntity(
-          fixtures.keyRings.alice.getPublicKey()));
+          fixtures.keyRings.alice.getPublicKey(), node.network
+      ));
       await testHelpers.delay(500);
 
       var graph = require("./graphs/nobodyLikesFrank.json");
@@ -187,7 +190,8 @@ describe("FullNode", () => {
       
       // Alice mines yet another block
       await testHelpers.mineBlock(node, helpers.pubKeyToEntity(
-          fixtures.keyRings.alice.getPublicKey()));
+          fixtures.keyRings.alice.getPublicKey(), node.network
+      ));
       await testHelpers.delay(500);
     });
 

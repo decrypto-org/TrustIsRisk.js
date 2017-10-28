@@ -211,8 +211,12 @@ class TrustIsRisk {
       destKeyRing = KeyRing.fromPrivate(dest);
     }
 
-    var originAddress = helpers.pubKeyToEntity(originKeyRing.getPublicKey());
-    var destAddress = helpers.pubKeyToEntity(destKeyRing.getPublicKey());
+    var originAddress = helpers.pubKeyToEntity(
+        originKeyRing.getPublicKey(), this.node.network
+    );
+    var destAddress = helpers.pubKeyToEntity(
+        destKeyRing.getPublicKey(), this.node.network
+    );
 
     if (originAddress === destAddress) throw new Error("Can't decrease self-trust");
 
@@ -312,14 +316,15 @@ class TrustIsRisk {
   // Returns an array of the corresponding DirectTrust objects.
   // If the recipient parameter is set, it will limit the results only to the outputs being sent to
   // the recipient.
-  searchForDirectTrustOutputs(tx : bcoin$TX, origin : Entity, recipient : ?Entity) : DirectTrust[] {
+  searchForDirectTrustOutputs(tx : bcoin$TX, origin : Entity,
+      recipient : ?Entity) : DirectTrust[] {
     var directTrusts = tx.outputs.map((output, outputIndex) =>
       this.parseOutputAsDirectTrust(tx, outputIndex, origin)
     ).filter(Boolean); // filter out nulls
 
     if (recipient) {
       directTrusts = directTrusts.filter((trust) =>
-          helpers.pubKeyToEntity(trust.dest) === recipient);
+          helpers.pubKeyToEntity(trust.dest, this.node.network) === recipient);
     }
     
     return directTrusts;
@@ -336,7 +341,9 @@ class TrustIsRisk {
     var output = tx.outputs[outputIndex];
     if (output.getType() !== "multisig") return null;
 
-    var entities = [1, 2].map((i) => helpers.pubKeyToEntity(output.script.get(i)));
+    var entities = [1, 2].map((i) => helpers.pubKeyToEntity(
+        output.script.get(i), this.node.network
+    ));
     if (entities[0] === entities[1]) return null;
 
     var originPubKey, destPubKey;
@@ -354,6 +361,8 @@ class TrustIsRisk {
       origin: originPubKey,
       dest: destPubKey,
       amount: Number(output.value),
+
+      network: this.node.network,
 
       txHash,
       outputIndex,

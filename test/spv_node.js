@@ -202,7 +202,7 @@ describe("SPVNode", () => {
             minerWallets[name].getAddress("base58"), "secret"
         );
         addresses[name] = helpers.pubKeyToEntity(
-            rings[name].getPublicKey()
+            rings[name].getPublicKey(), miner.network
         );
       }
 
@@ -214,7 +214,7 @@ describe("SPVNode", () => {
             spvWallets[name].getAddress("base58"), "secret"
         );
         addresses[name] = helpers.pubKeyToEntity(
-            rings[name].getPublicKey()
+            rings[name].getPublicKey(), spvNode.network
         );
         spvNode.pool.watchAddress(addresses[name]);
       }
@@ -370,7 +370,8 @@ describe("SPVNode", () => {
       
       // Alice mines yet another block
       await testHelpers.mineBlock(miner, helpers.pubKeyToEntity(
-          rings["alice"].getPublicKey()));
+          rings["alice"].getPublicKey(), miner.network
+      ));
       await testHelpers.delay(500);
     });
 

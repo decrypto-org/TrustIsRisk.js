@@ -214,8 +214,9 @@ describe("TrustIsRisk", () => {
 
       var trustOutput = mtx.outputs[0];
       trustOutput.getType().should.equal("multisig");
-      [1, 2].map((i) => helpers.pubKeyToEntity(trustOutput.script.get(i))).sort()
-          .should.deepEqual([alice, bob].sort());
+      [1, 2].map((i) => helpers.pubKeyToEntity(
+          trustOutput.script.get(i), tir.network
+      )).sort().should.deepEqual([alice, bob].sort());
       trustOutput.script.get(3).should.deepEqual(tir.fakePubKey);
       trustOutput.value.should.equal(100 * COIN);
 
