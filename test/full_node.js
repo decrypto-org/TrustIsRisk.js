@@ -116,10 +116,9 @@ describe("FullNode", () => {
       // Alice sends 20 BTC to everyone (including herself) via P2PKH
       var sendAmount = 20;
       var outputs = fixtures.names.map((name) => {
-        return testHelpers.getP2PKHOutput(
-            Address.fromHash(bcoin.crypto.hash160(fixtures.keyRings[name].getPublicKey()))
-                .toBase58(),
-            sendAmount * consensus.COIN);
+        return testHelpers.getP2PKHOutput(helpers.pubKeyToEntity(
+            fixtures.keyRings[name].getPublicKey(), node.network
+        ), sendAmount * consensus.COIN);
       });
 
       // We have to use a change output, because transaction with too large a fee are considered

@@ -25,7 +25,7 @@ describe("TrustIsRisk", () => {
     addr[name] = {};
     addr[name].pubKey = pubKey;
     addr[name].privKey = privKey;
-    addr[name].base58 = bcoin.primitives.Address.fromHash(bcoin.crypto.hash160(pubKey)).toString();
+    addr[name].base58 = helpers.pubKeyToEntity(pubKey);
   }
 
   // Add base58 address variables to scope.
