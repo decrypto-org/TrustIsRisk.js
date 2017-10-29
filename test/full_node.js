@@ -18,7 +18,6 @@ require("should-sinon");
 
 const COIN = consensus.COIN;
 
-
 describe("FullNode", () => {
   var node = null;
   var walletDB = null;
