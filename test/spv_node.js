@@ -1,6 +1,6 @@
 var Trust = require("../");
 var helpers = require("../lib/helpers.js");
-var bcoin = require("bcoin");
+var bcoin = require("bcoin").set("regtest");
 var Script = bcoin.script;
 var Address = bcoin.primitives.Address;
 var KeyRing = bcoin.primitives.KeyRing;
