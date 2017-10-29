@@ -7,7 +7,7 @@ var assert = require("assert");
 var testHelpers = {
   getWalletDB: async (node) => {
     var walletDB = new WalletDB({
-      network: "regtest",
+      network: node.network,
       db: "memory",
       client: new bcoin.node.NodeClient(node)
     });

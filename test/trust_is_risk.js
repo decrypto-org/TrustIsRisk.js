@@ -36,7 +36,7 @@ describe("TrustIsRisk", () => {
 
   var node, tir, trustIncreasingMTX, trustDecreasingMTX, trustIncreasingTX;
   beforeEach(() => {
-    node = new bcoin.fullnode({});
+    node = new bcoin.fullnode({network: bcoin.network.get().toString()});
     tir = new Trust.TrustIsRisk(node);
 
     trustIncreasingMTX = testHelpers.getTrustIncreasingMTX(addr.alice.pubKey, addr.bob.pubKey, 42 * COIN);

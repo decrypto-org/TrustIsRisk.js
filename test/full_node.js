@@ -34,7 +34,8 @@ describe("FullNode", () => {
 
   beforeEach("get node", async () => {
     node = new Trust.FullNode({
-      network: "regtest", passphrase: "secret"
+      network: bcoin.network.get().toString(),
+      passphrase: "secret"
     });
 
     await node.open();

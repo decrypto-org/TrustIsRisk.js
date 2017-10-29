@@ -37,7 +37,7 @@ describe("SPVNode", () => {
 
   beforeEach("get nodes", () => {
     miner = new Trust.FullNode({
-      network: "regtest",
+      network: bcoin.network.get().toString(),
       port: 48448,
       bip37: true,
       listen: true,
@@ -45,7 +45,7 @@ describe("SPVNode", () => {
     });
 
     spvNode = new Trust.SPVNode({
-      network: "regtest",
+      network: bcoin.network.get().toString(),
       port: 48445,
       passphrase: "secret",
       // logConsole: true,
