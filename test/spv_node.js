@@ -93,7 +93,7 @@ describe("SPVNode", () => {
     await miner.close();
   });
 
-  it("should call trust.addTX() on every transaction", async function() {
+  it.only("should call trust.addTX() on every transaction", async function() {
     var spvWallet1 = await testHelpers.createWallet(spvWalletDB, "spvWallet1");
     var spvWallet2 = await testHelpers.createWallet(spvWalletDB, "spvWallet2");
 
@@ -121,12 +121,9 @@ describe("SPVNode", () => {
       }]
     });
     await minerWatcher.waitForTX(miner2TX);
-    await spvWatcher.waitForTX(miner2TX);
-    await spvWalletDB.addTX(miner2TX);
     await testHelpers.delay(300);
 
-    miner.trust.addTX.should.have.been.calledOnce();
-    spvNode.trust.addTX.should.have.been.calledOnce();
+    Trust.TrustIsRisk.prototype.addTX.should.have.been.calledOnce();
 
     var minerSpvTX = await minerWallet2.send({
       outputs: [{
@@ -135,11 +132,13 @@ describe("SPVNode", () => {
       }]
     });
     await minerWatcher.waitForTX(minerSpvTX);
-    await spvWatcher.waitForTX(minerSpvTX);
-    await spvWalletDB.addTX(minerSpvTX);
+    await testHelpers.delay(6000);
+    spvNode.pool.getTX(spvNode.pool.peers.head(), [minerSpvTX.hash()]);
+    console.log(minerSpvTX.hash());
+    console.log(minerSpvTX.outputs[0]);
+    await testHelpers.delay(6000);
 
-    miner.trust.addTX.should.have.been.calledTwice();
-    spvNode.trust.addTX.should.have.been.calledTwice();
+    //Trust.TrustIsRisk.prototype.addTX.should.have.been.calledTwice();
 
     var spv2TX = await spvWallet1.send({
       outputs: [{
@@ -147,12 +146,12 @@ describe("SPVNode", () => {
         address: spvWallet2.getAddress("base58")
       }]
     });
+    console.log("tria");
     await minerWatcher.waitForTX(spv2TX);
     await spvWatcher.waitForTX(spv2TX);
-    await minerWalletDB.addTX(spv2TX);
+    console.log(spvNode.pool.txFilter.test(spv2TX.hash().toString("hex"), "hex"));
 
-    miner.trust.addTX.should.have.been.calledThrice();
-    spvNode.trust.addTX.should.have.been.calledThrice();
+    Trust.TrustIsRisk.prototype.addTX.should.have.been.calledThrice();
 
     var spvMinerTX = await spvWallet2.send({
       outputs: [{
@@ -163,9 +162,10 @@ describe("SPVNode", () => {
     await minerWatcher.waitForTX(spvMinerTX);
     await spvWatcher.waitForTX(spvMinerTX);
     await minerWalletDB.addTX(spvMinerTX);
+    process.exit();
   });
 
-  describe.only("with the nobodyLikesFrank.json example", () => {
+  describe("with the nobodyLikesFrank.json example", () => {
     var minerNames = {
       "alice": "alice",
       "bob": "bob",
