@@ -166,9 +166,16 @@ class NodeWatcher {
       await new Promise((resolve, reject) => {
         var check = (() => {
           // This breaks node.pool.on("tx", ...)
-          if (this.node.pool.hasTX(tx.hash().toString("hex")))
-            resolve();
-          else setTimeout(check, 100);
+          if (this.node.spv) {
+            if (this.node.pool.txFilter.test(tx.hash().toString("hex"), "hex"))
+              resolve();
+            else setTimeout(check, 100);
+          }
+          else { // this is not an SPV node
+            if (this.node.pool.hasTX(tx.hash().toString("hex")))
+              resolve();
+            else setTimeout(check, 100);
+          }
         }).bind(this);
 
         check();
