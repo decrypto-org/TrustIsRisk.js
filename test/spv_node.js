@@ -35,15 +35,7 @@ describe("SPVNode", () => {
     Trust.TrustIsRisk.prototype.addTX.restore();
   });
 
-  beforeEach("get nodes", () => {
-    miner = new Trust.FullNode({
-      network: bcoin.network.get().toString(),
-      port: 48448,
-      bip37: true,
-      listen: true,
-      passphrase: "secret"
-    });
-
+  beforeEach("connect SPV node and wallet", async () => {
     spvNode = new Trust.SPVNode({
       network: bcoin.network.get().toString(),
       port: 48445,
@@ -52,31 +44,30 @@ describe("SPVNode", () => {
       // logLevel: "debug",
       nodes: ["127.0.0.1:48448"]
     });
-  });
-
-  beforeEach("open nodes", async () => {
-    await miner.open();
     await spvNode.open();
-  });
-
-  beforeEach("get walletDBs", async () => {
-    minerWalletDB = await testHelpers.getWalletDB(miner);
     spvWalletDB = await testHelpers.getWalletDB(spvNode);
+    await spvNode.connect();
   });
 
-  beforeEach("connect nodes", async () => {
-    // The spv node must connect BEFORE the full node
-    // in order for the spv node to correctly receive txs
-    await spvNode.connect();
+  beforeEach("connect full node and wallet", async () => {
+    miner = new Trust.FullNode({
+      network: bcoin.network.get().toString(),
+      port: 48448,
+      bip37: true,
+      listen: true,
+      passphrase: "secret"
+    });
+    await miner.open();
+    minerWalletDB = await testHelpers.getWalletDB(miner);
     await miner.connect();
   });
 
-  beforeEach("start syncing nodes", () => {
+  beforeEach("start syncing", () => {
     miner.startSync();
     spvNode.startSync();
   });
 
-  beforeEach("get watchers", () => {
+  beforeEach("get watchers", async () => {
     minerWatcher = new testHelpers.NodeWatcher(miner);
     spvWatcher = new testHelpers.NodeWatcher(spvNode);
   });
