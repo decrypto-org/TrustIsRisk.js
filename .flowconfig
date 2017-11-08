@@ -1,6 +1,7 @@
 [ignore]
 .*/node_modules/*
 .*/test/*
+.*/minimal_testcases/*
 .*/lib/*
 
 [include]
