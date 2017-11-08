@@ -91,6 +91,6 @@ const COIN = consensus.COIN;
   var signedCount = mtx.sign(rings.alice);
   assert(signedCount === blockCount);
   assert(await mtx.verify());
-  console("success!");
+  console.log("success!");
   process.exit();
 })();
