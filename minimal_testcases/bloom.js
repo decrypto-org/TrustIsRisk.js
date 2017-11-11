@@ -31,6 +31,10 @@ var minerWatcher = null;
   });
   await spvNode.open();
   spvWalletDB = await getWalletDB(spvNode);
+  spvNode.pool.on("tx", async (tx) => {
+    await spvWalletDB.addTX(tx);
+    console.log("tx", tx.hash().toString("hex"), "added!");
+  });
   await spvNode.connect();
 
   miner = new bcoin.node.FullNode({
@@ -47,10 +51,10 @@ var minerWatcher = null;
   miner.startSync();
   spvNode.startSync();
 
-  // minerWatcher = new testHelpers.NodeWatcher(miner);
-  // spvWatcher = new testHelpers.NodeWatcher(spvNode);
-
   var spvWallet1 = await createWallet(spvWalletDB, "spvWallet1");
+  spvWallet1.on("balance", (balance) => {
+    console.log("New spvWallet1 balance:", bcoin.amount.btc(balance.unconfirmed));
+  });
   var spvWallet2 = await createWallet(spvWalletDB, "spvWallet2");
 
   var minerWallet1 = await createWallet(minerWalletDB, "minerWallet1");
@@ -77,7 +81,7 @@ var minerWatcher = null;
     }]
   });
   await waitForTX(miner, miner2TX);
-  await delay(300);
+  await delay(6000);
 
   var minerSpvTX = await minerWallet2.send({
     outputs: [{
@@ -86,12 +90,14 @@ var minerWatcher = null;
     }]
   });
   await waitForTX(miner, minerSpvTX);
-  await delay(600);
-  spvNode.pool.getTX(spvNode.pool.peers.head(), [minerSpvTX.hash()]);
-  console.log(minerSpvTX.hash());
-  console.log(minerSpvTX.outputs[0]);
+  await spvWallet1.getTX(minerSpvTX.hash().toString("hex"));
   await delay(6000);
-
+  var block = await mineBlock(miner, minerWallet1.getAddress("base58"));
+  await delay(6000);
+  // even though the TX has been added to spvWalletDB, spvWallet1 does not know about it
+  // TODO: ask why this happens
+  console.log("tx:", await spvWallet1.getTX(minerSpvTX.hash().toString("hex")));
+  debugger;
   var spv2TX = await spvWallet1.send({
     outputs: [{
       value: 8 * COIN,
