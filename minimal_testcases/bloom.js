@@ -19,7 +19,7 @@ var bcoin = require("bcoin").set("regtest");
   await full.open();
 
   address = new bcoin.primitives.Address();
-  setUpFilterLoadWatcher(full.pool, spv.pool, address);
+  var promise = setUpFilterLoadWatcher(full.pool, spv.pool, address);
 
   await spv.connect();
   await full.connect();
@@ -33,6 +33,7 @@ var bcoin = require("bcoin").set("regtest");
 
   await delay(3000);
   await delay(3000);
+  await promise;
   process.exit();
 })();
 
