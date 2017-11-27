@@ -35,7 +35,6 @@ var delay = async (milliseconds) => {
 
     var minerWalletDB = await getWalletDB(miner);
     var minerAlpha = await createWallet(minerWalletDB, "minerAlpha");
-    spvNode.pool.watchAddress(minerAlpha.getAddress());
 
     miner.on("tx", () => {console.log("full says: TX arrived!");});
     await miner.connect();
