@@ -132,11 +132,17 @@ describe("SPVNode", () => {
       }]
     });
     await minerWatcher.waitForTX(minerSpvTX);
-    await testHelpers.delay(6000);
-    spvNode.pool.getTX(spvNode.pool.peers.head(), [minerSpvTX.hash()]);
-    console.log(minerSpvTX.hash());
-    console.log(minerSpvTX.outputs[0]);
-    await testHelpers.delay(6000);
+    await testHelpers.delay(3000);
+    await testHelpers.delay(3000);
+    //spvNode.pool.getTX(spvNode.pool.peers.head(), [minerSpvTX.hash()]);
+    await testHelpers.delay(3000);
+    await testHelpers.delay(2000);
+    console.log(miner.pool.peers.head());
+    console.log(spvNode.pool.peers.head());
+    console.log(miner.pool.peers.head().spvFilter.test(minerSpvTX.hash))
+    console.log(miner.pool.peers.head().filter.test(miner2TX.hash))
+    console.log(spv.pool.spvFilter.test(minerSpvTX.hash))
+    console.log(spv.pool.spvFilter.test(miner2TX.hash))
 
     //Trust.TrustIsRisk.prototype.addTX.should.have.been.calledTwice();
 
