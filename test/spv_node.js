@@ -132,17 +132,9 @@ describe("SPVNode", () => {
       }]
     });
     await minerWatcher.waitForTX(minerSpvTX);
-    await testHelpers.delay(3000);
-    await testHelpers.delay(3000);
-    //spvNode.pool.getTX(spvNode.pool.peers.head(), [minerSpvTX.hash()]);
-    await testHelpers.delay(3000);
     await testHelpers.delay(2000);
-    console.log(miner.pool.peers.head());
-    console.log(spvNode.pool.peers.head());
-    console.log(miner.pool.peers.head().spvFilter.test(minerSpvTX.hash))
-    console.log(miner.pool.peers.head().filter.test(miner2TX.hash))
-    console.log(spv.pool.spvFilter.test(minerSpvTX.hash))
-    console.log(spv.pool.spvFilter.test(miner2TX.hash))
+    await testHelpers.delay(2000);
+    await testHelpers.delay(2000);
 
     //Trust.TrustIsRisk.prototype.addTX.should.have.been.calledTwice();
 
@@ -152,12 +144,10 @@ describe("SPVNode", () => {
         address: spvWallet2.getAddress("base58")
       }]
     });
-    console.log("tria");
-    await minerWatcher.waitForTX(spv2TX);
-    await spvWatcher.waitForTX(spv2TX);
-    console.log(spvNode.pool.txFilter.test(spv2TX.hash().toString("hex"), "hex"));
+    await testHelpers.delay(2000);
+    await testHelpers.delay(2000);
 
-    Trust.TrustIsRisk.prototype.addTX.should.have.been.calledThrice();
+    //Trust.TrustIsRisk.prototype.addTX.should.have.been.calledThrice();
 
     var spvMinerTX = await spvWallet2.send({
       outputs: [{
@@ -166,9 +156,9 @@ describe("SPVNode", () => {
       }]
     });
     await minerWatcher.waitForTX(spvMinerTX);
-    await spvWatcher.waitForTX(spvMinerTX);
-    await minerWalletDB.addTX(spvMinerTX);
-    process.exit();
+    await testHelpers.delay(2000);
+    await testHelpers.delay(2000);
+    console.log(await minerWallet1.getBalance());
   });
 
   describe("with the nobodyLikesFrank.json example", () => {
