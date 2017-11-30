@@ -9,7 +9,8 @@ var testHelpers = {
     var walletDB = new WalletDB({
       network: node.network,
       db: "memory",
-      client: new bcoin.node.NodeClient(node)
+      client: new bcoin.node.NodeClient(node),
+      spv: node.spv
     });
 
     await walletDB.open();
