@@ -151,6 +151,12 @@ describe("SPVNode", () => {
     });
     await spvWatcher.waitForTX(spvMinerTX);
     await minerWatcher.waitForTX(spvMinerTX);
+
+    var view = await miner.chain.db.getSpentView(miner2TX);
+    var actualBalance = (await minerWallet1.getBalance()).unconfirmed;
+    var expectedBalance =
+        consensus.BASE_REWARD - 10 * COIN + 7 * COIN - miner2TX.getFee(view);
+    should(actualBalance).equal(expectedBalance);
   });
 
   describe("with the nobodyLikesFrank.json example", () => {
