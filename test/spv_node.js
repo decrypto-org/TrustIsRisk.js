@@ -123,7 +123,7 @@ describe("SPVNode", () => {
     await minerWatcher.waitForTX(miner2TX);
     await spvWatcher.waitForTX(miner2TX);
 
-    Trust.TrustIsRisk.prototype.addTX.should.have.been.calledOnce();
+    Trust.TrustIsRisk.prototype.addTX.should.have.been.calledTwice();
 
     var minerSpvTX = await minerWallet2.send({
       outputs: [{
@@ -132,7 +132,6 @@ describe("SPVNode", () => {
       }]
     });
     await minerWatcher.waitForTX(minerSpvTX);
-    //Trust.TrustIsRisk.prototype.addTX.should.have.been.calledTwice();
     await spvWatcher.waitForTX(minerSpvTX);
 
     var spv2TX = await spvWallet1.send({
@@ -141,7 +140,6 @@ describe("SPVNode", () => {
         address: spvWallet2.getAddress("base58")
       }]
     });
-    //Trust.TrustIsRisk.prototype.addTX.should.have.been.calledThrice();
     await spvWatcher.waitForTX(spv2TX);
     await minerWatcher.waitForTX(spv2TX);
 
@@ -153,7 +151,6 @@ describe("SPVNode", () => {
     });
     await spvWatcher.waitForTX(spvMinerTX);
     await minerWatcher.waitForTX(spvMinerTX);
-    console.log(await minerWallet1.getBalance());
   });
 
   describe("with the nobodyLikesFrank.json example", () => {
