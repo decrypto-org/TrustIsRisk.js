@@ -93,7 +93,7 @@ describe("SPVNode", () => {
     await miner.close();
   });
 
-  it.only("should call trust.addTX() on every transaction", async function() {
+  it("should call trust.addTX() on every transaction", async function() {
     var spvWallet1 = await testHelpers.createWallet(spvWalletDB, "spvWallet1");
     var spvWallet2 = await testHelpers.createWallet(spvWalletDB, "spvWallet2");
 
