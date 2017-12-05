@@ -157,6 +157,7 @@ describe("SPVNode", () => {
     var expectedBalance =
         consensus.BASE_REWARD - 10 * COIN + 7 * COIN - miner2TX.getFee(view);
     should(actualBalance).equal(expectedBalance);
+    should(Trust.TrustIsRisk.prototype.addTX.callCount).equal(8);
   });
 
   describe("with the nobodyLikesFrank.json example", () => {
