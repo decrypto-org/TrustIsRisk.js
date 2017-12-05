@@ -190,6 +190,7 @@ describe("SPVNode", () => {
         addresses[name] = helpers.pubKeyToEntity(
             rings[name].getPublicKey(), miner.network
         );
+        spvNode.pool.watchAddress(addresses[name]);
       }
 
       for (name in spvNames) {
