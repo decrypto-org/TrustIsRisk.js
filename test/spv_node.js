@@ -404,9 +404,12 @@ describe("SPVNode", () => {
       var mtx = mtxs[0];
 
       should(await mtx.verify());
-      miner.sendTX(mtx.toTX());
+      var tx = mtx.toTX();
+      miner.sendTX(tx);
 
       await testHelpers.delay(3000);
+      await minerWatcher.waitForTX(tx);
+      await spvWatcher.waitForTX(tx);
       console.log("my words mark");
       console.log(spvNode.pool.txFilter.test(tx.hash().toString("hex"), "hex"));
       console.log(miner.pool.hasTX(tx));
