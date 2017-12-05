@@ -168,8 +168,9 @@ class NodeWatcher {
         var check = (() => {
           // This breaks node.pool.on("tx", ...)
           if (this.node.spv) {
-            if (this.node.pool.txFilter.test(tx.hash().toString("hex"), "hex"))
-              resolve();
+            if (this.node.pool.txFilter.test(tx.hash().toString("hex"), "hex")) {
+              console.log(tx);
+              resolve();}
             else setTimeout(check, 100);
           }
           else { // this is not an SPV node

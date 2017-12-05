@@ -299,14 +299,12 @@ describe("SPVNode", () => {
         let destWallet = null;
 
         if (spvNames[origin]) {
-          console.log("2", origin);
           node = spvNode;
           watcher = spvWatcher;
           originWallet = spvWallets[origin];
         }
 
         else {
-          console.log("5", origin);
           node = miner;
           watcher = minerWatcher;
           originWallet = minerWallets[origin];
@@ -408,6 +406,9 @@ describe("SPVNode", () => {
       miner.sendTX(mtx.toTX());
 
       await testHelpers.delay(3000);
+      console.log("my words mark");
+      console.log(spvNode.pool.txFilter.test(tx.hash().toString("hex"), "hex"));
+      console.log(miner.pool.hasTX(tx));
       should(miner.trust.getIndirectTrust(addresses["alice"],
           addresses["bob"])).equal(7 * COIN);
       should(spvNode.trust.getIndirectTrust(addresses["alice"],
