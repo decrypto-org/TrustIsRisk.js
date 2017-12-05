@@ -395,7 +395,7 @@ describe("SPVNode", () => {
       should(spvNode.trust.getIndirectTrust(george, eve)).equal(0);
     });
 
-    it("after decreasing some trusts lets both nodes compute trusts correctly", async () => {
+    it.only("after decreasing some trusts lets both nodes compute trusts correctly", async () => {
       var mtxs = miner.trust.createTrustDecreasingMTXs(
           rings["alice"].getPrivateKey(),
           rings["bob"].getPublicKey(), 3 * COIN
