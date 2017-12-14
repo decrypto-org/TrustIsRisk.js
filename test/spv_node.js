@@ -429,7 +429,7 @@ describe("SPVNode", () => {
       should(await mtx.verify());
       spvNode.sendTX(mtx.toTX());
 
-      await testHelpers.delay(3000);
+      await minerWatcher.waitForTX();
       should(miner.trust.getIndirectTrust(addresses["dave"],
           addresses["eve"])).equal(10 * COIN);
       should(spvNode.trust.getIndirectTrust(addresses["dave"],
