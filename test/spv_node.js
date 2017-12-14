@@ -385,7 +385,7 @@ describe("SPVNode", () => {
     it("lets the SPV node compute trusts correctly", () => {
       for (name in addresses) { // Add addresses to scope
         eval(`var ${name} = "${addresses[name]}";`);
-      }	
+      }
 
       should(spvNode.trust.getIndirectTrust(alice, alice)).equal(Infinity);
       should(spvNode.trust.getIndirectTrust(alice, bob)).equal(10 * COIN);

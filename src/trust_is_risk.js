@@ -223,7 +223,7 @@ class TrustIsRisk {
 
     var existingTrustAmount = this.db.getDirectTrustAmount(originAddress, destAddress);
     if (existingTrustAmount < trustDecreaseAmount) throw new Error("Insufficient trust");
-    
+
     var directTrusts = this.db.getSpendableDirectTrusts(originAddress, destAddress);
     return directTrusts.map((directTrust) => {
       var decrease = Math.min(trustDecreaseAmount, directTrust.amount);
