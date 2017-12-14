@@ -134,6 +134,8 @@ describe("SPVNode", () => {
     await minerWatcher.waitForTX(minerSpvTX);
     await spvWatcher.waitForTX(minerSpvTX);
 
+    should(Trust.TrustIsRisk.prototype.addTX.callCount).equal(4);
+
     var spv2TX = await spvWallet1.send({
       outputs: [{
         value: 8 * COIN,
@@ -142,6 +144,8 @@ describe("SPVNode", () => {
     });
     await spvWatcher.waitForTX(spv2TX);
     await minerWatcher.waitForTX(spv2TX);
+
+    should(Trust.TrustIsRisk.prototype.addTX.callCount).equal(6);
 
     var spvMinerTX = await spvWallet2.send({
       outputs: [{
