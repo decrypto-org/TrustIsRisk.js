@@ -395,7 +395,7 @@ describe("SPVNode", () => {
       should(spvNode.trust.getIndirectTrust(george, eve)).equal(0);
     });
 
-    it.only("after decreasing some trusts lets both nodes compute trusts correctly", async () => {
+    it("after decreasing some trusts lets both nodes compute trusts correctly", async () => {
       var mtxs = miner.trust.createTrustDecreasingMTXs(
           rings["alice"].getPrivateKey(),
           rings["bob"].getPublicKey(), 3 * COIN
@@ -410,9 +410,6 @@ describe("SPVNode", () => {
       await testHelpers.delay(3000);
       await minerWatcher.waitForTX(tx);
       await spvWatcher.waitForTX(tx);
-      console.log("my words mark");
-      console.log(spvNode.pool.txFilter.test(tx.hash().toString("hex"), "hex"));
-      console.log(miner.pool.hasTX(tx));
       should(miner.trust.getIndirectTrust(addresses["alice"],
           addresses["bob"])).equal(7 * COIN);
       should(spvNode.trust.getIndirectTrust(addresses["alice"],
