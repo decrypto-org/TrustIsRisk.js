@@ -63,7 +63,7 @@ describe("FullNode", () => {
     await walletDB.disconnect();
     await walletDB.close();
   });
-  
+
   afterEach("close node", async () => {
     await node.close();
   });
@@ -87,7 +87,7 @@ describe("FullNode", () => {
       }]
     });
     await watcher.waitForTX();
-    
+
     node.trust.addTX.should.be.calledOnce();
   });
 
@@ -143,7 +143,7 @@ describe("FullNode", () => {
       var signedCount = mtx.sign(fixtures.keyRings.alice);
       assert(signedCount === blockCount);
       assert(await mtx.verify());
-      
+
       var tx = mtx.toTX();
       node.sendTX(tx);
       await watcher.waitForTX();
@@ -155,7 +155,7 @@ describe("FullNode", () => {
           index: fixtures.names.indexOf(name)
         };
       });
-      
+
       // Alice mines another block
       await testHelpers.mineBlock(node, helpers.pubKeyToEntity(
           fixtures.keyRings.alice.getPublicKey(), node.network
@@ -170,23 +170,23 @@ describe("FullNode", () => {
           if (!value || value < 1) continue;
 
           let outpoint = new Outpoint(prevout[origin].hash, prevout[origin].index);
-					
+
           let mtx = await node.trust.createTrustIncreasingMTX(
               fixtures.keyRings[origin].getPrivateKey(),
               fixtures.keyRings[dest].getPublicKey(),
               outpoint,
               value * consensus.COIN);
-					
+
           assert(await mtx.verify());
 
           let tx = mtx.toTX();
           node.sendTX(tx);
           await watcher.waitForTX();
-					
+
           prevout[origin] = {hash: tx.hash().toString("hex"), index: 1};
         }
       }
-      
+
       // Alice mines yet another block
       await testHelpers.mineBlock(node, helpers.pubKeyToEntity(
           fixtures.keyRings.alice.getPublicKey(), node.network
@@ -197,7 +197,7 @@ describe("FullNode", () => {
     it("computes trusts correctly", () => {
       for (name in addresses) { // Add addresses to scope
         eval(`var ${name} = "${addresses[name]}";`);
-      }	
+      }
 
       should(node.trust.getIndirectTrust(alice, alice)).equal(Infinity);
       should(node.trust.getIndirectTrust(alice, bob)).equal(10 * COIN);

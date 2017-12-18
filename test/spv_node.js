@@ -260,7 +260,7 @@ describe("SPVNode", () => {
       var signedCount = mtx.sign(rings["alice"]);
       assert(signedCount === blockCount);
       assert(await mtx.verify());
-      
+
       var tx = mtx.toTX();
 
       miner.sendTX(tx);
@@ -291,7 +291,7 @@ describe("SPVNode", () => {
           index: counter++
         };
       }
-      
+
       // Alice mines another block
       await testHelpers.mineBlock(miner, addresses["alice"]);
       await testHelpers.delay(500);
@@ -343,7 +343,7 @@ describe("SPVNode", () => {
                 outpoint,
                 value * consensus.COIN);
           }
-					
+
           assert(await mtx.verify());
 
           let tx = mtx.toTX();
@@ -353,11 +353,11 @@ describe("SPVNode", () => {
 
           await originWallet.db.addTX(tx);
           await destWallet.db.addTX(tx);
-					
+
           prevout[origin] = {hash: tx.hash().toString("hex"), index: 1};
         }
       }
-      
+
       // Alice mines yet another block
       await testHelpers.mineBlock(miner, helpers.pubKeyToEntity(
           rings["alice"].getPublicKey(), miner.network

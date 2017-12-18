@@ -27,7 +27,7 @@ var testHelpers = {
       type: "pubkeyhash"
     };
 
-    return walletDB.create(options); 
+    return walletDB.create(options);
   },
 
   mineBlock: async (node, rewardAddress) => {

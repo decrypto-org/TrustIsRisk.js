@@ -92,7 +92,7 @@ describe("TrustIsRisk", () => {
   describe(".addTX()", () => {
     describe("with a non-TIR transaction", () => {
       it("does not change trust", () => {
-        trustIncreasingMTX.outputs[0] = testHelpers.getP2PKHOutput(charlie, 50 * COIN); 
+        trustIncreasingMTX.outputs[0] = testHelpers.getP2PKHOutput(charlie, 50 * COIN);
         tir.addTX(trustIncreasingMTX.toTX());
 
         tir.getDirectTrust(alice, bob).should.equal(0);
@@ -310,7 +310,7 @@ describe("TrustIsRisk", () => {
       should.throws(() => tir.createTrustDecreasingMTXs(
           addr.alice.privKey, addr.bob.pubKey, 700 * COIN
       ), /insufficient trust/i);
-      
+
     });
   });
 
@@ -320,7 +320,7 @@ describe("TrustIsRisk", () => {
       should(tir.getIndirectTrust(bob, alice)).equal(0);
       should(tir.getIndirectTrust(charlie, alice)).equal(0);
       should(tir.getIndirectTrust(alice, charlie)).equal(0);
-    });     
+    });
 
     it("returns Infinity for one's trust to themselves", () => {
       should(tir.getIndirectTrust(alice, alice)).equal(Infinity);
