@@ -51,6 +51,7 @@ declare class bcoin$Pool {
 declare class bcoin$Bloom {
   test(val : (Buffer | string), enc :
     (typeof undefined | string)) : boolean;
+  add(val : (Buffer | string), enc : ?string) : void;
 }
 
 declare class bcoin$Peer {}
