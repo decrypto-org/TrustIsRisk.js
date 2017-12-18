@@ -9,6 +9,7 @@ var Input = bcoin.primitives.Input;
 var Output = bcoin.primitives.Output;
 var Outpoint = bcoin.primitives.Outpoint;
 var WalletDB = bcoin.wallet.WalletDB;
+var EC = bcoin.crypto.ec;
 var testHelpers = require("./helpers");
 var consensus = require("bcoin/lib/protocol/consensus");
 var sinon = require("sinon");
@@ -91,6 +92,59 @@ describe("SPVNode", () => {
   afterEach("close nodes", async () => {
     await spvNode.close();
     await miner.close();
+  });
+
+  it.only("should match a TIR transaction with the spv bloom filter", async function() {
+    var fakePubKeyArray = [0x04,            // constant 0x04 prefix
+      0x54, 0x72, 0x75, 0x73, 0x74, 0x20, 0x69, 0x73,
+      0x20, 0x52, 0x69, 0x73, 0x6b, 0x00, 0x00, 0x00,    // 32 bytes with the x coordinate
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // containing ASCII "Trust is Risk"
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
+                                                         // secp256k1 curve: y^2 = x^3 + 7
+      0x05, 0x5d, 0x5f, 0x28, 0x5e, 0xd7, 0x9d, 0x0c,
+      0x6f, 0x61, 0xc3, 0x0e, 0xfc, 0x9d, 0x21, 0x91,
+      0x65, 0x82, 0x80, 0x59, 0xa6, 0x01, 0x25, 0x0c,    // 32 bytes with the y coordinate
+      0x8e, 0xce, 0x18, 0x00, 0x14, 0xde, 0x48, 0x1a];
+
+    var fakePubKey = Buffer.from(fakePubKeyArray);
+
+    var wallet1 = await testHelpers.createWallet(minerWalletDB, "wallet1");
+    var privateKey1 = (await wallet1.getPrivateKey(
+        wallet1.getAddress("base58"), "secret")
+    ).privateKey;
+    var origin = EC.publicKeyCreate(privateKey1, true);
+
+    var wallet2 = await testHelpers.createWallet(minerWalletDB, "wallet2");
+    var privateKey2 = (await wallet2.getPrivateKey(
+        wallet2.getAddress("base58"), "secret")
+    ).privateKey;
+    var dest = EC.publicKeyCreate(privateKey2, true);
+
+    var block = await testHelpers.mineBlock(miner, wallet1.getAddress("base58"));
+
+    // Make the coin spendable.
+    consensus.COINBASE_MATURITY = 0;
+    await testHelpers.delay(500);
+
+    var outputs = [
+      new Output({ // 1-of-3 multisig trust
+        script: bcoin.script.fromMultisig(1, 3, [origin, dest, fakePubKey]),
+        value: 49 * consensus.COIN
+      }),
+      new Output({ // paytopubkeyhash change
+        script: bcoin.script.fromPubkeyhash(bcoin.crypto.hash160(origin)),
+        value: consensus.COIN - 100000 // leave a fee of 0.001 BTC
+      })
+    ];
+    var mtx = new MTX({outputs});
+    var coinbaseCoin = await miner.getCoin(block.txs[0].hash().toString("hex"), 0);
+    mtx.addCoin(coinbaseCoin);
+
+    mtx.sign(KeyRing.fromPrivate(privateKey1, true, "regtest"));
+    should(await mtx.verify());
+    var tx = mtx.toTX();
+
+    assert(tx.isWatched(spvNode.pool.spvFilter));
   });
 
   it("should call trust.addTX() on every transaction", async function() {
