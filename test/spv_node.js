@@ -106,7 +106,7 @@ describe("SPVNode", () => {
       0x65, 0x82, 0x80, 0x59, 0xa6, 0x01, 0x25, 0x0c,    // 32 bytes with the y coordinate
       0x8e, 0xce, 0x18, 0x00, 0x14, 0xde, 0x48, 0x1a];
 
-    var fakePubKey = Buffer.from(fakePubKeyArray);
+    var tag = Buffer.from(fakePubKeyArray);
 
     var wallet1 = await testHelpers.createWallet(minerWalletDB, "wallet1");
     var privateKey1 = (await wallet1.getPrivateKey(
@@ -128,7 +128,7 @@ describe("SPVNode", () => {
 
     var outputs = [
       new Output({ // 1-of-3 multisig trust
-        script: bcoin.script.fromMultisig(1, 3, [origin, dest, fakePubKey]),
+        script: bcoin.script.fromMultisig(1, 3, [origin, dest, tag]),
         value: 49 * consensus.COIN
       }),
       new Output({ // paytopubkeyhash change

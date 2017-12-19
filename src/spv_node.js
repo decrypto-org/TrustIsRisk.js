@@ -13,9 +13,7 @@ const fakePubKeyArray = [0x04,                     // constant 0x04 prefix
   0x65, 0x82, 0x80, 0x59, 0xa6, 0x01, 0x25, 0x0c,  // 32 bytes with the y coordinate
   0x8e, 0xce, 0x18, 0x00, 0x14, 0xde, 0x48, 0x1a];
 
-const fakePubKey = Buffer.from(fakePubKeyArray);
-const fakeKeyRing = bcoin.primitives.KeyRing.fromPublic(fakePubKey);
-const tag = Buffer.from(fakeKeyRing.getAddress("base58"));
+const tag = Buffer.from(fakePubKeyArray);
 
 class SPVNode extends bcoin.spvnode {
   trust : TrustIsRisk
@@ -23,7 +21,6 @@ class SPVNode extends bcoin.spvnode {
   constructor(options : Object) {
     super(options);
     this.trust = new TrustIsRisk(this);
-    this.pool.spvFilter.add(fakePubKey);
     this.pool.spvFilter.add(tag);
   }
 }
