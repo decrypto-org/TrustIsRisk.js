@@ -65,8 +65,8 @@ describe("TrustIsRisk", () => {
 
   describe("tag", () => {
     it("corresponds to a valid public key", () => {
-      Buffer.isBuffer(tir.fakePubKey).should.equal(true);
-      secp256k1.publicKeyVerify(tir.fakePubKey).should.equal(true);
+      Buffer.isBuffer(tir.fakePubKey).should.be.true();
+      secp256k1.publicKeyVerify(tir.fakePubKey).should.be.true();
     });
 
     it("is a valid bitcoin address", () => {
@@ -147,7 +147,7 @@ describe("TrustIsRisk", () => {
 
       it("which has been processed before throws", () => {
         var tx = trustIncreasingMTX.toTX();
-        should(tir.addTX(tx));
+        should(tir.addTX(tx)).be.true();
         should.throws(() => tir.addTX(tx), /already processed/i);
         tir.getDirectTrust(alice, bob).should.equal(42 * COIN);
       });

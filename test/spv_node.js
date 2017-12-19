@@ -141,10 +141,10 @@ describe("SPVNode", () => {
     mtx.addCoin(coinbaseCoin);
 
     mtx.sign(KeyRing.fromPrivate(privateKey1, true, "regtest"));
-    should(await mtx.verify());
+    should(await mtx.verify()).be.true();
     var tx = mtx.toTX();
 
-    assert(tx.isWatched(spvNode.pool.spvFilter));
+    tx.isWatched(spvNode.pool.spvFilter).should.be.true();
   });
 
   it("should call trust.addTX() on every transaction", async function() {
@@ -461,7 +461,7 @@ describe("SPVNode", () => {
       mtxs.length.should.equal(1);
       var mtx = mtxs[0];
 
-      should(await mtx.verify());
+      should(await mtx.verify()).be.true();
       var tx = mtx.toTX();
       miner.sendTX(tx);
 
@@ -480,7 +480,7 @@ describe("SPVNode", () => {
       mtxs.length.should.equal(1);
       mtx = mtxs[0];
 
-      should(await mtx.verify());
+      should(await mtx.verify()).be.true();
       spvNode.sendTX(mtx.toTX());
 
       await minerWatcher.waitForTX();
