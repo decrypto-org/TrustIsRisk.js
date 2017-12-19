@@ -211,7 +211,7 @@ describe("FullNode", () => {
       should(node.trust.getIndirectTrust(george, eve)).equal(0);
     });
 
-    it("after decreasing some trusts computes trusts correctly", async () => {
+    it.only("after decreasing some trusts computes trusts correctly", async () => {
       var mtxs = node.trust.createTrustDecreasingMTXs(
           fixtures.keyRings.alice.getPrivateKey(),
           fixtures.keyRings.bob.getPublicKey(), 3 * COIN

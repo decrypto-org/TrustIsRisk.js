@@ -94,7 +94,7 @@ describe("SPVNode", () => {
     await miner.close();
   });
 
-  it.only("should match a TIR transaction with the spv bloom filter", async function() {
+  it("should match a TIR transaction with the spv bloom filter", async function() {
     var fakePubKeyArray = [0x04,            // constant 0x04 prefix
       0x54, 0x72, 0x75, 0x73, 0x74, 0x20, 0x69, 0x73,
       0x20, 0x52, 0x69, 0x73, 0x6b, 0x00, 0x00, 0x00,    // 32 bytes with the x coordinate
