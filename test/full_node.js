@@ -219,22 +219,22 @@ describe("FullNode", () => {
       mtxs.length.should.equal(1);
       var mtx = mtxs[0];
 
-  if (mtx.inputs.length === 0)
-    console.log(false, 1);
+      if (mtx.inputs.length === 0)
+        console.log(false, 1);
 
-  else if (mtx.isCoinbase())
-    console.log(true, 2);
+      else if (mtx.isCoinbase())
+        console.log(true, 2);
 
-  else for (i = 0; i < mtx.inputs.length; i++) {
-    input = mtx.inputs[i];
-    coin = mtx.view.getOutput(input);
+      else for (i = 0; i < mtx.inputs.length; i++) {
+        input = mtx.inputs[i];
+        coin = mtx.view.getOutput(input);
 
-    if (!coin)
-      console.log(false, i);
+        if (!coin)
+          console.log(false, i);
 
-    if (!mtx.verifyInput(i, coin, flags))
-      console.log(false, 4);
-  }
+        if (!mtx.verifyInput(i, coin, Script.flags.STANDARD_VERIFY_FLAGS))
+          console.log(false, 4);
+      }
 
       should(await mtx.verify()).be.true();
       node.sendTX(mtx.toTX());
