@@ -234,7 +234,7 @@ class TrustIsRisk {
   }
 
   getTrustDecreasingMTX(directTrust : DirectTrust, decreaseAmount : number, payee : ?Entity,
-      signingKeyRing : bcoin$KeyRing, fee : ?number) {
+      signingKeyRing : bcoin$KeyRing, fee : ?number) : Promise<bcoin$MTX> {
     if (!payee) payee = directTrust.getOriginEntity();
     if (!fee) fee = 1000; // TODO: estimate this
 
