@@ -161,6 +161,8 @@ describe("TrustIsRisk", () => {
       it("correctly decreases trust", () => {
         tir.addTX(trustDecreasingMTX.toTX());
         tir.getDirectTrust(alice, bob).should.equal(20 * COIN);
+        // trustDecreasingMTX does not verify correctly
+        // because it is not part of a valid blockchain
       });
 
       it("decreases trust to zero for trust decreasing transactions with a wrong recipient", () => {
