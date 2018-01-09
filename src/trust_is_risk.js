@@ -245,7 +245,7 @@ class TrustIsRisk {
       outputs: [new Output({
         script: bcoin.script.fromPubkeyhash(Address.fromBase58(payee).hash),
         value: ((decreaseAmount - fee) < 0) ? 0 : (decreaseAmount - fee)
-      })]
+      })] // TODO: do not add this output if its value is 0
     });
 
     var remainingTrustAmount = directTrust.amount - decreaseAmount;
