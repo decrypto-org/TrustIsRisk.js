@@ -196,9 +196,9 @@ class TrustIsRisk {
   // and the `dest` key is expected to be a public key. If steal is set to true, then `origin` is
   // expected to be a public key and `dest` is expected to be a private key. The private key will be
   // used to sign the transaction.
-  createTrustDecreasingMTXs(origin : Key, dest : Key,
+  async createTrustDecreasingMTXs(origin : Key, dest : Key,
       trustDecreaseAmount : number, payee : ?Entity,
-      steal : ?boolean, fee : ?number) : bcoin$MTX[] {
+      steal : ?boolean, fee : ?number) : Promise<Promise<bcoin$MTX>[]> {
     if (steal === undefined) steal = false;
 
     var signingKeyRing, originKeyRing, destKeyRing;
@@ -233,7 +233,7 @@ class TrustIsRisk {
     }).filter(Boolean);
   }
 
-  getTrustDecreasingMTX(directTrust : DirectTrust, decreaseAmount : number, payee : ?Entity,
+  async getTrustDecreasingMTX(directTrust : DirectTrust, decreaseAmount : number, payee : ?Entity,
       signingKeyRing : bcoin$KeyRing, fee : ?number) : Promise<bcoin$MTX> {
     if (!payee) payee = directTrust.getOriginEntity();
     if (!fee) fee = 1000; // TODO: estimate this

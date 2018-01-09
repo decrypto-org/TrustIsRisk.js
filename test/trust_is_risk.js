@@ -256,10 +256,11 @@ describe("TrustIsRisk", () => {
     // Checks that mtxs is a list of two trust decreasing transactions. The first one spends the
     // entire first trust increasing transaction, and the second spends part of the second.
     // Also checks that the reduced trust is sent via P2PKH outputs to the correct recipient.
-    var checkMTXs = (mtxs, recipient) => {
+    var checkMTXs = async (mtxs, recipient) => {
+      mtxs = await mtxs;
       mtxs.length.should.equal(2);
 
-      var mtx = mtxs[0];
+      var mtx = await mtxs[0];
 
       mtx.inputs.length.should.equal(1);
       mtx.inputs[0].prevout.should.have.properties({
@@ -272,7 +273,7 @@ describe("TrustIsRisk", () => {
       mtx.outputs[0].getAddress().toBase58().should.equal(recipient);
       mtx.outputs[0].value.should.equal(42 * COIN - 1000);
 
-      mtx = mtxs[1];
+      mtx = await mtxs[1];
 
       mtx.inputs.length.should.equal(1);
       mtx.inputs[0].prevout.should.have.properties({
@@ -303,16 +304,15 @@ describe("TrustIsRisk", () => {
     });
 
     it("throws when trying to decrease self-trust", () => {
-      should.throws(() => tir.createTrustDecreasingMTXs(
+      tir.createTrustDecreasingMTXs(
           addr.alice.privKey, addr.alice.pubKey, 10 * COIN
-      ), /self-trust/i);
+      ).should.be.rejectedWith("Can't decrease self-trust");
     });
 
     it("throws when there is not enough trust", () => {
-      should.throws(() => tir.createTrustDecreasingMTXs(
+      tir.createTrustDecreasingMTXs(
           addr.alice.privKey, addr.bob.pubKey, 700 * COIN
-      ), /insufficient trust/i);
-
+      ).should.be.rejectedWith("Insufficient trust");
     });
   });
 
