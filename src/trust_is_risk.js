@@ -237,11 +237,11 @@ class TrustIsRisk {
       signingKeyRing : bcoin$KeyRing, fee : ?number) : Promise<bcoin$MTX> {
     if (!payee) payee = directTrust.getOriginEntity();
     if (!fee) fee = 1000; // TODO: estimate this
+    var outpoint = new Outpoint(directTrust.txHash, directTrust.outputIndex);
+    var coin = await this.node.getCoin(outpoint.hash, outpoint.index);
+    if (!coin) throw new Error("Could not find coin");
 
     var mtx = new MTX({
-      inputs: [
-        Input.fromOutpoint(new Outpoint(directTrust.txHash, directTrust.outputIndex))
-      ],
       outputs: [new Output({
         script: bcoin.script.fromPubkeyhash(Address.fromBase58(payee).hash),
         value: ((decreaseAmount - fee) < 0) ? 0 : (decreaseAmount - fee)
@@ -256,6 +256,7 @@ class TrustIsRisk {
       }));
     }
 
+    mtx.addCoin(coin);
     var success = mtx.scriptVector(((directTrust.script : any) : bcoin$Script),
         mtx.inputs[0].script, KeyRing.fromPublic(directTrust.origin));
     assert(success);
