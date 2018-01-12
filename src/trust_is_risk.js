@@ -229,11 +229,11 @@ class TrustIsRisk {
       var decrease = Math.min(trustDecreaseAmount, directTrust.amount);
       if (decrease === 0) return null;
       trustDecreaseAmount -= decrease;
-      return this.getTrustDecreasingMTX(directTrust, decrease, payee, signingKeyRing, fee);
+      return this.createTrustDecreasingMTX(directTrust, decrease, payee, signingKeyRing, fee);
     }).filter(Boolean);
   }
 
-  async getTrustDecreasingMTX(directTrust : DirectTrust, decreaseAmount : number, payee : ?Entity,
+  async createTrustDecreasingMTX(directTrust : DirectTrust, decreaseAmount : number, payee : ?Entity,
       signingKeyRing : bcoin$KeyRing, fee : ?number) : Promise<bcoin$MTX> {
     if (!payee) payee = directTrust.getOriginEntity();
     if (!fee) fee = 1000; // TODO: estimate this
