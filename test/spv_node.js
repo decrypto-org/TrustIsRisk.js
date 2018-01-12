@@ -141,7 +141,7 @@ describe("SPVNode", () => {
     mtx.addCoin(coinbaseCoin);
 
     mtx.sign(KeyRing.fromPrivate(privateKey1, true, "regtest"));
-    should(await mtx.verify()).be.true();
+    (await mtx.verify()).should.be.true();
     var tx = mtx.toTX();
 
     tx.isWatched(spvNode.pool.spvFilter).should.be.true();
@@ -188,7 +188,7 @@ describe("SPVNode", () => {
     await minerWatcher.waitForTX(minerSpvTX);
     await spvWatcher.waitForTX(minerSpvTX);
 
-    should(Trust.TrustIsRisk.prototype.addTX.callCount).equal(4);
+    Trust.TrustIsRisk.prototype.addTX.callCount.should.equal(4);
 
     var spv2TX = await spvWallet1.send({
       outputs: [{
@@ -199,7 +199,7 @@ describe("SPVNode", () => {
     await spvWatcher.waitForTX(spv2TX);
     await minerWatcher.waitForTX(spv2TX);
 
-    should(Trust.TrustIsRisk.prototype.addTX.callCount).equal(6);
+    Trust.TrustIsRisk.prototype.addTX.callCount.should.equal(6);
 
     var spvMinerTX = await spvWallet2.send({
       outputs: [{
@@ -214,8 +214,8 @@ describe("SPVNode", () => {
     var actualBalance = (await minerWallet1.getBalance()).unconfirmed;
     var expectedBalance =
         consensus.BASE_REWARD - 10 * COIN + 7 * COIN - miner2TX.getFee(view);
-    should(actualBalance).equal(expectedBalance);
-    should(Trust.TrustIsRisk.prototype.addTX.callCount).equal(8);
+    actualBalance.should.equal(expectedBalance);
+    Trust.TrustIsRisk.prototype.addTX.callCount.should.equal(8);
   });
 
   describe("with the nobodyLikesFrank.json example", () => {
@@ -424,16 +424,16 @@ describe("SPVNode", () => {
         eval(`var ${name} = "${addresses[name]}";`);
       }
 
-      should(miner.trust.getIndirectTrust(alice, alice)).equal(Infinity);
-      should(miner.trust.getIndirectTrust(alice, bob)).equal(10 * COIN);
-      should(miner.trust.getIndirectTrust(alice, charlie)).equal(1 * COIN);
-      should(miner.trust.getIndirectTrust(alice, frank)).equal(0);
-      should(miner.trust.getIndirectTrust(alice, eve)).equal(6 * COIN);
+      miner.trust.getIndirectTrust(alice, alice).should.equal(Infinity);
+      miner.trust.getIndirectTrust(alice, bob).should.equal(10 * COIN);
+      miner.trust.getIndirectTrust(alice, charlie).should.equal(1 * COIN);
+      miner.trust.getIndirectTrust(alice, frank).should.equal(0);
+      miner.trust.getIndirectTrust(alice, eve).should.equal(6 * COIN);
 
-      should(miner.trust.getIndirectTrust(bob, alice)).equal(1 * COIN);
-      should(miner.trust.getIndirectTrust(bob, eve)).equal(3 * COIN);
-      should(miner.trust.getIndirectTrust(dave, eve)).equal(12 * COIN);
-      should(miner.trust.getIndirectTrust(george, eve)).equal(0);
+      miner.trust.getIndirectTrust(bob, alice).should.equal(1 * COIN);
+      miner.trust.getIndirectTrust(bob, eve).should.equal(3 * COIN);
+      miner.trust.getIndirectTrust(dave, eve).should.equal(12 * COIN);
+      miner.trust.getIndirectTrust(george, eve).should.equal(0);
     });
 
     it("lets the SPV node compute trusts correctly", () => {
@@ -441,16 +441,16 @@ describe("SPVNode", () => {
         eval(`var ${name} = "${addresses[name]}";`);
       }
 
-      should(spvNode.trust.getIndirectTrust(alice, alice)).equal(Infinity);
-      should(spvNode.trust.getIndirectTrust(alice, bob)).equal(10 * COIN);
-      should(spvNode.trust.getIndirectTrust(alice, charlie)).equal(1 * COIN);
-      should(spvNode.trust.getIndirectTrust(alice, frank)).equal(0);
-      should(spvNode.trust.getIndirectTrust(alice, eve)).equal(6 * COIN);
+      spvNode.trust.getIndirectTrust(alice, alice).should.equal(Infinity);
+      spvNode.trust.getIndirectTrust(alice, bob).should.equal(10 * COIN);
+      spvNode.trust.getIndirectTrust(alice, charlie).should.equal(1 * COIN);
+      spvNode.trust.getIndirectTrust(alice, frank).should.equal(0);
+      spvNode.trust.getIndirectTrust(alice, eve).should.equal(6 * COIN);
 
-      should(spvNode.trust.getIndirectTrust(bob, alice)).equal(1 * COIN);
-      should(spvNode.trust.getIndirectTrust(bob, eve)).equal(3 * COIN);
-      should(spvNode.trust.getIndirectTrust(dave, eve)).equal(12 * COIN);
-      should(spvNode.trust.getIndirectTrust(george, eve)).equal(0);
+      spvNode.trust.getIndirectTrust(bob, alice).should.equal(1 * COIN);
+      spvNode.trust.getIndirectTrust(bob, eve).should.equal(3 * COIN);
+      spvNode.trust.getIndirectTrust(dave, eve).should.equal(12 * COIN);
+      spvNode.trust.getIndirectTrust(george, eve).should.equal(0);
     });
 
     it("after decreasing some trusts lets both nodes compute trusts correctly", async () => {
@@ -461,17 +461,17 @@ describe("SPVNode", () => {
       mtxs.length.should.equal(1);
       var mtx = mtxs[0];
 
-      should(await mtx.verify()).be.true();
+      (await mtx.verify()).should.be.true();
       var tx = mtx.toTX();
       miner.sendTX(tx);
 
       await testHelpers.delay(3000);
       await minerWatcher.waitForTX(tx);
       await spvWatcher.waitForTX(tx);
-      should(miner.trust.getIndirectTrust(addresses["alice"],
-          addresses["bob"])).equal(7 * COIN);
-      should(spvNode.trust.getIndirectTrust(addresses["alice"],
-          addresses["bob"])).equal(7 * COIN);
+      miner.trust.getIndirectTrust(addresses["alice"],
+          addresses["bob"]).should.equal(7 * COIN);
+      spvNode.trust.getIndirectTrust(addresses["alice"],
+          addresses["bob"]).should.equal(7 * COIN);
 
       mtxs = spvNode.trust.createTrustDecreasingMTXs(
           rings["dave"].getPrivateKey(),
@@ -480,15 +480,15 @@ describe("SPVNode", () => {
       mtxs.length.should.equal(1);
       mtx = mtxs[0];
 
-      should(await mtx.verify()).be.true();
+      (await mtx.verify()).should.be.true();
       spvNode.sendTX(mtx.toTX());
 
       await minerWatcher.waitForTX();
       await spvWatcher.waitForTX();
-      should(miner.trust.getIndirectTrust(addresses["dave"],
-          addresses["eve"])).equal(10 * COIN);
-      should(spvNode.trust.getIndirectTrust(addresses["dave"],
-          addresses["eve"])).equal(10 * COIN);
+      miner.trust.getIndirectTrust(addresses["dave"],
+          addresses["eve"]).should.equal(10 * COIN);
+      spvNode.trust.getIndirectTrust(addresses["dave"],
+          addresses["eve"]).should.equal(10 * COIN);
     });
   });
 

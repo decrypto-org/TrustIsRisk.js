@@ -147,7 +147,7 @@ describe("TrustIsRisk", () => {
 
       it("which has been processed before throws", () => {
         var tx = trustIncreasingMTX.toTX();
-        should(tir.addTX(tx)).be.true();
+        tir.addTX(tx).should.be.true();
         should.throws(() => tir.addTX(tx), /already processed/i);
         tir.getDirectTrust(alice, bob).should.equal(42 * COIN);
       });
@@ -318,15 +318,15 @@ describe("TrustIsRisk", () => {
 
   describe(".getIndirectTrust()", () => {
     it("returns zero for two arbitary parties that do not trust each other", () => {
-      should(tir.getIndirectTrust(alice, bob)).equal(0);
-      should(tir.getIndirectTrust(bob, alice)).equal(0);
-      should(tir.getIndirectTrust(charlie, alice)).equal(0);
-      should(tir.getIndirectTrust(alice, charlie)).equal(0);
+      tir.getIndirectTrust(alice, bob).should.equal(0);
+      tir.getIndirectTrust(bob, alice).should.equal(0);
+      tir.getIndirectTrust(charlie, alice).should.equal(0);
+      tir.getIndirectTrust(alice, charlie).should.equal(0);
     });
 
     it("returns Infinity for one's trust to themselves", () => {
-      should(tir.getIndirectTrust(alice, alice)).equal(Infinity);
-      should(tir.getIndirectTrust(bob, bob)).equal(Infinity);
+      tir.getIndirectTrust(alice, alice).should.equal(Infinity);
+      tir.getIndirectTrust(bob, bob).should.equal(Infinity);
     });
 
     describe("after applying the Nobody Likes Frank graph example", () => {
@@ -335,69 +335,69 @@ describe("TrustIsRisk", () => {
       });
 
       it("correctly computes trusts", () => {
-        should(tir.getIndirectTrust(alice, alice)).equal(Infinity);
-        should(tir.getIndirectTrust(alice, bob)).equal(10);
-        should(tir.getIndirectTrust(alice, charlie)).equal(1);
-        should(tir.getIndirectTrust(alice, dave)).equal(4);
-        should(tir.getIndirectTrust(alice, eve)).equal(6);
-        should(tir.getIndirectTrust(alice, frank)).equal(0);
-        should(tir.getIndirectTrust(alice, george)).equal(2);
+        tir.getIndirectTrust(alice, alice).should.equal(Infinity);
+        tir.getIndirectTrust(alice, bob).should.equal(10);
+        tir.getIndirectTrust(alice, charlie).should.equal(1);
+        tir.getIndirectTrust(alice, dave).should.equal(4);
+        tir.getIndirectTrust(alice, eve).should.equal(6);
+        tir.getIndirectTrust(alice, frank).should.equal(0);
+        tir.getIndirectTrust(alice, george).should.equal(2);
 
-        should(tir.getIndirectTrust(bob, alice)).equal(1);
-        should(tir.getIndirectTrust(bob, bob)).equal(Infinity);
-        should(tir.getIndirectTrust(bob, charlie)).equal(1);
-        should(tir.getIndirectTrust(bob, dave)).equal(1);
-        should(tir.getIndirectTrust(bob, eve)).equal(3);
-        should(tir.getIndirectTrust(bob, frank)).equal(0);
-        should(tir.getIndirectTrust(bob, george)).equal(2);
+        tir.getIndirectTrust(bob, alice).should.equal(1);
+        tir.getIndirectTrust(bob, bob).should.equal(Infinity);
+        tir.getIndirectTrust(bob, charlie).should.equal(1);
+        tir.getIndirectTrust(bob, dave).should.equal(1);
+        tir.getIndirectTrust(bob, eve).should.equal(3);
+        tir.getIndirectTrust(bob, frank).should.equal(0);
+        tir.getIndirectTrust(bob, george).should.equal(2);
 
-        should(tir.getIndirectTrust(charlie, alice)).equal(0);
-        should(tir.getIndirectTrust(charlie, bob)).equal(0);
-        should(tir.getIndirectTrust(charlie, charlie)).equal(Infinity);
-        should(tir.getIndirectTrust(charlie, dave)).equal(0);
-        should(tir.getIndirectTrust(charlie, eve)).equal(0);
-        should(tir.getIndirectTrust(charlie, frank)).equal(0);
-        should(tir.getIndirectTrust(charlie, george)).equal(3);
+        tir.getIndirectTrust(charlie, alice).should.equal(0);
+        tir.getIndirectTrust(charlie, bob).should.equal(0);
+        tir.getIndirectTrust(charlie, charlie).should.equal(Infinity);
+        tir.getIndirectTrust(charlie, dave).should.equal(0);
+        tir.getIndirectTrust(charlie, eve).should.equal(0);
+        tir.getIndirectTrust(charlie, frank).should.equal(0);
+        tir.getIndirectTrust(charlie, george).should.equal(3);
 
-        should(tir.getIndirectTrust(dave, alice)).equal(2);
-        should(tir.getIndirectTrust(dave, bob)).equal(2);
-        should(tir.getIndirectTrust(dave, charlie)).equal(1);
-        should(tir.getIndirectTrust(dave, dave)).equal(Infinity);
-        should(tir.getIndirectTrust(dave, eve)).equal(12);
-        should(tir.getIndirectTrust(dave, frank)).equal(0);
-        should(tir.getIndirectTrust(dave, george)).equal(2);
+        tir.getIndirectTrust(dave, alice).should.equal(2);
+        tir.getIndirectTrust(dave, bob).should.equal(2);
+        tir.getIndirectTrust(dave, charlie).should.equal(1);
+        tir.getIndirectTrust(dave, dave).should.equal(Infinity);
+        tir.getIndirectTrust(dave, eve).should.equal(12);
+        tir.getIndirectTrust(dave, frank).should.equal(0);
+        tir.getIndirectTrust(dave, george).should.equal(2);
 
-        should(tir.getIndirectTrust(eve, alice)).equal(0);
-        should(tir.getIndirectTrust(eve, bob)).equal(0);
-        should(tir.getIndirectTrust(eve, charlie)).equal(0);
-        should(tir.getIndirectTrust(eve, dave)).equal(0);
-        should(tir.getIndirectTrust(eve, eve)).equal(Infinity);
-        should(tir.getIndirectTrust(eve, frank)).equal(0);
-        should(tir.getIndirectTrust(eve, george)).equal(0);
+        tir.getIndirectTrust(eve, alice).should.equal(0);
+        tir.getIndirectTrust(eve, bob).should.equal(0);
+        tir.getIndirectTrust(eve, charlie).should.equal(0);
+        tir.getIndirectTrust(eve, dave).should.equal(0);
+        tir.getIndirectTrust(eve, eve).should.equal(Infinity);
+        tir.getIndirectTrust(eve, frank).should.equal(0);
+        tir.getIndirectTrust(eve, george).should.equal(0);
 
-        should(tir.getIndirectTrust(frank, alice)).equal(0);
-        should(tir.getIndirectTrust(frank, bob)).equal(0);
-        should(tir.getIndirectTrust(frank, charlie)).equal(10);
-        should(tir.getIndirectTrust(frank, dave)).equal(0);
-        should(tir.getIndirectTrust(frank, eve)).equal(0);
-        should(tir.getIndirectTrust(frank, frank)).equal(Infinity);
-        should(tir.getIndirectTrust(frank, george)).equal(3);
+        tir.getIndirectTrust(frank, alice).should.equal(0);
+        tir.getIndirectTrust(frank, bob).should.equal(0);
+        tir.getIndirectTrust(frank, charlie).should.equal(10);
+        tir.getIndirectTrust(frank, dave).should.equal(0);
+        tir.getIndirectTrust(frank, eve).should.equal(0);
+        tir.getIndirectTrust(frank, frank).should.equal(Infinity);
+        tir.getIndirectTrust(frank, george).should.equal(3);
 
-        should(tir.getIndirectTrust(george, alice)).equal(0);
-        should(tir.getIndirectTrust(george, bob)).equal(0);
-        should(tir.getIndirectTrust(george, charlie)).equal(0);
-        should(tir.getIndirectTrust(george, dave)).equal(0);
-        should(tir.getIndirectTrust(george, eve)).equal(0);
-        should(tir.getIndirectTrust(george, frank)).equal(0);
-        should(tir.getIndirectTrust(george, george)).equal(Infinity);
+        tir.getIndirectTrust(george, alice).should.equal(0);
+        tir.getIndirectTrust(george, bob).should.equal(0);
+        tir.getIndirectTrust(george, charlie).should.equal(0);
+        tir.getIndirectTrust(george, dave).should.equal(0);
+        tir.getIndirectTrust(george, eve).should.equal(0);
+        tir.getIndirectTrust(george, frank).should.equal(0);
+        tir.getIndirectTrust(george, george).should.equal(Infinity);
       });
 
       it("correctly computes trusts when bob trusts frank", () => {
         tir.addTX(testHelpers.getTrustIncreasingMTX(addr.bob.pubKey, addr.frank.pubKey, 8).toTX());
-        should(tir.getIndirectTrust(george, frank)).equal(0);
-        should(tir.getIndirectTrust(alice, frank)).equal(8);
-        should(tir.getIndirectTrust(dave, frank)).equal(2);
-        should(tir.getIndirectTrust(bob, frank)).equal(8);
+        tir.getIndirectTrust(george, frank).should.equal(0);
+        tir.getIndirectTrust(alice, frank).should.equal(8);
+        tir.getIndirectTrust(dave, frank).should.equal(2);
+        tir.getIndirectTrust(bob, frank).should.equal(8);
       });
 
       // TODO: Decrement direct trusts and test that indirect trusts update correctly

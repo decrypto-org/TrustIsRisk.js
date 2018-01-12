@@ -199,16 +199,16 @@ describe("FullNode", () => {
         eval(`var ${name} = "${addresses[name]}";`);
       }
 
-      should(node.trust.getIndirectTrust(alice, alice)).equal(Infinity);
-      should(node.trust.getIndirectTrust(alice, bob)).equal(10 * COIN);
-      should(node.trust.getIndirectTrust(alice, charlie)).equal(1 * COIN);
-      should(node.trust.getIndirectTrust(alice, frank)).equal(0);
-      should(node.trust.getIndirectTrust(alice, eve)).equal(6 * COIN);
+      node.trust.getIndirectTrust(alice, alice).should.equal(Infinity);
+      node.trust.getIndirectTrust(alice, bob).should.equal(10 * COIN);
+      node.trust.getIndirectTrust(alice, charlie).should.equal(1 * COIN);
+      node.trust.getIndirectTrust(alice, frank).should.equal(0);
+      node.trust.getIndirectTrust(alice, eve).should.equal(6 * COIN);
 
-      should(node.trust.getIndirectTrust(bob, alice)).equal(1 * COIN);
-      should(node.trust.getIndirectTrust(bob, eve)).equal(3 * COIN);
-      should(node.trust.getIndirectTrust(dave, eve)).equal(12 * COIN);
-      should(node.trust.getIndirectTrust(george, eve)).equal(0);
+      node.trust.getIndirectTrust(bob, alice).should.equal(1 * COIN);
+      node.trust.getIndirectTrust(bob, eve).should.equal(3 * COIN);
+      node.trust.getIndirectTrust(dave, eve).should.equal(12 * COIN);
+      node.trust.getIndirectTrust(george, eve).should.equal(0);
     });
 
     it("after decreasing some trusts computes trusts correctly", async () => {
@@ -219,11 +219,11 @@ describe("FullNode", () => {
       mtxs.length.should.equal(1);
       var mtx = await mtxs[0];
 
-      should(await mtx.verify()).be.true();
+      (await mtx.verify()).should.be.true();
       node.sendTX(mtx.toTX());
 
       await testHelpers.delay(750);
-      should(node.trust.getIndirectTrust(addresses.alice, addresses.bob)).equal(7 * COIN);
+      node.trust.getIndirectTrust(addresses.alice, addresses.bob).should.equal(7 * COIN);
     });
   });
 
