@@ -155,8 +155,7 @@ class TrustIsRisk {
         (await wallet.getTX(outpoint.hash)).tx, outpoint.index, -1
     );
     if (!coin) throw new Error("Could not find coin");
-    if (origin === dest)
-      throw new Error("Can not increase self-trust.");
+    if (origin === dest) throw new Error("Can not increase self-trust.");
 
     var originKeyRing = KeyRing.fromPrivate(origin);
     var originPubKey = originKeyRing.getPublicKey();
