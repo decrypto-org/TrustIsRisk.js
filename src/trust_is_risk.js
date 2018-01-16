@@ -107,53 +107,22 @@ class TrustIsRisk {
   // payable to the sender. The origin key must be a private key. Any satoshis not spent will be
   // returned to the sender, minus the fees, via P2PKH.
   async createTrustIncreasingMTX(origin : Key, dest : Key, outpoint : bcoin$Outpoint,
-      trustAmount : number, fee : ?number)
+      trustAmount : number, wallet : ?bcoin$Wallet, fee : ?number)
       : Promise<bcoin$MTX> {
-    if (!fee) fee = 1000; // TODO: estimate this
-    var coin = await this.node.getCoin(outpoint.hash, outpoint.index);
-    if (!coin) throw new Error("Could not find coin");
-    if (origin === dest) throw new Error("Can not increase self-trust.");
-
-    var originKeyRing = KeyRing.fromPrivate(origin);
-    var originPubKey = originKeyRing.getPublicKey();
-
-    var mtx = new MTX({
-      outputs: [
-        new Output({
-          script: bcoin.script.fromMultisig(1, 3, [originPubKey, dest, this.fakePubKey]),
-          value: trustAmount
-        })
-      ]
-    });
-
-    var changeAmount = coin.value - trustAmount - fee;
-    assert(changeAmount >= 0);
-    if (changeAmount) {
-      mtx.addOutput(new Output({
-        script: bcoin.script.fromPubkeyhash(bcoin.crypto.hash160(originPubKey)),
-        value: changeAmount
-      }));
+    if (wallet && typeof wallet === "number") {
+      fee = wallet;
+      wallet = null;
     }
-
-    mtx.addCoin(coin);
-    var success = mtx.scriptVector(coin.script, mtx.inputs[0].script, originKeyRing);
-    assert(success);
-
-    var signedCount = mtx.sign(originKeyRing);
-    assert(signedCount === 1);
-
-    return mtx;
-  }
-
-  async ccreateTrustIncreasingMTX(origin : Key, dest : Key,
-      outpoint : bcoin$Outpoint, trustAmount : number,
-      wallet : bcoin$Wallet, fee : ?number)
-      : Promise<bcoin$MTX> {
-    assert(this.node.spv, "Only spv nodes should call this");
     if (!fee) fee = 1000; // TODO: estimate this
-    var coin = await bcoin.primitives.Coin.fromTX(
-        (await wallet.getTX(outpoint.hash)).tx, outpoint.index, -1
-    );
+    var coin = null;
+    if (wallet) { // only the spv node passes the wallet
+      coin = await bcoin.primitives.Coin.fromTX(
+          (await wallet.getTX(outpoint.hash)).tx, outpoint.index, -1
+      );
+    }
+    else { // for full nodes, getting the coin is more straightforward
+      coin = await this.node.getCoin(outpoint.hash, outpoint.index);
+    }
     if (!coin) throw new Error("Could not find coin");
     if (origin === dest) throw new Error("Can not increase self-trust.");
 

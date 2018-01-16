@@ -381,22 +381,13 @@ describe("SPVNode", () => {
           let outpoint = new Outpoint(prevout[origin].hash,
               prevout[origin].index);
 
-          let mtx = null;
-          if (node.spv) {
-            mtx = await node.trust.ccreateTrustIncreasingMTX(
-                rings[origin].getPrivateKey(),
-                rings[dest].getPublicKey(),
-                outpoint,
-                value * consensus.COIN,
-                spvWallets[origin]);
-          }
-          else { // if full node
-            mtx = await node.trust.createTrustIncreasingMTX(
-                rings[origin].getPrivateKey(),
-                rings[dest].getPublicKey(),
-                outpoint,
-                value * consensus.COIN);
-          }
+          let wallet = (node.spv) ? spvWallets[origin] : null;
+          let mtx = await node.trust.createTrustIncreasingMTX(
+              rings[origin].getPrivateKey(),
+              rings[dest].getPublicKey(),
+              outpoint,
+              value * consensus.COIN,
+              wallet);
 
           assert(await mtx.verify());
 
