@@ -165,7 +165,7 @@ class TrustIsRisk {
   // expected to be a public key and `dest` is expected to be a private key. The private key will be
   // used to sign the transaction.
   async createTrustDecreasingMTXs(origin : Key, dest : Key,
-      trustDecreaseAmount : number, payee : ?Entity,
+      trustDecreaseAmount : number, wallet : ?bcoin$Wallet, payee : ?Entity,
       steal : ?boolean, fee : ?number) : Promise<Promise<bcoin$MTX>[]> {
     if (steal === undefined) steal = false;
 
@@ -197,16 +197,28 @@ class TrustIsRisk {
       var decrease = Math.min(trustDecreaseAmount, directTrust.amount);
       if (decrease === 0) return null;
       trustDecreaseAmount -= decrease;
-      return this.createTrustDecreasingMTX(directTrust, decrease, payee, signingKeyRing, fee);
+      return this.createTrustDecreasingMTX(directTrust, decrease, payee, signingKeyRing, wallet, fee);
     }).filter(Boolean);
   }
 
   async createTrustDecreasingMTX(directTrust : DirectTrust, decreaseAmount : number, payee : ?Entity,
-      signingKeyRing : bcoin$KeyRing, fee : ?number) : Promise<bcoin$MTX> {
+      signingKeyRing : bcoin$KeyRing, wallet : ?bcoin$Wallet, fee : ?number) : Promise<bcoin$MTX> {
     if (!payee) payee = directTrust.getOriginEntity();
+    if (wallet && typeof wallet === "number") {
+      fee = wallet;
+      wallet = null;
+    }
     if (!fee) fee = 1000; // TODO: estimate this
     var outpoint = new Outpoint(directTrust.txHash, directTrust.outputIndex);
-    var coin = await this.node.getCoin(outpoint.hash, outpoint.index);
+    var coin = null;
+    if (wallet) { // only the spv node passes the wallet
+      coin = await bcoin.primitives.Coin.fromTX(
+          (await wallet.getTX(outpoint.hash)).tx, outpoint.index, -1
+      );
+    }
+    else {
+      coin = await this.node.getCoin(outpoint.hash, outpoint.index);
+    }
     if (!coin) throw new Error("Could not find coin");
 
     var mtx = new MTX({

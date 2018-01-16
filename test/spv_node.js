@@ -445,12 +445,12 @@ describe("SPVNode", () => {
     });
 
     it("after decreasing some trusts lets both nodes compute trusts correctly", async () => {
-      var mtxs = miner.trust.createTrustDecreasingMTXs(
+      var mtxs = await miner.trust.createTrustDecreasingMTXs(
           rings["alice"].getPrivateKey(),
           rings["bob"].getPublicKey(), 3 * COIN
       );
       mtxs.length.should.equal(1);
-      var mtx = mtxs[0];
+      var mtx = await mtxs[0];
 
       (await mtx.verify()).should.be.true();
       var tx = mtx.toTX();
@@ -464,12 +464,13 @@ describe("SPVNode", () => {
       spvNode.trust.getIndirectTrust(addresses["alice"],
           addresses["bob"]).should.equal(7 * COIN);
 
-      mtxs = spvNode.trust.createTrustDecreasingMTXs(
+      mtxs = await spvNode.trust.createTrustDecreasingMTXs(
           rings["dave"].getPrivateKey(),
-          rings["eve"].getPublicKey(), 2 * COIN
+          rings["eve"].getPublicKey(), 2 * COIN,
+          spvWallets["dave"]
       );
       mtxs.length.should.equal(1);
-      mtx = mtxs[0];
+      mtx = await mtxs[0];
 
       (await mtx.verify()).should.be.true();
       spvNode.sendTX(mtx.toTX());
