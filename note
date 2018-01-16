@@ -1,1 +1,3 @@
-added lines 268,269 at node_modules/bcoin/lib/node/spvnode.js
+added lines 268,269 at node_modules/bcoin/lib/node/spvnode.js:
+    this.pool.txFilter.add(item.hash());
+    this.emit('tx', item);
