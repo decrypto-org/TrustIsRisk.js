@@ -9,3 +9,10 @@ Javed Khan:
 btw I think you can just listen to 'tx' event on the node rather than digging into the txFilter etc.
 
 Might make sense to have a way for `relay` to signal and emit the `tx` event in spv mode
+
+
+Node Chkuaselidze:
+
+`pool.txFilter` is used for tracking transactions it has seen, so it doesn't reuqest them again.
+
+It's a probably good idea to update txFilter when you send tx, if you don't want to redownload your transaction. And yes that should go to sendTX method instead. and relay can use sendTX like in fullnode case.
