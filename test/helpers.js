@@ -49,7 +49,7 @@ var testHelpers = {
   },
 
   getP2PKHOutput: (dest, value) => {
-    var address = bcoin.primitives.Address.fromBase58(dest);
+    var address = bcoin.primitives.Address.fromString(dest);
     var script = bcoin.script.fromPubkeyhash(address.hash);
     
     return new bcoin.primitives.Output({script, value});

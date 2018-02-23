@@ -70,7 +70,7 @@ describe("TrustIsRisk", () => {
     });
 
     it("is a valid bitcoin address", () => {
-      assert(bcoin.primitives.Address.fromBase58(tir.tag.toString("ascii")));
+      assert(bcoin.primitives.Address.fromString(tir.tag.toString("ascii")));
     });
   });
 
@@ -224,7 +224,7 @@ describe("TrustIsRisk", () => {
 
       var changeOutput = mtx.outputs[1];
       changeOutput.getType().should.equal("pubkeyhash");
-      changeOutput.getAddress().toBase58().should.equal(alice);
+      changeOutput.getAddress().toString().should.equal(alice);
       changeOutput.value.should.equal(900 * COIN - 1000);
     });
   });
@@ -270,7 +270,7 @@ describe("TrustIsRisk", () => {
 
       mtx.outputs.length.should.equal(1); // Single P2PKH output
       mtx.outputs[0].getType().should.equal("pubkeyhash");
-      mtx.outputs[0].getAddress().toBase58().should.equal(recipient);
+      mtx.outputs[0].getAddress().toString().should.equal(recipient);
       mtx.outputs[0].value.should.equal(42 * COIN - 1000);
 
       mtx = await mtxs[1];
@@ -285,7 +285,7 @@ describe("TrustIsRisk", () => {
       mtx.outputs[1].script.toString().should.equal(trustTXs[1].outputs[0].script.toString());
       mtx.outputs[1].value.should.equal(60 * COIN);
       mtx.outputs[0].getType().should.equal("pubkeyhash");
-      mtx.outputs[0].getAddress().toBase58().should.equal(recipient);
+      mtx.outputs[0].getAddress().toString().should.equal(recipient);
       mtx.outputs[0].value.should.equal(40 * COIN - 1000);
     };
 

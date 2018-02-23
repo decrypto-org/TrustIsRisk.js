@@ -69,9 +69,9 @@ declare class bcoin$Address {
      PUBKEYHASH : number
   };
 
-  toBase58() : string;
+  toString() : string;
   static fromHash(Hash) : bcoin$Address;
-  static fromBase58(string) : bcoin$Address;
+  static fromString(string) : bcoin$Address;
 }
 
 declare class bcoin$TX {

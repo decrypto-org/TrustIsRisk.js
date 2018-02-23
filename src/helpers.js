@@ -106,7 +106,7 @@ var helpers = {
 
   pubKeyToEntity: (key : Key, network : bcoin$Network) : Entity => {
     return Address.fromHash(bcoin.crypto.hash160(key),
-        Address.types.PUBKEYHASH, -1, network).toBase58();
+        Address.types.PUBKEYHASH, -1, network).toString();
   },
 
   delay: async (milliseconds : number) => {

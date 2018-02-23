@@ -97,12 +97,12 @@ var assert = require("assert");
       fullWallet.getAddress("base58"), "secret"
   );
   var fullAddr = Address.fromHash(bcoin.crypto.hash160(
-      fullRing.getPublicKey())).toBase58();
+      fullRing.getPublicKey())).toString();
   var spvRing = await spvWallet.getPrivateKey(
       spvWallet.getAddress("base58"), "secret"
   );
   var spvAddr = Address.fromHash(bcoin.crypto.hash160(
-      spvRing.getPublicKey())).toBase58();
+      spvRing.getPublicKey())).toString();
 
 /*
  *  End setup

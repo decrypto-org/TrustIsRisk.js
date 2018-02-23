@@ -223,7 +223,7 @@ class TrustIsRisk {
 
     var mtx = new MTX({
       outputs: [new Output({
-        script: bcoin.script.fromPubkeyhash(Address.fromBase58(payee).hash),
+        script: bcoin.script.fromPubkeyhash(Address.fromString(payee).hash),
         value: ((decreaseAmount - fee) < 0) ? 0 : (decreaseAmount - fee)
       })] // TODO: do not add this output if its value is 0
     });
@@ -253,7 +253,7 @@ class TrustIsRisk {
     var input = tx.inputs[0];
     if (input.getType() !== "pubkeyhash") return null; // TODO: This is unreliable
     if (this.db.isTrustOutput(input.prevout.hash.toString("hex"), input.prevout.index)) return null;
-    var origin = tx.inputs[0].getAddress().toBase58();
+    var origin = tx.inputs[0].getAddress().toString();
 
     if (tx.outputs.length === 0 || tx.outputs.length > 2) return null;
 
@@ -314,7 +314,7 @@ class TrustIsRisk {
 
   isChangeOutput(output : bcoin$Output, origin : Entity) : boolean {
     return (output.getType() === "pubkeyhash")
-            && (output.getAddress().toBase58() === origin);
+            && (output.getAddress().toString() === origin);
   }
 
   parseOutputAsDirectTrust(tx : bcoin$TX, outputIndex : number,

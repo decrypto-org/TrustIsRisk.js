@@ -63,7 +63,7 @@ const COIN = consensus.COIN;
     return testHelpers.getP2PKHOutput(
         Address.fromHash(bcoin.crypto.hash160(
             rings[name].getPublicKey())
-        ).toBase58(),
+        ).toString(),
         sendAmount * consensus.COIN);
   });
 
