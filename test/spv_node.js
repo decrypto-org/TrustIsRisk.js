@@ -154,12 +154,6 @@ describe("SPVNode", () => {
     var minerWallet1 = await testHelpers.createWallet(minerWalletDB, "minerWallet1");
     var minerWallet2 = await testHelpers.createWallet(minerWalletDB, "minerWallet2");
 
-    spvNode.pool.watchAddress(minerWallet1.getAddress());
-    spvNode.pool.watchAddress(minerWallet2.getAddress());
-
-    spvNode.pool.watchAddress(spvWallet1.getAddress());
-    spvNode.pool.watchAddress(spvWallet2.getAddress());
-
     await testHelpers.delay(1000);
     // Produce a block and reward the minerWallet1, so that we have a coin to spend.
     await testHelpers.mineBlock(miner, minerWallet1.getAddress("base58"));
