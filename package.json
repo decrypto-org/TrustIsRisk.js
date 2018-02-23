@@ -38,7 +38,7 @@
     "sinon": "^2.2.0"
   },
   "dependencies": {
-    "bcoin": "^1.0.0-beta.12",
+    "bcoin": "^1.0.0-beta.15",
     "graph-theory-ford-fulkerson": "^1.0.0",
     "sorted-set": "^0.3.0"
   }
