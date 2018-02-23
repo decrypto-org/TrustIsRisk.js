@@ -66,8 +66,7 @@ const helpers = {
     // Make the coin spendable.
     consensus.COINBASE_MATURITY = 0;
     await helpers.delay(100);
-    
-    // @dionyziz: what if I remove await below?
+
     const ret = await fullWallet.send({
       outputs: [{ // give 25 coins to SPV
         value: 25 * consensus.COIN,

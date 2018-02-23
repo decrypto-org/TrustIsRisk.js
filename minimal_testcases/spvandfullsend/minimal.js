@@ -25,15 +25,6 @@ let fullWalletDB;
   await helpers.waitForTX(fullNode, distributionTX);
   await helpers.waitForTX(spvNode, distributionTX);
 
-  const TXtoFull = await fullWallet1.send({
-    outputs: [{
-      value: 10 * consensus.COIN,
-      address: fullWallet2.getAddress("base58")
-    }]
-  });
-  await helpers.waitForTX(fullNode, TXtoFull);
-  console.log("one");
-
   const TXtoSPV = await spvWallet1.send({
     outputs: [{
       value: 10 * consensus.COIN,
