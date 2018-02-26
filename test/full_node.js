@@ -8,6 +8,7 @@ var MTX = bcoin.primitives.MTX;
 var Input = bcoin.primitives.Input;
 var Output = bcoin.primitives.Output;
 var Outpoint = bcoin.primitives.Outpoint;
+var walletPlugin = bcoin.wallet.plugin;
 var testHelpers = require("./helpers");
 var consensus = require("bcoin/lib/protocol/consensus");
 var sinon = require("sinon");
@@ -38,11 +39,14 @@ describe("FullNode", () => {
       passphrase: "secret"
     });
 
+    node.use(walletPlugin);
     await node.open();
   });
 
-  beforeEach("get connected walletDB", async () => {
-    walletDB = await testHelpers.getWalletDB(node);
+  beforeEach("prepare walletDB", async () => {
+    walletDB = node.require("walletdb");
+    await walletDB.open();
+    await walletDB.connect();
   });
 
   beforeEach("connect node", async () => {

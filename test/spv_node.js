@@ -8,7 +8,7 @@ var MTX = bcoin.primitives.MTX;
 var Input = bcoin.primitives.Input;
 var Output = bcoin.primitives.Output;
 var Outpoint = bcoin.primitives.Outpoint;
-var WalletDB = bcoin.wallet.WalletDB;
+var walletPlugin = bcoin.wallet.plugin;
 var EC = bcoin.crypto.ec;
 var testHelpers = require("./helpers");
 var consensus = require("bcoin/lib/protocol/consensus");
@@ -45,8 +45,14 @@ describe("SPVNode", () => {
       // logLevel: "debug",
       nodes: ["127.0.0.1:48448"]
     });
+
+    spvNode.use(walletPlugin);
     await spvNode.open();
-    spvWalletDB = await testHelpers.getWalletDB(spvNode);
+
+    spvWalletDB = spvNode.require("walletdb");
+    await spvWalletDB.open();
+    await spvWalletDB.connect();
+
     await spvNode.connect();
   });
 
@@ -58,8 +64,14 @@ describe("SPVNode", () => {
       listen: true,
       passphrase: "secret"
     });
+
+    miner.use(walletPlugin);
     await miner.open();
-    minerWalletDB = await testHelpers.getWalletDB(miner);
+
+    minerWalletDB = miner.require("walletdb");
+    await minerWalletDB.open();
+    await minerWalletDB.connect();
+
     await miner.connect();
   });
 
