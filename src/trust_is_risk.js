@@ -10,6 +10,7 @@ var Input = bcoin.primitives.Input;
 var Output = bcoin.primitives.Output;
 var Outpoint = bcoin.primitives.Outpoint;
 var Coin = bcoin.primitives.Coin;
+var Script = bcoin.script;
 var assert = require("assert");
 var helpers = require("./helpers");
 var TrustDB = require("./trust_db");
@@ -148,8 +149,8 @@ class TrustIsRisk {
     }
 
     mtx.addCoin(coin);
-    var success = mtx.scriptVector(coin.script, mtx.inputs[0].script, originKeyRing);
-    assert(success);
+    mtx.inputs[0].script = Script.fromStack(mtx.scriptVector(coin.script, originKeyRing));
+    assert(Script.isScript(mtx.inputs[0].script));
 
     var signedCount = mtx.sign(originKeyRing);
     assert(signedCount === 1);
@@ -237,12 +238,12 @@ class TrustIsRisk {
     }
 
     mtx.addCoin(coin);
-    var success = mtx.scriptVector(((directTrust.script : any) : bcoin$Script),
-        mtx.inputs[0].script, KeyRing.fromPublic(directTrust.origin));
-    assert(success);
+    mtx.inputs[0].script = Script.fromStack(mtx.scriptVector(
+        ((directTrust.script : any) : bcoin$Script), KeyRing.fromPublic(directTrust.origin)));
+    assert(Script.isScript(mtx.inputs[0].script));
 
-    success = mtx.signInput(0, new Coin({script: directTrust.script, value: directTrust.amount}),
-        signingKeyRing);
+    var success = mtx.signInput(0,
+        new Coin({script: directTrust.script, value: directTrust.amount}), signingKeyRing);
     assert(success);
 
     return mtx;
