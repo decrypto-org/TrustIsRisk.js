@@ -324,18 +324,18 @@ class TrustIsRisk {
     if (output.getType() !== "multisig") return null;
 
     var entities = [1, 2].map((i) => helpers.pubKeyToEntity(
-        output.script.get(i), this.node.network
+        output.script.get(i).data, this.node.network
     ));
     if (entities[0] === entities[1]) return null;
 
     var originPubKey, destPubKey;
     if (entities[0] === origin) {
-      originPubKey = output.script.get(1);
-      destPubKey = output.script.get(2);
+      originPubKey = output.script.get(1).data;
+      destPubKey = output.script.get(2).data;
     }
     else if (entities[1] === origin) {
-      originPubKey = output.script.get(2);
-      destPubKey = output.script.get(1);
+      originPubKey = output.script.get(2).data;
+      destPubKey = output.script.get(1).data;
     }
     else return null; 
 
