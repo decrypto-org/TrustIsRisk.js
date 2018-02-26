@@ -289,18 +289,18 @@ describe("TrustIsRisk", () => {
       mtx.outputs[0].value.should.equal(40 * COIN - 1000);
     };
 
-    it("creates correct trust decreasing transactions", () => {
+    it("creates correct trust decreasing transactions", async () => {
       var mtxs = tir.createTrustDecreasingMTXs(
           addr.alice.privKey, addr.bob.pubKey, 82 * COIN
       );
-      checkMTXs(mtxs, alice);
+      await checkMTXs(mtxs, alice);
     });
 
-    it("creates correct trust stealing transactions", () => {
+    it("creates correct trust stealing transactions", async () => {
       var mtxs = tir.createTrustDecreasingMTXs(
           addr.alice.privKey, addr.bob.pubKey, 82 * COIN, charlie
       );
-      checkMTXs(mtxs, charlie);
+      await checkMTXs(mtxs, charlie);
     });
 
     it("throws when trying to decrease self-trust", () => {
