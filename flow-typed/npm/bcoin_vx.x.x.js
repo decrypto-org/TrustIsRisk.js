@@ -93,7 +93,7 @@ declare class bcoin$MTX {
 
   toTX() : bcoin$TX;
   template(ring : bcoin$KeyRing) : number;
-  scriptVector(outputScript : bcoin$Script, inputScript : bcoin$Script, ring : bcoin$KeyRing) : boolean;
+  scriptVector(outputScript : bcoin$Script, ring : bcoin$KeyRing) : bcoin$Stack;
   addOutput(output : bcoin$Output) : void;
   addCoin(coin : bcoin$Coin) : void;
   addInput(input : (bcoin$Input | Object)) : void;
@@ -122,8 +122,13 @@ declare class bcoin$Input {
 declare class bcoin$Script {
   static fromMultisig(m : number, n : number, keys : Buffer[]) : bcoin$Script;
   static fromPubkeyhash(hash : Hash) : bcoin$Script;
+  static fromStack(stack : bcoin$Stack) : bcoin$Script;
+  static isScript(script : bcoin$Script) : boolean;
 
-  get(n : number) : (Buffer);
+  get(n : number) : bcoin$Opcode;
+}
+
+declare class bcoin$Stack {
 }
 
 declare class bcoin$Outpoint {
@@ -131,6 +136,11 @@ declare class bcoin$Outpoint {
   index : number;
 
   txid() : Buffer;
+}
+
+declare class bcoin$Opcode {
+  value : number;
+  data : Buffer;
 }
 
 declare class bcoin$KeyRing {
