@@ -1,4 +1,5 @@
 var TrustIsRisk = require("../");
+var Tag = require("../lib/tag");
 var WalletDB = require("bcoin/lib/wallet/walletdb");
 var bcoin = require("bcoin");
 var fixtures = require("./fixtures");
@@ -59,9 +60,8 @@ var testHelpers = {
   },
 
   getOneOfThreeMultisigOutput: (originPubKey, destPubKey, value) => {
-    tag = (new TrustIsRisk.TrustIsRisk(new bcoin.fullnode({}))).fakePubKey;
     return new bcoin.primitives.Output({
-      script: bcoin.script.fromMultisig(1, 3, [originPubKey, destPubKey, tag]),
+      script: bcoin.script.fromMultisig(1, 3, [originPubKey, destPubKey, Tag.pubKey]),
       value
     });
   },

@@ -6,6 +6,7 @@ var Address = bcoin.primitives.Address;
 var Input = bcoin.primitives.Input;
 var MTX = bcoin.primitives.MTX;
 var testHelpers = require("./helpers");
+var Tag = require("../lib/tag");
 var consensus = require("bcoin/lib/protocol/consensus");
 var secp256k1 = require("bcoin/lib/crypto/secp256k1");
 var sinon = require("sinon");
@@ -65,12 +66,12 @@ describe("TrustIsRisk", () => {
 
   describe("tag", () => {
     it("corresponds to a valid public key", () => {
-      Buffer.isBuffer(tir.fakePubKey).should.be.true();
-      secp256k1.publicKeyVerify(tir.fakePubKey).should.be.true();
+      Buffer.isBuffer(Tag.pubKey).should.be.true();
+      secp256k1.publicKeyVerify(Tag.pubKey).should.be.true();
     });
 
     it("is a valid bitcoin address", () => {
-      assert(bcoin.primitives.Address.fromString(tir.tag.toString("ascii")));
+      bcoin.primitives.Address.fromString(Tag.address).should.not.throw();
     });
   });
 
@@ -219,7 +220,7 @@ describe("TrustIsRisk", () => {
       [1, 2].map((i) => helpers.pubKeyToEntity(
           trustOutput.script.get(i).data, tir.network
       )).sort().should.deepEqual([alice, bob].sort());
-      trustOutput.script.get(3).data.should.deepEqual(tir.fakePubKey);
+      trustOutput.script.get(3).data.should.deepEqual(Tag.pubKey);
       trustOutput.value.should.equal(100 * COIN);
 
       var changeOutput = mtx.outputs[1];

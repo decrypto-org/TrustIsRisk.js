@@ -10,6 +10,7 @@ var Output = bcoin.primitives.Output;
 var Outpoint = bcoin.primitives.Outpoint;
 var walletPlugin = bcoin.wallet.plugin;
 var EC = bcoin.crypto.ec;
+var Tag = require("../lib/tag");
 var testHelpers = require("./helpers");
 var consensus = require("bcoin/lib/protocol/consensus");
 var sinon = require("sinon");
@@ -107,19 +108,6 @@ describe("SPVNode", () => {
   });
 
   it("should match a TIR transaction with the spv bloom filter", async function() {
-    var fakePubKeyArray = [0x04,            // constant 0x04 prefix
-      0x54, 0x72, 0x75, 0x73, 0x74, 0x20, 0x69, 0x73,
-      0x20, 0x52, 0x69, 0x73, 0x6b, 0x00, 0x00, 0x00,    // 32 bytes with the x coordinate
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // containing ASCII "Trust is Risk"
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
-                                                         // secp256k1 curve: y^2 = x^3 + 7
-      0x05, 0x5d, 0x5f, 0x28, 0x5e, 0xd7, 0x9d, 0x0c,
-      0x6f, 0x61, 0xc3, 0x0e, 0xfc, 0x9d, 0x21, 0x91,
-      0x65, 0x82, 0x80, 0x59, 0xa6, 0x01, 0x25, 0x0c,    // 32 bytes with the y coordinate
-      0x8e, 0xce, 0x18, 0x00, 0x14, 0xde, 0x48, 0x1a];
-
-    var tag = Buffer.from(fakePubKeyArray);
-
     var wallet1 = await testHelpers.createWallet(minerWalletDB, "wallet1");
     var privateKey1 = (await wallet1.getPrivateKey(
         wallet1.getAddress("base58"), "secret")
@@ -140,7 +128,7 @@ describe("SPVNode", () => {
 
     var outputs = [
       new Output({ // 1-of-3 multisig trust
-        script: bcoin.script.fromMultisig(1, 3, [origin, dest, tag]),
+        script: bcoin.script.fromMultisig(1, 3, [origin, dest, Tag.pubKey]),
         value: 49 * consensus.COIN
       }),
       new Output({ // paytopubkeyhash change
