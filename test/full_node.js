@@ -33,24 +33,13 @@ describe("FullNode", () => {
     Trust.TrustIsRisk.prototype.addTX.restore();
   });
 
-  beforeEach("get node", async () => {
+  beforeEach("prepare node", async () => {
     node = new Trust.FullNode({
       network: bcoin.network.get().toString(),
       passphrase: "secret"
     });
 
-    node.use(walletPlugin);
-    await node.open();
-  });
-
-  beforeEach("prepare walletDB", async () => {
-    walletDB = node.require("walletdb");
-    await walletDB.open();
-    await walletDB.connect();
-  });
-
-  beforeEach("connect node", async () => {
-    await node.connect();
+    await node.initialize();
     node.startSync();
   });
 
@@ -64,8 +53,8 @@ describe("FullNode", () => {
   });
 
   afterEach("disconnect and close walletDB", async () => {
-    await walletDB.disconnect();
-    await walletDB.close();
+    await node.walletDB.disconnect();
+    await node.walletDB.close();
   });
 
   afterEach("close node", async () => {
@@ -73,8 +62,8 @@ describe("FullNode", () => {
   });
 
   it("should call trust.addTX() on every transaction", async function() {
-    var sender = await testHelpers.createWallet(walletDB, "sender");
-    var receiver = await testHelpers.createWallet(walletDB, "receiver");
+    var sender = await testHelpers.createWallet(node.walletDB, "sender");
+    var receiver = await testHelpers.createWallet(node.walletDB, "receiver");
 
     await testHelpers.delay(1000);
     // Produce a block and reward the sender, so that we have a coin to spend.
