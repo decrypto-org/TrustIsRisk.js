@@ -51,8 +51,8 @@ describe("FullNode", () => {
   });
 
   it("should call trust.addTX() on every transaction", async function() {
-    var sender = await testHelpers.createWallet(node.walletDB, "sender");
-    var receiver = await testHelpers.createWallet(node.walletDB, "receiver");
+    var sender = await testHelpers.createWallet(node, "sender");
+    var receiver = await testHelpers.createWallet(node, "receiver");
 
     await testHelpers.delay(1000);
     // Produce a block and reward the sender, so that we have a coin to spend.

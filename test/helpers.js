@@ -6,7 +6,7 @@ var fixtures = require("./fixtures");
 var assert = require("assert");
 
 var testHelpers = {
-  createWallet: async (walletDB, id) => {
+  createWallet: async (node, id) => {
     var options = {
       id,
       passphrase: "secret",
@@ -14,7 +14,7 @@ var testHelpers = {
       type: "pubkeyhash"
     };
 
-    return walletDB.create(options);
+    return node.walletDB.create(options);
   },
 
   mineBlock: async (node, rewardAddress) => {
