@@ -5,6 +5,7 @@ var Tag = require("./tag");
 
 class SPVNode extends bcoin.spvnode {
   trust : TrustIsRisk
+  walletDB : bcoin$WalletDB
 
   constructor(options : Object) {
     super(options);

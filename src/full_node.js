@@ -4,6 +4,7 @@ var TrustIsRisk = require("./trust_is_risk");
 
 class FullNode extends bcoin.fullnode {
   trust : TrustIsRisk
+  walletDB : bcoin$WalletDB
 
   constructor(options : Object) {
     super(options);

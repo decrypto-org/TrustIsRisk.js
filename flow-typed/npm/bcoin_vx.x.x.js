@@ -12,6 +12,10 @@ declare class bcoin$FullNode {
   chain : bcoin$Chain;
 
   on(eventName : string, eventHandler : Function) : void;
+  use(walletPlugin : bcoin$WalletPlugin) : void;
+  require(name : string) : bcoin$WalletDB;
+  open() : Promise<void>;
+  connect() : Promise<void>;
   getCoin(hash : Hash, index : number) : bcoin$Coin;
 }
 
@@ -22,9 +26,10 @@ declare class bcoin$SPVNode {
   chain : bcoin$Chain;
 
   on(eventName : string, eventHandler : Function) : void;
-  use(walletPlugin : typeof bcoin$WalletPlugin) : void;
-  require(name : string) : Object; // or bcoin$WalletDB
+  use(walletPlugin : bcoin$WalletPlugin) : void;
+  require(name : string) : bcoin$WalletDB;
   open() : Promise<void>;
+  connect() : Promise<void>;
   getCoin(hash : Hash, index : number) : bcoin$Coin;
 }
 
@@ -42,7 +47,7 @@ declare class bcoin$Wallet {
   getTX(hash : Hash) : Promise<bcoin$TXRecord>;
 }
 
-declare var bcoin$WalletPlugin: {
+declare type bcoin$WalletPlugin = {
   init(node : (bcoin$FullNode | bcoin$SPVNode)) : bcoin$WalletDB;
 }
 
@@ -178,7 +183,7 @@ declare module 'bcoin' {
     wallet : {
       Wallet : Class<bcoin$Wallet>,
       WalletDB : Class<bcoin$WalletDB>,
-      plugin : typeof bcoin$WalletPlugin
+      plugin : bcoin$WalletPlugin
     },
     primitives : {
       Address : Class<bcoin$Address>,
@@ -199,5 +204,3 @@ declare module 'bcoin' {
     },
   }
 }
-
-
