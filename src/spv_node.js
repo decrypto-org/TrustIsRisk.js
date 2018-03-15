@@ -20,6 +20,13 @@ class SPVNode extends bcoin.spvnode {
     await this.connect();
     this.pool.spvFilter.add(tag);
   }
+
+  async tearDown() {
+    await this.disconnect();
+    await this.walletDB.disconnect();
+    await this.walletDB.close();
+    await this.close();
+  }
 }
 
 module.exports = SPVNode;

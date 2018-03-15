@@ -21,8 +21,6 @@ const COIN = consensus.COIN;
 
 describe("FullNode", () => {
   var node = null;
-  var walletDB = null;
-  var NodeWatcher = null;
   var watcher = null;
 
   before("set up addTX() spy", function() {
@@ -47,18 +45,9 @@ describe("FullNode", () => {
     watcher = new testHelpers.NodeWatcher(node);
   });
 
-  afterEach("disconnect node", async () => {
+  afterEach("tear node down", async () => {
     node.stopSync();
-    await node.disconnect();
-  });
-
-  afterEach("disconnect and close walletDB", async () => {
-    await node.walletDB.disconnect();
-    await node.walletDB.close();
-  });
-
-  afterEach("close node", async () => {
-    await node.close();
+    await node.tearDown();
   });
 
   it("should call trust.addTX() on every transaction", async function() {

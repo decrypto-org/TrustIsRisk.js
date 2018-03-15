@@ -70,25 +70,12 @@ describe("SPVNode", () => {
     spvWatcher = new testHelpers.NodeWatcher(spvNode);
   });
 
-  afterEach("disconnect nodes", async () => {
+  afterEach("tear nodes down", async () => {
     spvNode.stopSync();
     miner.stopSync();
 
-    await spvNode.disconnect();
-    await miner.disconnect();
-  });
-
-  afterEach("disconnect and close walletDBs", async () => {
-    await spvNode.walletDB.disconnect();
-    await miner.walletDB.disconnect();
-
-    await spvNode.walletDB.close();
-    await miner.walletDB.close();
-  });
-
-  afterEach("close nodes", async () => {
-    await spvNode.close();
-    await miner.close();
+    await spvNode.tearDown();
+    await miner.tearDown();
   });
 
   it("should match a TIR transaction with the spv bloom filter", async function() {

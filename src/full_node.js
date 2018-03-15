@@ -18,6 +18,13 @@ class FullNode extends bcoin.fullnode {
     await this.open();
     await this.connect();
   }
+
+  async tearDown() {
+    await this.disconnect();
+    await this.walletDB.disconnect();
+    await this.walletDB.close();
+    await this.close();
+  }
 }
 
 module.exports = FullNode;
