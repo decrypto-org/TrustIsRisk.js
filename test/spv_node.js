@@ -10,7 +10,7 @@ var Output = bcoin.primitives.Output;
 var Outpoint = bcoin.primitives.Outpoint;
 var walletPlugin = bcoin.wallet.plugin;
 var secp256k1 = bcoin.crypto.secp256k1;
-var Tag = require("../lib/tag");
+var tag = require("../lib/tag");
 var testHelpers = require("./helpers");
 var consensus = require("bcoin/lib/protocol/consensus");
 var sinon = require("sinon");
@@ -112,7 +112,7 @@ describe("SPVNode", () => {
 
     var outputs = [
       new Output({ // 1-of-3 multisig trust
-        script: bcoin.script.fromMultisig(1, 3, [origin, dest, Tag.pubKey]),
+        script: bcoin.script.fromMultisig(1, 3, [origin, dest, tag]),
         value: 49 * consensus.COIN
       }),
       new Output({ // paytopubkeyhash change
@@ -128,6 +128,7 @@ describe("SPVNode", () => {
     (await mtx.verify()).should.be.true();
     var tx = mtx.toTX();
 
+    spvNode.pool.spvFilter.test(tag).should.be.true();
     tx.isWatched(spvNode.pool.spvFilter).should.be.true();
   });
 
