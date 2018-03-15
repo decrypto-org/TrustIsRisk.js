@@ -96,13 +96,13 @@ describe("SPVNode", () => {
     var privateKey1 = (await wallet1.getPrivateKey(
         wallet1.getAddress("base58"), "secret")
     ).privateKey;
-    var origin = EC.publicKeyCreate(privateKey1, true);
+    var origin = secp256k1.publicKeyCreate(privateKey1, true);
 
     var wallet2 = await testHelpers.createWallet(miner.walletDB, "wallet2");
     var privateKey2 = (await wallet2.getPrivateKey(
         wallet2.getAddress("base58"), "secret")
     ).privateKey;
-    var dest = EC.publicKeyCreate(privateKey2, true);
+    var dest = secp256k1.publicKeyCreate(privateKey2, true);
 
     var block = await testHelpers.mineBlock(miner, wallet1.getAddress("base58"));
 
