@@ -15,7 +15,9 @@ declare class bcoin$FullNode {
   use(walletPlugin : bcoin$WalletPlugin) : void;
   require(name : string) : bcoin$WalletDB;
   open() : Promise<void>;
+  close() : Promise<void>;
   connect() : Promise<void>;
+  disconnect() : Promise<void>;
   getCoin(hash : Hash, index : number) : bcoin$Coin;
 }
 
@@ -29,7 +31,9 @@ declare class bcoin$SPVNode {
   use(walletPlugin : bcoin$WalletPlugin) : void;
   require(name : string) : bcoin$WalletDB;
   open() : Promise<void>;
+  close() : Promise<void>;
   connect() : Promise<void>;
+  disconnect() : Promise<void>;
   getCoin(hash : Hash, index : number) : bcoin$Coin;
 }
 
@@ -39,7 +43,9 @@ declare class bcoin$Chain {}
 
 declare class bcoin$WalletDB {
   open() : Promise<void>;
+  close() : Promise<void>;
   connect() : Promise<void>;
+  disconnect() : Promise<void>;
   create(options : ?Object) : Promise<bcoin$Wallet>;
 }
 
