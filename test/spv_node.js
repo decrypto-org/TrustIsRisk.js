@@ -24,6 +24,8 @@ const COIN = consensus.COIN;
 describe("SPVNode", () => {
   var spvNode = null;
   var miner = null;
+  var spvWalletDB = null;
+  var minerWalletDB = null;
   var spvWatcher = null;
   var minerWatcher = null;
 
@@ -46,6 +48,7 @@ describe("SPVNode", () => {
     });
 
     await spvNode.initialize();
+    minerWalletDB = spvNode.require("walletdb");
   });
 
   beforeEach("connect full node and wallet", async () => {
@@ -58,6 +61,7 @@ describe("SPVNode", () => {
     });
 
     await miner.initialize();
+    spvWalletDB = miner.require("walletdb");
   });
 
   beforeEach("start syncing", () => {
@@ -79,13 +83,13 @@ describe("SPVNode", () => {
   });
 
   it("should match a TIR transaction with the spv bloom filter", async function() {
-    var wallet1 = await testHelpers.createWallet(miner, "wallet1");
+    var wallet1 = await testHelpers.createWallet(minerWalletDB, "wallet1");
     var privateKey1 = (await wallet1.getPrivateKey(
         wallet1.getAddress("base58"), "secret")
     ).privateKey;
     var origin = secp256k1.publicKeyCreate(privateKey1, true);
 
-    var wallet2 = await testHelpers.createWallet(miner, "wallet2");
+    var wallet2 = await testHelpers.createWallet(minerWalletDB, "wallet2");
     var privateKey2 = (await wallet2.getPrivateKey(
         wallet2.getAddress("base58"), "secret")
     ).privateKey;
@@ -120,11 +124,11 @@ describe("SPVNode", () => {
   });
 
   it("should call trust.addTX() on every transaction", async function() {
-    var spvWallet1 = await testHelpers.createWallet(spvNode, "spvWallet1");
-    var spvWallet2 = await testHelpers.createWallet(spvNode, "spvWallet2");
+    var spvWallet1 = await testHelpers.createWallet(spvWalletDB, "spvWallet1");
+    var spvWallet2 = await testHelpers.createWallet(spvWalletDB, "spvWallet2");
 
-    var minerWallet1 = await testHelpers.createWallet(miner, "minerWallet1");
-    var minerWallet2 = await testHelpers.createWallet(miner, "minerWallet2");
+    var minerWallet1 = await testHelpers.createWallet(minerWalletDB, "minerWallet1");
+    var minerWallet2 = await testHelpers.createWallet(minerWalletDB, "minerWallet2");
 
     await testHelpers.delay(1000);
     // Produce a block and reward the minerWallet1, so that we have a coin to spend.
@@ -206,7 +210,7 @@ describe("SPVNode", () => {
     beforeEach("apply graph transactions", async () => {
       for (name in minerNames) {
         minerWallets[name] = await testHelpers.createWallet(
-            miner, name
+            minerWalletDB, name
         );
         rings[name] = await minerWallets[name].getPrivateKey(
             minerWallets[name].getAddress("base58"), "secret"
@@ -219,7 +223,7 @@ describe("SPVNode", () => {
 
       for (name in spvNames) {
         spvWallets[name] = await testHelpers.createWallet(
-            spvNode, name
+            spvWalletDB, name
         );
         rings[name] = await spvWallets[name].getPrivateKey(
             spvWallets[name].getAddress("base58"), "secret"

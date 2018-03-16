@@ -22,6 +22,7 @@ const COIN = consensus.COIN;
 describe("FullNode", () => {
   var node = null;
   var watcher = null;
+  var walletDB = null;
 
   before("set up addTX() spy", function() {
     sinon.spy(Trust.TrustIsRisk.prototype, "addTX");
@@ -38,6 +39,7 @@ describe("FullNode", () => {
     });
 
     await node.initialize();
+    walletDB = node.require("walletdb");
     node.startSync();
   });
 
@@ -51,8 +53,8 @@ describe("FullNode", () => {
   });
 
   it("should call trust.addTX() on every transaction", async function() {
-    var sender = await testHelpers.createWallet(node, "sender");
-    var receiver = await testHelpers.createWallet(node, "receiver");
+    var sender = await testHelpers.createWallet(walletDB, "sender");
+    var receiver = await testHelpers.createWallet(walletDB, "receiver");
 
     await testHelpers.delay(1000);
     // Produce a block and reward the sender, so that we have a coin to spend.
