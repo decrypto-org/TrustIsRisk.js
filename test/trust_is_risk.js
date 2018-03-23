@@ -235,6 +235,8 @@ describe("TrustIsRisk", () => {
   describe(".getTrustDecreasingMTX()", () => {
     var trustTXs;
     beforeEach(() => {
+      var getTXStub = sinon.stub(node, "getCoin");
+
       var tx;
       trustTXs = [];
 
@@ -242,10 +244,24 @@ describe("TrustIsRisk", () => {
       trustTXs.push(tx);
       tir.addTX(tx);
 
+      getTXStub.withArgs(tx.hash("hex"), 0).returns(new Coin({
+        script: tx.outputs[0].script,
+        value: tx.outputs[0].value,
+        index: 0,
+        hash: tx.hash("hex")
+      }));
+
       trustIncreasingMTX.outputs[0].value = 100 * COIN;
       tx = trustIncreasingMTX.toTX();
       trustTXs.push(tx);
       tir.addTX(tx);
+
+      getTXStub.withArgs(tx.hash("hex"), 0).returns(new Coin({
+        script: tx.outputs[0].script,
+        value: tx.outputs[0].value,
+        index: 0,
+        hash: tx.hash("hex")
+      }));
 
       trustIncreasingMTX.outputs[0].value = 500 * COIN;
       tx = trustIncreasingMTX.toTX();
