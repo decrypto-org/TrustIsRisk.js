@@ -131,7 +131,7 @@ class TrustIsRisk {
   // expected to be a public key and `dest` is expected to be a private key. The private key will be
   // used to sign the transaction.
   async createTrustDecreasingMTXs(origin : Key, dest : Key,
-      trustDecreaseAmount : number, wallet : ?bcoin$Wallet, payee : ?Entity,
+      trustDecreaseAmount : number, payee : ?Entity, wallet : ?bcoin$Wallet,
       steal : ?boolean, fee : ?number) : Promise<Promise<bcoin$MTX>[]> {
     if (steal === undefined) steal = false;
 
