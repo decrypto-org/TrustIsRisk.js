@@ -17,53 +17,58 @@ require("should-sinon");
 
 const COIN = bcoin.consensus.COIN;
 
-describe("TrustIsRisk", () => {
-  var addr = {};
-  for (let [name, keyRing] of Object.entries(fixtures.keyRings)) {
-    var pubKey = keyRing.getPublicKey();
-    var privKey = keyRing.getPrivateKey();
+var addr = {};
+for (let [name, keyRing] of Object.entries(fixtures.keyRings)) {
+  var pubKey = keyRing.getPublicKey();
+  var privKey = keyRing.getPrivateKey();
 
-    addr[name] = {};
-    addr[name].pubKey = pubKey;
-    addr[name].privKey = privKey;
-    addr[name].base58 = helpers.pubKeyToEntity(pubKey);
-  }
+  addr[name] = {};
+  addr[name].pubKey = pubKey;
+  addr[name].privKey = privKey;
+  addr[name].base58 = helpers.pubKeyToEntity(pubKey);
+}
 
-  // Add base58 address variables to scope.
-  for (name in fixtures.keyRings) {
-    var keyRing = fixtures.keyRings[name];
-    eval(`var ${name} = "${bcoin.primitives.Address.fromHash(bcoin.crypto.hash160(keyRing.getPublicKey())).toString()}";`);
-  }
+// Add base58 address variables to scope.
+for (name in fixtures.keyRings) {
+  var keyRing = fixtures.keyRings[name];
+  eval(`var ${name} = "${bcoin.primitives.Address.fromHash(bcoin.crypto.hash160(keyRing.getPublicKey())).toString()}";`);
+}
 
-  var node, tir, trustIncreasingMTX, trustDecreasingMTX, trustIncreasingTX;
-  beforeEach(() => {
+var node, tir, trustIncreasingMTX, trustDecreasingMTX, trustIncreasingTX;
+
+setupTest = (isFullNode) => {
+  if (isFullNode) {
     node = new bcoin.fullnode({network: bcoin.network.get().toString()});
-    tir = new Trust.TrustIsRisk(node);
+  }
+  else {
+    node = new bcoin.spvnode({network: bcoin.network.get().toString()});
+  }
+  tir = new Trust.TrustIsRisk(node);
 
-    trustIncreasingMTX = testHelpers.getTrustIncreasingMTX(addr.alice.pubKey, addr.bob.pubKey, 42 * COIN);
-    trustIncreasingTX = trustIncreasingMTX.toTX();
+  trustIncreasingMTX = testHelpers.getTrustIncreasingMTX(addr.alice.pubKey, addr.bob.pubKey, 42 * COIN);
+  trustIncreasingTX = trustIncreasingMTX.toTX();
 
-    var inputOneOfThreeMultisig = new Input({
-      prevout: {
-        hash: trustIncreasingTX.hash().toString("hex"),
-        index: 0
-      },
-      script: bcoin.script.fromString(
-        // 17P8kCbDBPmqLDCCe9dYwbfiEDaRb5xDYE
-        "0x47 0x3044022035e32834c6ee4db1696cc06762feca2809d865ca12a3b98c801f3f451341a2570220573bf3ffef55f2651e1563acc0a22f8056222f277f5ddf17dd583d4edd40fa6001 0x21 0x02b8f07a401eca4888039b1898f94db44c43ccc6d3aa8b27e9b6ed7b377b24c083")
-    });
-
-    trustDecreasingMTX = new MTX({
-      inputs: [
-        inputOneOfThreeMultisig
-      ],
-      outputs: [
-        testHelpers.getOneOfThreeMultisigOutput(addr.alice.pubKey, addr.bob.pubKey, 20 * COIN),
-        testHelpers.getP2PKHOutput(addr.alice.base58, 22 * COIN)
-      ]
-    });
+  var inputOneOfThreeMultisig = new Input({
+    prevout: {
+      hash: trustIncreasingTX.hash().toString("hex"),
+      index: 0
+    },
+    script: bcoin.script.fromString(
+      // 17P8kCbDBPmqLDCCe9dYwbfiEDaRb5xDYE
+      "0x47 0x3044022035e32834c6ee4db1696cc06762feca2809d865ca12a3b98c801f3f451341a2570220573bf3ffef55f2651e1563acc0a22f8056222f277f5ddf17dd583d4edd40fa6001 0x21 0x02b8f07a401eca4888039b1898f94db44c43ccc6d3aa8b27e9b6ed7b377b24c083")
   });
 
+  trustDecreasingMTX = new MTX({
+    inputs: [
+      inputOneOfThreeMultisig
+    ],
+    outputs: [
+      testHelpers.getOneOfThreeMultisigOutput(addr.alice.pubKey, addr.bob.pubKey, 20 * COIN),
+      testHelpers.getP2PKHOutput(addr.alice.base58, 22 * COIN)
+    ]
+  });
+};
+testEach = (isFullNode) => {
   describe("tag", () => {
     it("corresponds to a valid public key", () => {
       Buffer.isBuffer(tag).should.be.true();
@@ -422,4 +427,19 @@ describe("TrustIsRisk", () => {
       // TODO: Decrement direct trusts and test that indirect trusts update correctly
     });
   });
+};
+
+describeTest = (isFullNode) => {
+  beforeEach(() => {
+    setupTest(isFullNode);
+  });
+  testEach(isFullNode);
+};
+
+describe.only("TrustIsRisk full node", () => {
+  describeTest(true);
+});
+
+describe.only("TrustIsRisk SPV node", () => {
+  describeTest(false);
 });
