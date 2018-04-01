@@ -206,18 +206,18 @@ testEach = (isFullNode) => {
     it("creates valid trust-increasing transactions", async () => {
       var getTXStub = sinon.stub(node, "getCoin");
 
-      var prevOutput = {
+      var prevOutpoint = {
         hash: "v1pnhp2af4r5wz63j60vnh27s1bftl260qq621y458tn0g4x64u64yqz6d7qi6i8",
         index: 1
       };
 
-      getTXStub.withArgs(prevOutput.hash).returns(new Coin({
+      getTXStub.withArgs(prevOutpoint.hash).returns(new Coin({
         script: testHelpers.getP2PKHOutput(alice, 1).script,
         value: 1000 * COIN
       }));
 
-      var mtx = await tir.createTrustIncreasingMTX(addr.alice.privKey, addr.bob.pubKey, prevOutput,
-          100 * COIN);
+      var mtx = await tir.createTrustIncreasingMTX(addr.alice.privKey,
+          addr.bob.pubKey, prevOutpoint, 100 * COIN);
 
       mtx.inputs.length.should.equal(1);
 
