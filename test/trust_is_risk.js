@@ -68,20 +68,21 @@ setupTest = (isFullNode) => {
     ]
   });
 };
-testEach = (isFullNode) => {
-  describe("tag", () => {
-    it("corresponds to a valid public key", () => {
-      Buffer.isBuffer(tag).should.be.true();
-      secp256k1.publicKeyVerify(tag).should.be.true();
-    });
 
-    it("is a valid bitcoin address", () => {
-      const address = bcoin.primitives.KeyRing.fromPublic(
-          tag).getAddress("base58").toString();
-      bcoin.primitives.Address.fromString(address).should.not.throw();
-    });
+describe("tag", () => {
+  it("corresponds to a valid public key", () => {
+    Buffer.isBuffer(tag).should.be.true();
+    secp256k1.publicKeyVerify(tag).should.be.true();
   });
 
+  it("is a valid bitcoin address", () => {
+    const address = bcoin.primitives.KeyRing.fromPublic(
+        tag).getAddress("base58").toString();
+    bcoin.primitives.Address.fromString(address).should.not.throw();
+  });
+});
+
+testEach = (isFullNode) => {
   describe(".getDirectTrust()", () => {
     it("returns zero for two arbitary parties that do not trust each other", () => {
       tir.getDirectTrust(alice, bob).should.equal(0);
