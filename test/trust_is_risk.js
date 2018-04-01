@@ -254,7 +254,7 @@ testEach = (isFullNode) => {
   describe(".getTrustDecreasingMTX()", () => {
     var trustTXs;
     beforeEach(() => {
-      var getTXStub = sinon.stub(node, "getCoin");
+      var getTXStub = sinon.stub(wallet, "getTX");
 
       var tx;
       trustTXs = [];
@@ -263,24 +263,14 @@ testEach = (isFullNode) => {
       trustTXs.push(tx);
       tir.addTX(tx);
 
-      getTXStub.withArgs(tx.hash("hex"), 0).returns(new Coin({
-        script: tx.outputs[0].script,
-        value: tx.outputs[0].value,
-        index: 0,
-        hash: tx.hash("hex")
-      }));
+      getTXStub.withArgs(tx.hash("hex")).returns(TXRecord.fromTX(tx));
 
       trustIncreasingMTX.outputs[0].value = 100 * COIN;
       tx = trustIncreasingMTX.toTX();
       trustTXs.push(tx);
       tir.addTX(tx);
 
-      getTXStub.withArgs(tx.hash("hex"), 0).returns(new Coin({
-        script: tx.outputs[0].script,
-        value: tx.outputs[0].value,
-        index: 0,
-        hash: tx.hash("hex")
-      }));
+      getTXStub.withArgs(tx.hash("hex")).returns(TXRecord.fromTX(tx));
 
       trustIncreasingMTX.outputs[0].value = 500 * COIN;
       tx = trustIncreasingMTX.toTX();
@@ -329,15 +319,14 @@ testEach = (isFullNode) => {
 
     it("creates correct trust decreasing transactions", async () => {
       var mtxs = tir.createTrustDecreasingMTXs(
-          addr.alice.privKey, addr.bob.pubKey, 82 * COIN
-      );
+          addr.alice.privKey, addr.bob.pubKey, 82 * COIN, wallet);
       await checkMTXs(mtxs, alice);
     });
 
     it("creates correct trust stealing transactions", async () => {
       var mtxs = tir.createTrustDecreasingMTXs(
-          addr.alice.privKey, addr.bob.pubKey, 82 * COIN, charlie
-      );
+          addr.alice.privKey, addr.bob.pubKey, 82 * COIN,
+          wallet, charlie);
       await checkMTXs(mtxs, charlie);
     });
 
@@ -453,10 +442,10 @@ describeTest = (isFullNode) => {
   });
 };
 
-describe.only("TrustIsRisk full node", () => {
+describe("TrustIsRisk full node", () => {
   describeTest(true);
 });
 
-describe.only("TrustIsRisk SPV node", () => {
+describe("TrustIsRisk SPV node", () => {
   describeTest(false);
 });
