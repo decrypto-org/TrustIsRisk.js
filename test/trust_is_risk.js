@@ -5,6 +5,9 @@ var Coin = bcoin.primitives.Coin;
 var Address = bcoin.primitives.Address;
 var Input = bcoin.primitives.Input;
 var MTX = bcoin.primitives.MTX;
+var walletPlugin = bcoin.wallet.plugin;
+var TX = bcoin.primitives.TX;
+var TXRecord = bcoin.wallet.records.TXRecord;
 var testHelpers = require("./helpers");
 var tag = require("../lib/tag");
 var consensus = require("bcoin/lib/protocol/consensus");
@@ -34,16 +37,21 @@ for (name in fixtures.keyRings) {
   eval(`var ${name} = "${bcoin.primitives.Address.fromHash(bcoin.crypto.hash160(keyRing.getPublicKey())).toString()}";`);
 }
 
-var node, tir, trustIncreasingMTX, trustDecreasingMTX, trustIncreasingTX;
+var node, tir, walletDB, wallet,
+  trustIncreasingMTX, trustDecreasingMTX, trustIncreasingTX;
 
-setupTest = (isFullNode) => {
+setupTest = async (isFullNode) => {
   if (isFullNode) {
     node = new bcoin.fullnode({network: bcoin.network.get().toString()});
   }
   else {
     node = new bcoin.spvnode({network: bcoin.network.get().toString()});
   }
+  node.use(walletPlugin);
   tir = new Trust.TrustIsRisk(node);
+  walletDB = node.require("walletdb");
+  await node.open();
+  wallet = await testHelpers.createWallet(walletDB, "wallet");
 
   trustIncreasingMTX = testHelpers.getTrustIncreasingMTX(addr.alice.pubKey, addr.bob.pubKey, 42 * COIN);
   trustIncreasingTX = trustIncreasingMTX.toTX();
@@ -67,6 +75,10 @@ setupTest = (isFullNode) => {
       testHelpers.getP2PKHOutput(addr.alice.base58, 22 * COIN)
     ]
   });
+};
+
+tearDownTest = async () => {
+  await node.close();
 };
 
 describe("tag", () => {
@@ -204,20 +216,21 @@ testEach = (isFullNode) => {
 
   describe(".createTrustIncreasingMTX()", () => {
     it("creates valid trust-increasing transactions", async () => {
-      var getTXStub = sinon.stub(node, "getCoin");
+      var getTXStub = sinon.stub(wallet, "getTX");
 
       var prevOutpoint = {
         hash: "v1pnhp2af4r5wz63j60vnh27s1bftl260qq621y458tn0g4x64u64yqz6d7qi6i8",
-        index: 1
+        index: 0
       };
 
-      getTXStub.withArgs(prevOutpoint.hash).returns(new Coin({
-        script: testHelpers.getP2PKHOutput(alice, 1).script,
-        value: 1000 * COIN
-      }));
+      getTXStub.withArgs(prevOutpoint.hash).returns(TXRecord.fromTX(
+          TX.fromOptions({
+            inputs: [testHelpers.getP2PKHInput(addr.alice.pubKey)],
+            outputs: [testHelpers.getP2PKHOutput(alice, 1000 * COIN)]
+          })));
 
       var mtx = await tir.createTrustIncreasingMTX(addr.alice.privKey,
-          addr.bob.pubKey, prevOutpoint, 100 * COIN);
+          addr.bob.pubKey, prevOutpoint, 100 * COIN, wallet);
 
       mtx.inputs.length.should.equal(1);
 
@@ -431,10 +444,13 @@ testEach = (isFullNode) => {
 };
 
 describeTest = (isFullNode) => {
-  beforeEach(() => {
-    setupTest(isFullNode);
+  beforeEach(async () => {
+    await setupTest(isFullNode);
   });
   testEach(isFullNode);
+  afterEach(async () => {
+    await tearDownTest();
+  });
 };
 
 describe.only("TrustIsRisk full node", () => {

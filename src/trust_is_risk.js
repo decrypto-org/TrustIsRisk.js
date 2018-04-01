@@ -73,22 +73,12 @@ class TrustIsRisk {
   // payable to the sender. The origin key must be a private key. Any satoshis not spent will be
   // returned to the sender, minus the fees, via P2PKH.
   async createTrustIncreasingMTX(origin : Key, dest : Key, outpoint : bcoin$Outpoint,
-      trustAmount : number, wallet : ?bcoin$Wallet, fee : ?number)
+      trustAmount : number, wallet : bcoin$Wallet, fee : ?number)
       : Promise<bcoin$MTX> {
-    if (wallet && typeof wallet === "number") {
-      fee = wallet;
-      wallet = null;
-    }
     if (!fee) fee = 1000; // TODO: estimate this
     var coin = null;
-    if (wallet) { // only the spv node passes the wallet
-      coin = await bcoin.primitives.Coin.fromTX(
-          (await wallet.getTX(outpoint.hash)).tx, outpoint.index, -1
-      );
-    }
-    else { // for full nodes, getting the coin is more straightforward
-      coin = await this.node.getCoin(outpoint.hash, outpoint.index);
-    }
+    coin = await Coin.fromTX(
+        (await wallet.getTX(outpoint.hash)).tx, outpoint.index, -1);
     if (!coin) throw new Error("Could not find coin");
     if (origin === dest) throw new Error("Can not increase self-trust.");
 
