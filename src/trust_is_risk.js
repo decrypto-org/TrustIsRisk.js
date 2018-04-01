@@ -76,8 +76,7 @@ class TrustIsRisk {
       trustAmount : number, wallet : bcoin$Wallet, fee : ?number)
       : Promise<bcoin$MTX> {
     if (!fee) fee = 1000; // TODO: estimate this
-    var coin = null;
-    coin = await Coin.fromTX(
+    var coin = await Coin.fromTX(
         (await wallet.getTX(outpoint.hash)).tx, outpoint.index, -1);
     if (!coin) throw new Error("Could not find coin");
     if (origin === dest) throw new Error("Can not increase self-trust.");
@@ -165,8 +164,7 @@ class TrustIsRisk {
     if (!payee) payee = directTrust.getOriginEntity();
     if (!fee) fee = 1000; // TODO: estimate this
     var outpoint = new Outpoint(directTrust.txHash, directTrust.outputIndex);
-    var coin = null;
-    coin = await Coin.fromTX(
+    var coin = await Coin.fromTX(
         (await wallet.getTX(outpoint.hash)).tx, outpoint.index, -1);
     if (!coin) throw new Error("Could not find coin");
 
