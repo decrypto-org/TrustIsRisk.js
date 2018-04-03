@@ -23,6 +23,7 @@ describe("FullNode", () => {
   var node = null;
   var watcher = null;
   var walletDB = null;
+  var wallet = null;
 
   before("set up addTX() spy", function() {
     sinon.spy(Trust.TrustIsRisk.prototype, "addTX");
@@ -33,6 +34,10 @@ describe("FullNode", () => {
   });
 
   beforeEach("prepare node", async () => {
+    for (let [name, keyRing] of Object.entries(fixtures.keyRings)) {
+      keyRing.network = bcoin.network.get();
+    }
+
     node = new Trust.FullNode({
       network: bcoin.network.get().toString(),
       passphrase: "secret"
@@ -41,6 +46,11 @@ describe("FullNode", () => {
     await node.initialize();
     walletDB = node.require("walletdb");
     node.startSync();
+
+    wallet = await testHelpers.createWallet(walletDB, "wallet");
+    for (let [name, keyRing] of Object.entries(fixtures.keyRings)) {
+      await wallet.importKey(keyRing, "secret");
+    }
   });
 
   beforeEach("get watcher", async () => {
@@ -81,10 +91,9 @@ describe("FullNode", () => {
     beforeEach("apply graph transactions", async () => {
       addresses = {};
 
-      for (var [name, keyRing] of Object.entries(fixtures.keyRings)) {
+      for (let [name, keyRing] of Object.entries(fixtures.keyRings)) {
         addresses[name] = helpers.pubKeyToEntity(
-            keyRing.getPublicKey(), node.network
-        );
+            keyRing.getPublicKey(), node.network);
       }
 
       // Alice mines three blocks, each rewards her with 50 spendable BTC
@@ -142,8 +151,7 @@ describe("FullNode", () => {
 
       // Alice mines another block
       await testHelpers.mineBlock(node, helpers.pubKeyToEntity(
-          fixtures.keyRings.alice.getPublicKey(), node.network
-      ));
+          fixtures.keyRings.alice.getPublicKey(), node.network));
       await testHelpers.delay(500);
 
       var graph = require("./graphs/nobodyLikesFrank.json");
@@ -158,8 +166,7 @@ describe("FullNode", () => {
           let mtx = await node.trust.createTrustIncreasingMTX(
               fixtures.keyRings[origin].getPrivateKey(),
               fixtures.keyRings[dest].getPublicKey(),
-              outpoint,
-              value * consensus.COIN);
+              outpoint, value * consensus.COIN, wallet);
 
           assert(await mtx.verify());
 
@@ -198,8 +205,7 @@ describe("FullNode", () => {
     it("after decreasing some trusts computes trusts correctly", async () => {
       var mtxs = await node.trust.createTrustDecreasingMTXs(
           fixtures.keyRings.alice.getPrivateKey(),
-          fixtures.keyRings.bob.getPublicKey(), 3 * COIN
-      );
+          fixtures.keyRings.bob.getPublicKey(), 3 * COIN, wallet);
       mtxs.length.should.equal(1);
       var mtx = await mtxs[0];
 
