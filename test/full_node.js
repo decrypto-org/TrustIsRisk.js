@@ -34,8 +34,8 @@ describe("FullNode", () => {
   });
 
   beforeEach("prepare node", async () => {
-    for (let [name, keyRing] of Object.entries(fixtures.keyRings)) {
-      keyRing.network = bcoin.network.get();
+    for (let name in fixtures.keyRings) {
+      fixtures.keyRings[name].network = bcoin.network.get();
     }
 
     node = new Trust.FullNode({
@@ -48,8 +48,8 @@ describe("FullNode", () => {
     node.startSync();
 
     wallet = await testHelpers.createWallet(walletDB, "wallet");
-    for (let [name, keyRing] of Object.entries(fixtures.keyRings)) {
-      await wallet.importKey(keyRing, "secret");
+    for (let name in fixtures.keyRings) {
+      await wallet.importKey(fixtures.keyRings[name], "secret");
     }
   });
 
@@ -180,8 +180,7 @@ describe("FullNode", () => {
 
       // Alice mines yet another block
       await testHelpers.mineBlock(node, helpers.pubKeyToEntity(
-          fixtures.keyRings.alice.getPublicKey(), node.network
-      ));
+          fixtures.keyRings.alice.getPublicKey(), node.network));
       await testHelpers.delay(500);
     });
 

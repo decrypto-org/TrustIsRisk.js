@@ -41,12 +41,8 @@ var node, tir, walletDB, wallet,
   trustIncreasingMTX, trustDecreasingMTX, trustIncreasingTX;
 
 setupTest = async (isFullNode) => {
-  if (isFullNode) {
-    node = new bcoin.fullnode({network: bcoin.network.get().toString()});
-  }
-  else {
-    node = new bcoin.spvnode({network: bcoin.network.get().toString()});
-  }
+  const nodeClass = bcoin[isFullNode? "fullnode" : "spvnode"];
+  node = new nodeClass({network: bcoin.network.get().toString()});
   node.use(walletPlugin);
   tir = new Trust.TrustIsRisk(node);
   walletDB = node.require("walletdb");
