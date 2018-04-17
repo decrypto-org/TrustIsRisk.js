@@ -38,7 +38,7 @@ class TrustDB {
   }
 
   getSpendableDirectTrusts(origin : Entity, dest : Entity) : DirectTrust[] {
-    return this.getDirectTrusts(origin, dest).filter((t) => t.isSpendable());
+    return this.getDirectTrusts(origin, dest).filter((t) => t.spendable);
   }
 
   getDirectTrusts(origin : Entity, dest : Entity) : DirectTrust[] {
@@ -100,10 +100,10 @@ class TrustDB {
 
     if (trust.prev !== null) {
       trust.prev.spend(trust);
-      assert(trust.prev && trust.prev.isValid() && !trust.prev.isSpendable());
+      assert(trust.prev && trust.prev.valid && !trust.prev.spendable);
     }
 
-    assert(trust.isValid());
+    assert(trust.valid);
     trusts.push(trust);
     this.txToDirectTrust.set(trust.txHash, trust);
 

@@ -60,11 +60,11 @@ class DirectTrust {
     return this.next !== null;
   }
 
-  isSpendable() : boolean {
+  get spendable() : boolean {
     return !this.isSpent() && !this.isNull();
   }
 
-  isValid() : boolean {
+  get valid() : boolean {
     // TODO: Consider removing this function and ensure validity at build time by using the flow
     //       type system, possibly by creating sub-types like "IncreasingDirectTrust" etc.
     if ((this.outputIndex === null) !== (this.script === null)) return false;
