@@ -291,11 +291,11 @@ describe("SPVNode", () => {
       await minerWatcher.waitForTX(tx);
       await spvWatcher.waitForTX(tx);
 
-      for(name in minerNames) {
+      for (name in minerNames) {
         minerWallets[name].db.addTX(tx);
       }
 
-      for(name in spvNames) {
+      for (name in spvNames) {
         spvWallets[name].db.addTX(tx);
       }
 
