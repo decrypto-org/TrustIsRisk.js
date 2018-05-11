@@ -208,7 +208,7 @@ describe("FullNode", () => {
       mtxs.length.should.equal(1);
       var mtx = await mtxs[0];
 
-      (await mtx.verify()).should.be.true();
+      mtx.verify().should.be.true();
       node.sendTX(mtx.toTX());
 
       await testHelpers.delay(750);

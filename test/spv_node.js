@@ -116,7 +116,7 @@ describe("SPVNode", () => {
     mtx.addCoin(coinbaseCoin);
 
     mtx.sign(KeyRing.fromPrivate(privateKey1, true, "regtest"));
-    (await mtx.verify()).should.be.true();
+    mtx.verify().should.be.true();
     var tx = mtx.toTX();
 
     spvNode.pool.spvFilter.test(tag).should.be.true();
@@ -283,7 +283,7 @@ describe("SPVNode", () => {
 
       var signedCount = mtx.sign(rings["alice"]);
       assert(signedCount === blockCount);
-      assert(await mtx.verify());
+      assert(mtx.verify());
 
       var tx = mtx.toTX();
 
@@ -359,7 +359,7 @@ describe("SPVNode", () => {
               value * consensus.COIN,
               wallet);
 
-          assert(await mtx.verify());
+          assert(mtx.verify());
 
           let tx = mtx.toTX();
 
@@ -422,7 +422,7 @@ describe("SPVNode", () => {
       mtxs.length.should.equal(1);
       var mtx = await mtxs[0];
 
-      (await mtx.verify()).should.be.true();
+      mtx.verify().should.be.true();
       var tx = mtx.toTX();
       miner.sendTX(tx);
 
@@ -442,7 +442,7 @@ describe("SPVNode", () => {
       mtxs.length.should.equal(1);
       mtx = await mtxs[0];
 
-      (await mtx.verify()).should.be.true();
+      mtx.verify().should.be.true();
       spvNode.sendTX(mtx.toTX());
 
       await minerWatcher.waitForTX();
