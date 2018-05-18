@@ -119,7 +119,15 @@ class NodeWatcher {
     });
   }
 
-  async waitForTX(input) {
+  async waitForTX(input, wallet) {
+    if (wallet) {
+      while (true) {
+        if (await wallet.getTX(input.hash("hex")))
+          break;
+        await testHelpers.delay(100);
+      }
+      return;
+    }
     var initialCount = null;
     switch (typeof input) {
     case "number":
@@ -152,7 +160,6 @@ class NodeWatcher {
       var tx = input;
       await new Promise((resolve, reject) => {
         var check = (() => {
-          // This breaks node.pool.on("tx", ...)
           if (this.node.spv) {
             if (this.node.pool.txFilter.test(tx.hash().toString("hex"), "hex"))
               resolve();
@@ -172,6 +179,18 @@ class NodeWatcher {
     default:
       throw new Error("input cannot be " + typeof input); // TODO: throw correct error
     }
+  }
+
+  async waitForTrustDB(tx) {
+    await new Promise((resolve, reject) => {
+      var check = (() => {
+        if (this.node.trust.db.isTrustTX(tx.hash.toString("hex")))
+          resolve();
+        else setTimeout(check, 100);
+      }).bind(this);
+
+      check();
+    });
   }
 }
 
