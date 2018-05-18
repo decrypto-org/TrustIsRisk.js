@@ -38,7 +38,7 @@ var testHelpers = {
   getP2PKHOutput: (dest, value) => {
     var address = bcoin.primitives.Address.fromString(dest);
     var script = bcoin.script.fromPubkeyhash(address.hash);
-    
+
     return new bcoin.primitives.Output({script, value});
   },
 
@@ -56,7 +56,7 @@ var testHelpers = {
           // Don't care about the signature
           "0x47 0x3044022035e32834c6ee4db1696cc06762feca2809d865ca12a3b98c801f3f451341a2570220573bf3ffef55f2651e1563acc0a22f8056222f277f5ddf17dd583d4edd40fa6001 "
           + testHelpers.bufferToScript(pubKey))
-    }); 
+    });
   },
 
   getOneOfThreeMultisigOutput: (originPubKey, destPubKey, value) => {
@@ -84,7 +84,7 @@ var testHelpers = {
       var neighbours = graph[origin];
       for (var dest in neighbours) {
         var value = neighbours[dest];
-        trust.addTX(testHelpers.getTrustIncreasingMTX(addressBook[origin].pubKey, addressBook[dest].pubKey, value).toTX()); 
+        trust.addTX(testHelpers.getTrustIncreasingMTX(addressBook[origin].pubKey, addressBook[dest].pubKey, value).toTX());
       }
     }
   }
@@ -132,48 +132,33 @@ class NodeWatcher {
     switch (typeof input) {
     case "number":
       initialCount = input;
-      await new Promise((resolve, reject) => {
-        var check = (() => {
-          if (this.txCount > initialCount)
-            resolve();
-          else setTimeout(check, 100);
-        }).bind(this);
-
-        check();
-      });
+      while (true) {
+        if (this.txCount > initialCount) {
+          return;
+        }
+        await testHelpers.delay(100);
+      }
       break;
 
-    case "undefined": // TODO: reuse code
-      initialCount = this.txCount;
-      await new Promise((resolve, reject) => {
-        var check = (() => {
-          if (this.txCount > initialCount)
-            resolve();
-          else setTimeout(check, 100);
-        }).bind(this);
-
-        check();
-      });
+    case "undefined":
+      await waitForTX(1);
       break;
 
     case "object":
       var tx = input;
-      await new Promise((resolve, reject) => {
-        var check = (() => {
-          if (this.node.spv) {
-            if (this.node.pool.txFilter.test(tx.hash().toString("hex"), "hex"))
-              resolve();
-            else setTimeout(check, 100);
+      while (true) {
+        if (this.node.spv) {
+          if (this.node.pool.txFilter.test(tx.hash().toString("hex"), "hex")) {
+            return;
           }
-          else { // this is not an SPV node
-            if (this.node.pool.hasTX(tx.hash().toString("hex")))
-              resolve();
-            else setTimeout(check, 100);
+        }
+        else { // this is not an SPV node
+          if (this.node.pool.hasTX(tx.hash().toString("hex"))) {
+            return;
           }
-        }).bind(this);
-
-        check();
-      });
+        }
+        await testHelpers.delay(100);
+      }
       break;
 
     default:

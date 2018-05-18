@@ -168,7 +168,7 @@ describe("SPVNode", () => {
         address: spvWallet2.getAddress("base58")
       }]
     });
-    await minerWatcher.waitForTX();
+    await minerWatcher.waitForTX(); // see why tx is received twice?
     await spvWatcher.waitForTX(spv2TX, spvWallet1);
     await spvWatcher.waitForTX(spv2TX, spvWallet2);
 
