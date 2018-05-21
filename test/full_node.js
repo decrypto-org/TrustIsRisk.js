@@ -74,13 +74,15 @@ describe("FullNode", () => {
     consensus.COINBASE_MATURITY = 0;
     await testHelpers.delay(100);
 
-    await sender.send({
+    let tx = await sender.send({
       outputs: [{
         value: 10 * COIN,
         address: receiver.getAddress("base58")
       }]
     });
-    await watcher.waitForTX();
+    await watcher.waitForTX(tx, sender);
+    await watcher.waitForTX(tx, receiver);
+    await testHelpers.delay(100); // @dionyziz: how to avoid timeout?
 
     node.trust.addTX.should.have.been.calledOnce();
   });
@@ -139,7 +141,7 @@ describe("FullNode", () => {
 
       var tx = mtx.toTX();
       node.sendTX(tx);
-      await watcher.waitForTX();
+      await watcher.waitForTX(tx);
 
       prevout = {};
       fixtures.names.forEach((name) => {
@@ -172,7 +174,7 @@ describe("FullNode", () => {
 
           let tx = mtx.toTX();
           node.sendTX(tx);
-          await watcher.waitForTX();
+          await watcher.waitForTX(tx, wallet);
 
           prevout[origin] = {hash: tx.hash().toString("hex"), index: 1};
         }
