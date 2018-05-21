@@ -167,15 +167,12 @@ class NodeWatcher {
   }
 
   async waitForTrustDB(tx) {
-    await new Promise((resolve, reject) => {
-      var check = (() => {
-        if (this.node.trust.db.isTrustTX(tx.hash.toString("hex")))
-          resolve();
-        else setTimeout(check, 100);
-      }).bind(this);
-
-      check();
-    });
+    while (true) {
+      if (this.node.trust.db.isTrustTX(tx.hash.toString("hex"))) {
+        return;
+      }
+      await testHelpers.delay(100);
+    }
   }
 }
 
