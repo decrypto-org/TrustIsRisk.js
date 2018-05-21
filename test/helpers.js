@@ -141,7 +141,7 @@ class NodeWatcher {
       break;
 
     case "undefined":
-      await waitForTX(1);
+      await this.waitForTX(this.txCount);
       break;
 
     case "object":
