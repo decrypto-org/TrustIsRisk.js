@@ -82,7 +82,7 @@ describe("FullNode", () => {
     });
     await watcher.waitForTX();
 
-    node.trust.addTX.should.be.calledOnce();
+    node.trust.addTX.should.have.been.calledOnce();
   });
 
   describe("with the nobodyLikesFrank.json example", () => {
