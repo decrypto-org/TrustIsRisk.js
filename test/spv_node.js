@@ -123,7 +123,7 @@ describe("SPVNode", () => {
     tx.isWatched(spvNode.pool.spvFilter).should.be.true();
   });
 
-  it("should call trust.addTX() on every transaction", async function() {
+  it.only("should call trust.addTX() on every transaction", async function() {
     var spvWallet1 = await testHelpers.createWallet(spvWalletDB, "spvWallet1");
     var spvWallet2 = await testHelpers.createWallet(spvWalletDB, "spvWallet2");
 
@@ -144,12 +144,12 @@ describe("SPVNode", () => {
         address: minerWallet2.getAddress("base58")
       }]
     });
-    await minerWatcher.waitForTX(miner2TX, minerWallet1);
-    await minerWatcher.waitForTX(miner2TX, minerWallet2);
+    //await minerWatcher.waitForTX(miner2TX, minerWallet1);
+    //await minerWatcher.waitForTX(miner2TX, minerWallet2);
+    await minerWatcher.waitForTX();
+    await spvWatcher.waitForTX();
 
-    //miner.trust.addTX.should.be.calledTwice()
-    // @dionyziz: why does the above fail??
-    //Trust.TrustIsRisk.prototype.addTX.should.have.been.calledTwice();
+    Trust.TrustIsRisk.prototype.addTX.should.have.been.calledTwice();
 
     var minerSpvTX = await minerWallet2.send({
       outputs: [{
@@ -192,7 +192,7 @@ describe("SPVNode", () => {
     Trust.TrustIsRisk.prototype.addTX.callCount.should.equal(8);
   });
 
-  describe.only("with the nobodyLikesFrank.json example", () => {
+  describe("with the nobodyLikesFrank.json example", () => {
     var minerNames = {
       "alice": "alice",
       "bob": "bob",

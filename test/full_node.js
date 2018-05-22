@@ -62,7 +62,7 @@ describe("FullNode", () => {
     await node.tearDown();
   });
 
-  it("should call trust.addTX() on every transaction", async function() {
+  it.only("should call trust.addTX() on every transaction", async function() {
     var sender = await testHelpers.createWallet(walletDB, "sender");
     var receiver = await testHelpers.createWallet(walletDB, "receiver");
 
@@ -80,9 +80,10 @@ describe("FullNode", () => {
         address: receiver.getAddress("base58")
       }]
     });
-    await watcher.waitForTX(tx, sender);
-    await watcher.waitForTX(tx, receiver);
-    await testHelpers.delay(100); // @dionyziz: how to avoid timeout?
+    console.log("prin");
+    await watcher.waitForTX(tx); // strange ordering of events on the node.on queue
+    console.log("meta");
+    await testHelpers.delay(100); // @dionyziz: how to avoid timeout when waitForTX(tx)?
 
     node.trust.addTX.should.have.been.calledOnce();
   });

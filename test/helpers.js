@@ -101,6 +101,7 @@ class NodeWatcher {
 
   onTX() {
     this.txCount++;
+    console.log("tx! spv node?", this.node.spv);
   }
 
   onBlock() {
