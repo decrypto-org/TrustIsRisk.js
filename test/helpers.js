@@ -31,6 +31,10 @@ var testHelpers = {
     });
   },
 
+  flushEvents: () => {
+    return testHelpers.delay(100);
+  },
+
   bufferToScript: (data) => {
     return `0x${Number(data.length).toString(16)} 0x${data.toString("hex")}`;
   },
@@ -97,15 +101,25 @@ class NodeWatcher {
     this.node = node;
     this.node.on("tx", this.onTX.bind(this));
     this.node.on("block", this.onBlock.bind(this));
+    this.waitForSomeTxPromiseResolve = [];
   }
 
   onTX() {
     this.txCount++;
-    console.log("tx! spv node?", this.node.spv);
+    for (const resolve of this.waitForSomeTxPromiseResolve) {
+      resolve();
+    }
+    this.waitForSomeTxPromiseResolve = [];
   }
 
   onBlock() {
     this.blockCount++;
+  }
+
+  waitForSomeTX() {
+    return new Promise((resolve, reject) => {
+      this.waitForSomeTxPromiseResolve.push(resolve);
+    });
   }
 
   async waitForBlock(initialCount) {
@@ -125,7 +139,7 @@ class NodeWatcher {
       while (true) {
         if (await wallet.getTX(input.hash("hex")))
           break;
-        await testHelpers.delay(100);
+        await this.waitForSomeTX();
       }
       return;
     }
@@ -137,7 +151,7 @@ class NodeWatcher {
         if (this.txCount > initialCount) {
           return;
         }
-        await testHelpers.delay(100);
+        await this.waitForSomeTX();
       }
       break;
 
@@ -158,7 +172,7 @@ class NodeWatcher {
             return;
           }
         }
-        await testHelpers.delay(100);
+        await this.waitForSomeTX();
       }
       break;
 
