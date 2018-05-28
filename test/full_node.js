@@ -80,10 +80,8 @@ describe("FullNode", () => {
         address: receiver.getAddress("base58")
       }]
     });
-    console.log("prin");
-    await watcher.waitForTX(tx); // strange ordering of events on the node.on queue
-    console.log("meta");
-    await testHelpers.delay(100); // @dionyziz: how to avoid timeout when waitForTX(tx)?
+    await watcher.waitForTX(tx);
+    await testHelpers.flushEvents(); // @dionyziz: needs @ least 3 ms...?
 
     node.trust.addTX.should.have.been.calledOnce();
   });
@@ -140,9 +138,10 @@ describe("FullNode", () => {
       assert(signedCount === blockCount);
       assert(await mtx.verify());
 
-      var tx = mtx.toTX();
+      let tx = mtx.toTX();
       node.sendTX(tx);
-      await watcher.waitForTX(tx);
+      await watcher.waitForTX(tx); // @dionyziz: does not work with wallet
+      await testHelpers.flushEvents();
 
       prevout = {};
       fixtures.names.forEach((name) => {
@@ -175,7 +174,8 @@ describe("FullNode", () => {
 
           let tx = mtx.toTX();
           node.sendTX(tx);
-          await watcher.waitForTX(tx, wallet);
+          await watcher.waitForTX(tx);
+          await testHelpers.flushEvents(); // @dionyziz: needs a long time
 
           prevout[origin] = {hash: tx.hash().toString("hex"), index: 1};
         }
@@ -212,9 +212,12 @@ describe("FullNode", () => {
       var mtx = await mtxs[0];
 
       mtx.verify().should.be.true();
-      node.sendTX(mtx.toTX());
+      let tx = mtx.toTX();
+      node.sendTX(tx);
 
-      await testHelpers.delay(750);
+      await watcher.waitForTX(tx);
+      await testHelpers.flushEvents(); // @dionyziz: needs an even longer time
+
       node.trust.getIndirectTrust(addresses.alice, addresses.bob).should.equal(7 * COIN);
     });
   });
