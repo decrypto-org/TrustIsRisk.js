@@ -124,22 +124,15 @@ class NodeWatcher {
 
   async waitForBlock(initialCount) {
     if (initialCount === undefined) initialCount = this.blockCount;
-    await new Promise((resolve, reject) => {
-      var check = (() => {
-        if (this.blockCount > initialCount) resolve();
-        else setTimeout(check, 100);
-      }).bind(this);
-
-      check();
-    });
+    while (!(this.blockCount > initialCount)) {
+      await testHelpers.delay(100);
+    }
   }
 
   async waitForTX(input, wallet) {
     if (wallet) {
-      while (true) {
-        if (await wallet.getTX(input.hash("hex")))
-          break;
-        await this.waitForSomeTX();
+      while (!(await wallet.getTX(input.hash("hex")))) {
+        await this.waitForSomeTX(); // @dionyziz: gets stuck, probably tx received and added asynchronously. cf test/spv_node.js:161
       }
       return;
     }
@@ -147,10 +140,7 @@ class NodeWatcher {
     switch (typeof input) {
     case "number":
       initialCount = input;
-      while (true) {
-        if (this.txCount > initialCount) {
-          return;
-        }
+      while (!(this.txCount > initialCount)) {
         await this.waitForSomeTX();
       }
       break;
@@ -161,17 +151,9 @@ class NodeWatcher {
 
     case "object":
       var tx = input;
-      while (true) {
-        if (this.node.spv) {
-          if (this.node.pool.txFilter.test(tx.hash().toString("hex"), "hex")) {
-            return;
-          }
-        }
-        else { // this is not an SPV node
-          if (this.node.pool.hasTX(tx.hash().toString("hex"))) {
-            return;
-          }
-        }
+      while ((this.node.spv ?
+          !(this.node.pool.txFilter.test(tx.hash().toString("hex"), "hex")) :
+          !(this.node.pool.hasTX(tx.hash().toString("hex"))))) {
         await this.waitForSomeTX();
       }
       break;
@@ -182,10 +164,7 @@ class NodeWatcher {
   }
 
   async waitForTrustDB(tx) {
-    while (true) {
-      if (this.node.trust.db.isTrustTX(tx.hash.toString("hex"))) {
-        return;
-      }
+    while (!(this.node.trust.db.isTrustTX(tx.hash.toString("hex")))) {
       await testHelpers.delay(100);
     }
   }
