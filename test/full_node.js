@@ -62,7 +62,7 @@ describe("FullNode", () => {
     await node.tearDown();
   });
 
-  it.only("should call trust.addTX() on every transaction", async function() {
+  it("should call trust.addTX() on every transaction", async function() {
     var sender = await testHelpers.createWallet(walletDB, "sender");
     var receiver = await testHelpers.createWallet(walletDB, "receiver");
 
