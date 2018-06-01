@@ -144,10 +144,10 @@ describe("SPVNode", () => {
         address: minerWallet2.getAddress("base58")
       }]
     });
-    //await minerWatcher.waitForTX(miner2TX, minerWallet1);
-    //await minerWatcher.waitForTX(miner2TX, minerWallet2);
-    await minerWatcher.waitForTX();
-    await spvWatcher.waitForTX();
+    await minerWatcher.waitForTX(miner2TX, minerWallet1);
+    await minerWatcher.waitForTX(miner2TX, minerWallet2);
+    await spvWatcher.waitForTX(miner2TX);
+    await testHelpers.flushEvents();
 
     Trust.TrustIsRisk.prototype.addTX.should.have.been.calledTwice();
 
@@ -156,9 +156,13 @@ describe("SPVNode", () => {
         value: 9 * COIN,
         address: spvWallet1.getAddress("base58")
       }]
-    });
-    await spvWatcher.waitForTX(minerSpvTX, spvWallet1);
+    }); // @dionyziz: wtf spv doesn't receive inv!
+    console.log(miner.pool.selfish, "is miner selfish?");
+    console.log("lookie here");
+    console.log(minerSpvTX.hash().toString("hex"));
     await minerWatcher.waitForTX(minerSpvTX, minerWallet2);
+    await spvWatcher.waitForTX(minerSpvTX);
+    await testHelpers.flushEvents();
 
     Trust.TrustIsRisk.prototype.addTX.callCount.should.equal(4);
 
@@ -329,7 +333,7 @@ describe("SPVNode", () => {
       function buildVars(player) {
         return (spvNames[player]) ?
           [spvNode, spvWatcher, spvWallets[player]] :
-          [miner, minerWatcher, minerWallets[player]]
+          [miner, minerWatcher, minerWallets[player]];
       }
 
       let node = {
@@ -372,22 +376,22 @@ describe("SPVNode", () => {
 
           let tx = mtx.toTX();
           console.log("ignore above");
-          console.log("origin", origin, "accepts tx?", await wallet.origin.add(tx));
-          console.log("out and between")
-          console.log("dest", dest, "accepts tx?", await wallet.dest.add(tx));
+          console.log("origin", origin, "accepts tx?", (await wallet.origin.add(tx)) ? true : false);
+          console.log("out and between");
+          console.log("dest", dest, "accepts tx?", (await wallet.dest.add(tx)) ? true : false);
           process.exit();
 
           node.origin.sendTX(tx);
-          console.log(origin, dest, "aaa")
+          console.log(origin, dest, "aaa");
           await watcher.origin.waitForTX(tx, wallet.origin);
           console.log("origin has tx");
           await watcher.dest.waitForTX(tx, wallet.dest); // TODO: dest doesn't get tx
           //await spvWatcher.waitForTX(); // it worked one time! race condition
-          console.log("both sides have tx")
+          console.log("both sides have tx");
           // spv node accepts inv, but does not put tx in the spvNode.txFilter; this is
           // reserved for *sent*, not *received* txs
 
-          console.log(origin, dest, "bbb")
+          console.log(origin, dest, "bbb");
           await wallet.origin.db.addTX();
           await wallet.dest.db.addTX();
 
@@ -451,12 +455,12 @@ describe("SPVNode", () => {
 
       await testHelpers.delay(3000); // combine with next promises with race
       for (name in minerNames) {
-      console.log(name,"aaa") // see why spv node doesn't accept inv
-        await minerWatcher.waitForTX(tx)
-      };
+        console.log(name,"aaa"); // see why spv node doesn't accept inv
+        await minerWatcher.waitForTX(tx);
+      }
       for (name in spvNames) {
-        await spvWatcher.waitForTX(tx)
-      };
+        await spvWatcher.waitForTX(tx);
+      }
       miner.trust.getIndirectTrust(addresses["alice"],
           addresses["bob"]).should.equal(7 * COIN);
       spvNode.trust.getIndirectTrust(addresses["alice"],
