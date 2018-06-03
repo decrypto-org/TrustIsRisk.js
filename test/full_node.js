@@ -8,7 +8,6 @@ var MTX = bcoin.primitives.MTX;
 var Input = bcoin.primitives.Input;
 var Output = bcoin.primitives.Output;
 var Outpoint = bcoin.primitives.Outpoint;
-var walletPlugin = bcoin.wallet.plugin;
 var testHelpers = require("./helpers");
 var consensus = require("bcoin/lib/protocol/consensus");
 var sinon = require("sinon");

@@ -8,7 +8,6 @@ var MTX = bcoin.primitives.MTX;
 var Input = bcoin.primitives.Input;
 var Output = bcoin.primitives.Output;
 var Outpoint = bcoin.primitives.Outpoint;
-var walletPlugin = bcoin.wallet.plugin;
 var secp256k1 = bcoin.crypto.secp256k1;
 var tag = require("../lib/tag");
 var testHelpers = require("./helpers");
