@@ -28,12 +28,8 @@ describe("SPVNode", () => {
   var spvWatcher = null;
   var minerWatcher = null;
 
-  before("set up addTX() spy", function() {
-    sinon.spy(Trust.TrustIsRisk.prototype, "addTX");
-  });
-
-  after("reset addTX() spy", function() {
-    Trust.TrustIsRisk.prototype.addTX.restore();
+  beforeEach("set up addTX() spy", () => {
+     sinon.spy(Trust.TrustIsRisk.prototype, "addTX");
   });
 
   beforeEach("connect SPV node and wallet", async () => {
@@ -79,6 +75,10 @@ describe("SPVNode", () => {
 
     await spvNode.tearDown();
     await miner.tearDown();
+  });
+
+  afterEach("remove addTX() spy", () => {
+    Trust.TrustIsRisk.addTX.restore();
   });
 
   it("should match a TIR transaction with the spv bloom filter", async function() {
