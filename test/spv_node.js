@@ -137,16 +137,8 @@ describe("SPVNode", () => {
     consensus.COINBASE_MATURITY = 0;
     await testHelpers.delay(100);
 
-    var miner2TX = await minerWallet1.send({
-      outputs: [{
-        value: 10 * COIN,
-        address: minerWallet2.getAddress("base58")
-      }]
-    });
-    await minerWatcher.waitForTX(miner2TX, minerWallet1);
-    await minerWatcher.waitForTX(miner2TX, minerWallet2);
-    await spvWatcher.waitForTX(miner2TX);
-    await testHelpers.flushEvents();
+    var miner2TX = await testHelpers.circulateCoins(minerWallet1,
+        minerWatcher, minerWallet2, minerWatcher, 10);
 
     Trust.TrustIsRisk.prototype.addTX.should.have.been.calledTwice();
 
