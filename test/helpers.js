@@ -4,6 +4,7 @@ var WalletDB = require("bcoin/lib/wallet/walletdb");
 var bcoin = require("bcoin");
 var fixtures = require("./fixtures");
 var assert = require("assert");
+const consensus = require("bcoin/lib/protocol/consensus");
 
 var testHelpers = {
   createWallet: async (walletDB, id) => {
@@ -23,6 +24,20 @@ var testHelpers = {
     // node.chain.tip does not contain all the properties we want,
     // so we need to fetch it:
     return node.getBlock(node.chain.tip.hash);
+  },
+
+  circulateCoins: async (fromWallet, fromWatcher,
+      toWallet, toWatcher, coins) => {
+    const tx = await fromWallet.send({
+      outputs: [{
+        value: coins * consensus.COIN,
+        address: toWallet.getAddress("base58")
+      }]
+    });
+    await fromWatcher.waitForTX(tx, fromWallet);
+    await toWatcher.waitForTX(tx, toWallet);
+    await testHelpers.flushEvents();
+    return tx;
   },
 
   delay: async (milliseconds) => {
