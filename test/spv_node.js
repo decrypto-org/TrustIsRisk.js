@@ -140,7 +140,7 @@ describe("SPVNode", () => {
     var miner2TX = await testHelpers.circulateCoins(minerWallet1,
         minerWatcher, minerWallet2, minerWatcher, 10);
 
-    Trust.TrustIsRisk.prototype.addTX.should.have.been.calledTwice();
+    miner.trust.addTX.should.have.been.calledOnce();
 
     var minerSpvTX = await minerWallet2.send({
       outputs: [{
