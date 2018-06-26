@@ -1,18 +1,33 @@
-const sinon = require("sinon");
-
-class MyClass {
-  constructor() {
-  }
-
-  func() {
-    return;
-  }
+async function delay(ms) {
+  return new Promise(resolve => {
+    setTimeout(resolve, ms);
+  })
 };
 
-const obj = new MyClass();
+(async () => {
+  const sinon = require("sinon");
+  const EventEmitter = require("events");
 
-sinon.spy(obj, "func");
+  class MyClass {
+    constructor() {
+      EventEmitter.call(this);
+      this.dummy = (() => {console.log("dummy was called")}).bind(this);
+    }
 
-obj.func()
+    func() {
+      console.log("I have indeed been called!");
+    }
+  };
 
-console.log(obj.func.calledOnce)
+  Object.setPrototypeOf(MyClass.prototype, EventEmitter.prototype);
+
+  const obj = new MyClass();
+  sinon.spy(obj, "dummy");
+  obj.on("tx", obj.dummy);
+
+  obj.emit("tx");
+  //obj.func.call(null); // weird
+
+  console.log((obj.dummy.calledOnce) ?
+      "And the spy knows!" : "But the spy is ignorant...");
+})();
