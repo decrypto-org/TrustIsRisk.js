@@ -1,17 +1,10 @@
-const Trust = require("../");
 const bcoin = require("bcoin").set("regtest");
 const consensus = require("bcoin/lib/protocol/consensus");
+const walletPlugin = bcoin.wallet.plugin;
 const testHelpers = require("../test/helpers");
-const sinon = require("sinon");
-const should = require("should");
-require("should-sinon");
-
-const COIN = consensus.COIN;
 
 (async () => {
-  sinon.spy(Trust.TrustIsRisk.prototype, "addTX");
-
-  const spvnode = new Trust.SPVNode({
+  const spvNode = new bcoin.spvnode({
     network: bcoin.network.get().toString(),
     httpPort: 48445,
     passphrase: "secret",
@@ -20,10 +13,12 @@ const COIN = consensus.COIN;
     nodes: ["127.0.0.1:48448"]
   });
 
-  await spvnode.initialize();
-  const spvWalletDB = spvnode.require("walletdb");
+  spvNode.use(walletPlugin);
+  await spvNode.open();
+  await spvNode.connect();
+  const spvWalletDB = spvNode.require("walletdb");
 
-  const fullnode = new Trust.FullNode({
+  const fullNode = new bcoin.fullnode({
     network: bcoin.network.get().toString(),
     httpPort: 48448,
     bip37: true,
@@ -31,63 +26,47 @@ const COIN = consensus.COIN;
     passphrase: "secret"
   });
 
-  await fullnode.initialize();
-  const fullWalletDB = fullnode.require("walletdb");
+  fullNode.use(walletPlugin);
+  await fullNode.open();
+  await fullNode.connect();
+  const fullWalletDB = fullNode.require("walletdb");
 
-  fullnode.startSync();
-  spvnode.startSync();
+  fullNode.startSync();
+  spvNode.startSync();
 
-  const fullWatcher = new testHelpers.NodeWatcher(fullnode);
-  const spvWatcher = new testHelpers.NodeWatcher(spvnode);
+  const fullWatcher = new testHelpers.NodeWatcher(fullNode);
+  const spvWatcher = new testHelpers.NodeWatcher(spvNode);
 
-  const spvWallet1 = await testHelpers.createWallet(spvWalletDB, "spvWallet1");
-  const spvWallet2 = await testHelpers.createWallet(spvWalletDB, "spvWallet2");
-
-  const fullWallet1 = await testHelpers.createWallet(fullWalletDB, "fullWallet1");
-  const fullWallet2 = await testHelpers.createWallet(fullWalletDB, "fullWallet2");
+  const spvWallet = await testHelpers.createWallet(spvWalletDB, "spvWallet");
+  const fullWallet = await testHelpers.createWallet(fullWalletDB, "fullWallet");
+  const fullWalle = await testHelpers.createWallet(fullWalletDB, "fullWalle");
 
   await testHelpers.delay(1000);
   // Produce a block and reward the fullWallet1, so that we have a coin to spend.
-  await testHelpers.mineBlock(fullnode, fullWallet1.getAddress("base58"));
+  await testHelpers.mineBlock(fullNode, fullWallet.getAddress("base58"));
 
   // Make the coin spendable.
   consensus.COINBASE_MATURITY = 0;
   await testHelpers.delay(100);
 
-  var full2TX = await fullWallet1.send({
+  var tx = await fullWallet.send({
     outputs: [{
-      value: 10 * COIN,
-      address: fullWallet2.getAddress("base58")
+      value: 10 * consensus.COIN,
+      address: fullWalle.getAddress("base58")
     }]
   });
-  await fullWatcher.waitForTX(full2TX, fullWallet1);
-  await fullWatcher.waitForTX(full2TX, fullWallet2);
-  await spvWatcher.waitForTX(full2TX);
+  await fullWatcher.waitForTX(tx, fullWallet);
+  await fullWatcher.waitForTX(tx, fullWalle);
+  //await spvWatcher.waitForTX(tx, spvWallet);
   await testHelpers.flushEvents();
 
-  Trust.TrustIsRisk.prototype.addTX.should.have.been.calledTwice();
+  spvNode.stopSync();
+  fullNode.stopSync();
 
-  var fullSpvTX = await fullWallet2.send({
-    outputs: [{
-      value: 9 * COIN,
-      address: spvWallet1.getAddress("base58")
-    }]
-  });
-
-  await fullWatcher.waitForTX(fullSpvTX, fullWallet2);
-  console.log("aaa");
-  await spvWatcher.waitForTX(fullSpvTX);
-  await testHelpers.flushEvents();
-
-  Trust.TrustIsRisk.prototype.addTX.callCount.should.equal(4);
-
-  spvnode.stopSync();
-  fullnode.stopSync();
-
-  await spvnode.tearDown();
-  await fullnode.tearDown();
-
-  Trust.TrustIsRisk.prototype.addTX.restore();
+  await spvNode.disconnect();
+  await fullNode.disconnect();
+  await spvNode.close();
+  await fullNode.close();
 
   console.log("success!");
 })();
