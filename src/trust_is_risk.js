@@ -24,7 +24,9 @@ class TrustIsRisk {
   constructor(node : (bcoin$FullNode | bcoin$SPVNode)) {
     this.node = node;
     this.db = new TrustDB();
+  }
 
+  async initialize() {
     this.node.on("tx", this.addTX.bind(this));
   }
 

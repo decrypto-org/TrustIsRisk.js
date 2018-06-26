@@ -13,6 +13,7 @@ class FullNode extends bcoin.fullnode {
   }
 
   async initialize() {
+    await this.trust.initialize();
     await this.open();
     await this.connect();
   }

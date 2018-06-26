@@ -14,6 +14,7 @@ class SPVNode extends bcoin.spvnode {
   }
 
   async initialize() {
+    await this.trust.initialize();
     await this.open();
     await this.connect();
     this.pool.spvFilter.add(tag);
