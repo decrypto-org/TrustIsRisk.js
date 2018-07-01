@@ -147,7 +147,8 @@ class NodeWatcher {
   async waitForTX(input, wallet) {
     if (wallet) {
       while (!(await wallet.getTX(input.hash("hex")))) {
-        await this.waitForSomeTX(); // @dionyziz: gets stuck, probably tx received and added asynchronously. cf test/spv_node.js:161
+        await testHelpers.delay(100);
+        //await this.waitForSomeTX();
       }
       return;
     }
