@@ -28,11 +28,11 @@ describe("SPVNode", () => {
   var spvWatcher = null;
   var minerWatcher = null;
 
-  beforeEach("set up addTX() spy", () => {
-     sinon.spy(Trust.TrustIsRisk.prototype, "addTX");
+  beforeEach("make mined coins immediately spendable", () => {
+    consensus.COINBASE_MATURITY = 0;
   });
 
-  beforeEach("connect SPV node and wallet", async () => {
+  beforeEach("create SPV node", async () => {
     spvNode = new Trust.SPVNode({
       network: bcoin.network.get().toString(),
       httpPort: 48445,
@@ -41,12 +41,18 @@ describe("SPVNode", () => {
       // logLevel: "debug",
       nodes: ["127.0.0.1:48448"]
     });
+  });
 
+  beforeEach("set up SPV addTX() spy", () => {
+    sinon.spy(spvNode.trust, "addTX");
+  });
+
+  beforeEach("connect SPV node, create walletDB", async () => {
     await spvNode.initialize();
     spvWalletDB = spvNode.require("walletdb");
   });
 
-  beforeEach("connect full node and wallet", async () => {
+  beforeEach("create full node", async () => {
     miner = new Trust.FullNode({
       network: bcoin.network.get().toString(),
       httpPort: 48448,
@@ -54,7 +60,13 @@ describe("SPVNode", () => {
       listen: true,
       passphrase: "secret"
     });
+  });
 
+  beforeEach("set up full node addTX() spy", () => {
+    sinon.spy(miner.trust, "addTX");
+  });
+
+  beforeEach("connect full node, create walletDB", async () => {
     await miner.initialize();
     minerWalletDB = miner.require("walletdb");
   });
@@ -64,7 +76,7 @@ describe("SPVNode", () => {
     spvNode.startSync();
   });
 
-  beforeEach("get watchers", async () => {
+  beforeEach("create watchers", async () => {
     minerWatcher = new testHelpers.NodeWatcher(miner);
     spvWatcher = new testHelpers.NodeWatcher(spvNode);
   });
@@ -77,8 +89,13 @@ describe("SPVNode", () => {
     await miner.tearDown();
   });
 
-  afterEach("remove addTX() spy", () => {
-    Trust.TrustIsRisk.addTX.restore();
+  afterEach("remove addTX() spies", () => {
+    spvNode.trust.addTX.restore();
+    miner.trust.addTX.restore();
+  });
+
+  afterEach("make mined coins spendable after 100 blocks (default)", () => {
+    consensus.COINBASE_MATURITY = 100;
   });
 
   it("should match a TIR transaction with the spv bloom filter", async function() {
@@ -122,69 +139,53 @@ describe("SPVNode", () => {
     tx.isWatched(spvNode.pool.spvFilter).should.be.true();
   });
 
-  it.only("should call trust.addTX() on every transaction", async function() {
-    var spvWallet1 = await testHelpers.createWallet(spvWalletDB, "spvWallet1");
-    var spvWallet2 = await testHelpers.createWallet(spvWalletDB, "spvWallet2");
-
+  it("should call trust.addTX() on transaction within a full node", async function() {
     var minerWallet1 = await testHelpers.createWallet(minerWalletDB, "minerWallet1");
     var minerWallet2 = await testHelpers.createWallet(minerWalletDB, "minerWallet2");
 
     await testHelpers.delay(1000);
     // Produce a block and reward the minerWallet1, so that we have a coin to spend.
     await testHelpers.mineBlock(miner, minerWallet1.getAddress("base58"));
-
-    // Make the coin spendable.
-    consensus.COINBASE_MATURITY = 0;
     await testHelpers.delay(100);
 
     var miner2TX = await testHelpers.circulateCoins(minerWallet1,
         minerWatcher, minerWallet2, minerWatcher, 10);
 
     miner.trust.addTX.should.have.been.calledOnce();
+  });
 
-    var minerSpvTX = await minerWallet2.send({
-      outputs: [{
-        value: 9 * COIN,
-        address: spvWallet1.getAddress("base58")
-      }]
-    }); // @dionyziz: wtf spv doesn't receive inv!
-    console.log(miner.pool.selfish, "is miner selfish?");
-    console.log("lookie here");
-    console.log(minerSpvTX.hash().toString("hex"));
-    await minerWatcher.waitForTX(minerSpvTX, minerWallet2);
-    await spvWatcher.waitForTX(minerSpvTX);
-    await testHelpers.flushEvents();
+  it("should call trust.addTX() on transaction between full and spv node", async function() {
+    var spvWallet1 = await testHelpers.createWallet(spvWalletDB, "spvWallet1");
+    var spvWallet2 = await testHelpers.createWallet(spvWalletDB, "spvWallet2");
 
-    Trust.TrustIsRisk.prototype.addTX.callCount.should.equal(4);
+    var minerWallet = await testHelpers.createWallet(minerWalletDB, "minerWallet");
 
-    var spv2TX = await spvWallet1.send({
-      outputs: [{
-        value: 8 * COIN,
-        address: spvWallet2.getAddress("base58")
-      }]
-    });
-    await minerWatcher.waitForTX(spv2TX); // see why tx is received twice?
-    await spvWatcher.waitForTX(spv2TX, spvWallet1);
-    await spvWatcher.waitForTX(spv2TX, spvWallet2);
+    await testHelpers.delay(1000);
+    // Produce a block and reward the minerWallet, so that we have a coin to spend.
+    await testHelpers.mineBlock(miner, minerWallet.getAddress("base58"));
+    await testHelpers.delay(100);
 
-    // @dionyziz: Fixed it by putting minerWatcher before and removing inputs
-    Trust.TrustIsRisk.prototype.addTX.callCount.should.equal(6);
+    var minerSpvTX = await testHelpers.circulateCoins(minerWallet,
+      minerWatcher, spvWallet1, spvWatcher, 10);
 
-    var spvMinerTX = await spvWallet2.send({
-      outputs: [{
-        value: 7 * COIN,
-        address: minerWallet1.getAddress("base58")
-      }]
-    });
-    await spvWatcher.waitForTX(spvMinerTX, spvWallet2);
-    await minerWatcher.waitForTX(spvMinerTX, minerWallet1);
+    spvNode.trust.addTX.should.have.been.calledOnce();
 
-    var view = await miner.chain.db.getSpentView(miner2TX);
-    var actualBalance = (await minerWallet1.getBalance()).unconfirmed;
+    var spv2TX = await testHelpers.circulateCoins(spvWallet1,
+      spvWatcher, spvWallet2, spvWatcher, 9);
+
+    spvNode.trust.addTX.should.have.been.calledTwice();
+
+    var spvMinerTX = await testHelpers.circulateCoins(spvWallet2,
+      spvWatcher, minerWallet, minerWatcher, 8);
+
+    var view = await miner.chain.db.getSpentView(minerSpvTX);
+    var actualBalance = (await minerWallet.getBalance()).unconfirmed;
     var expectedBalance =
-        consensus.BASE_REWARD - 10 * COIN + 7 * COIN - miner2TX.getFee(view);
+        consensus.BASE_REWARD - 10 * COIN + 8 * COIN - minerSpvTX.getFee(view);
     actualBalance.should.equal(expectedBalance);
-    Trust.TrustIsRisk.prototype.addTX.callCount.should.equal(8);
+
+    spvNode.trust.addTX.should.have.been.calledThrice();
+    miner.trust.addTX.should.have.been.calledThrice();
   });
 
   describe("with the nobodyLikesFrank.json example", () => {
@@ -370,7 +371,6 @@ describe("SPVNode", () => {
           console.log("origin", origin, "accepts tx?", (await wallet.origin.add(tx)) ? true : false);
           console.log("out and between");
           console.log("dest", dest, "accepts tx?", (await wallet.dest.add(tx)) ? true : false);
-          process.exit();
 
           node.origin.sendTX(tx);
           console.log(origin, dest, "aaa");
