@@ -39,26 +39,24 @@ const testHelpers = require("../test/helpers");
 
   const spvWallet = await testHelpers.createWallet(spvWalletDB, "spvWallet");
   const fullWallet = await testHelpers.createWallet(fullWalletDB, "fullWallet");
-  const fullWalle = await testHelpers.createWallet(fullWalletDB, "fullWalle");
 
   await testHelpers.delay(1000);
-  // Produce a block and reward the fullWallet1, so that we have a coin to spend.
+  // Produce a block and reward the fullWallet, so that we have a coin to spend.
   await testHelpers.mineBlock(fullNode, fullWallet.getAddress("base58"));
 
   // Make the coin spendable.
   consensus.COINBASE_MATURITY = 0;
   await testHelpers.delay(100);
 
-  var tx = await fullWallet.send({
+  const tx = await fullWallet.send({
     outputs: [{
       value: 10 * consensus.COIN,
-      address: fullWalle.getAddress("base58")
+      address: spvWallet.getAddress("base58")
     }]
   });
   await fullWatcher.waitForTX(tx, fullWallet);
-  await fullWatcher.waitForTX(tx, fullWalle);
-  //await spvWatcher.waitForTX(tx, spvWallet);
-  await testHelpers.flushEvents();
+  console.log("aaand..."); // works only with polling in waitForTX()
+  await spvWatcher.waitForTX(tx, spvWallet);
 
   spvNode.stopSync();
   fullNode.stopSync();
