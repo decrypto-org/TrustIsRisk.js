@@ -80,7 +80,7 @@ tearDownTest = async () => {
 describe("tag", () => {
   it("corresponds to a valid public key", () => {
     Buffer.isBuffer(tag).should.be.true();
-    secp256k1.publicKeyVerify(tag).should.be.true();
+    secp256k1.publicKeyVerify(tag).result.should.be.true();
   });
 
   it("is a valid bitcoin address", () => {
