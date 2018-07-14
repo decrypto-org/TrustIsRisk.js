@@ -29,7 +29,7 @@
   "devDependencies": {
     "babel-eslint": "^7.2.3",
     "eslint": "^3.19.0",
-    "eslint-plugin-flowtype": "^2.33.0",
+    "eslint-plugin-flowtype": "^2.50.0",
     "flow-bin": "^0.45.0",
     "flow-remove-types": "^1.2.0",
     "mocha": "^5.2.0",
@@ -38,7 +38,7 @@
     "sinon": "^5.1.1"
   },
   "dependencies": {
-    "bcoin": "^1.0.0-beta.15",
+    "bcoin": "^1.0.2",
     "graph-theory-ford-fulkerson": "^1.0.0",
     "sorted-set": "^0.3.0"
   }
