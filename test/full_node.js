@@ -43,7 +43,7 @@ describe("FullNode", () => {
     });
 
     await node.initialize();
-    walletDB = node.require("walletdb");
+    walletDB = node.require("walletdb").wdb;
     node.startSync();
 
     wallet = await testHelpers.createWallet(walletDB, "wallet");

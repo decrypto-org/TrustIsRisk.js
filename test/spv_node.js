@@ -50,7 +50,7 @@ describe("SPVNode", () => {
 
   beforeEach("connect SPV node, create walletDB", async () => {
     await spvNode.initialize();
-    spvWalletDB = spvNode.require("walletdb");
+    spvWalletDB = spvNode.require("walletdb").wdb;
   });
 
   beforeEach("create full node", async () => {
@@ -69,7 +69,7 @@ describe("SPVNode", () => {
 
   beforeEach("connect full node, create walletDB", async () => {
     await miner.initialize();
-    minerWalletDB = miner.require("walletdb");
+    minerWalletDB = miner.require("walletdb").wdb;
   });
 
   beforeEach("start syncing", () => {

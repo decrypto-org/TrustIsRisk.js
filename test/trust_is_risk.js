@@ -46,7 +46,7 @@ setupTest = async (isFullNode) => {
   node = new nodeClass({network: bcoin.Network.get().toString()});
   node.use(walletPlugin);
   tir = new Trust.TrustIsRisk(node);
-  walletDB = node.require("walletdb");
+  walletDB = node.require("walletdb").wdb;
   await node.open();
   wallet = await testHelpers.createWallet(walletDB, "wallet");
 
