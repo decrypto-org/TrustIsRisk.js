@@ -3,7 +3,7 @@ var bcoin = require("bcoin");
 var walletPlugin = bcoin.wallet.plugin;
 var TrustIsRisk = require("./trust_is_risk");
 
-class FullNode extends bcoin.fullnode {
+class FullNode extends bcoin.FullNode {
   trust : TrustIsRisk
 
   constructor(options : Object) {

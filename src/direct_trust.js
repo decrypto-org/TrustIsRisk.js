@@ -1,6 +1,6 @@
 // @flow
 import type {Entity, Key} from "./types";
-import type {script} from "bcoin";
+import type {Script} from "bcoin";
 var assert = require("assert");
 var helpers = require("./helpers");
 

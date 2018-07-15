@@ -10,7 +10,7 @@ var Input = bcoin.primitives.Input;
 var Output = bcoin.primitives.Output;
 var Outpoint = bcoin.primitives.Outpoint;
 var Coin = bcoin.primitives.Coin;
-var Script = bcoin.script;
+var Script = bcoin.Script;
 var assert = require("assert");
 var helpers = require("./helpers");
 var TrustDB = require("./trust_db");
@@ -89,7 +89,7 @@ class TrustIsRisk {
     var mtx = new MTX({
       outputs: [
         new Output({
-          script: bcoin.script.fromMultisig(1, 3, [originPubKey, dest, tag]),
+          script: bcoin.Script.fromMultisig(1, 3, [originPubKey, dest, tag]),
           value: trustAmount
         })
       ]
@@ -99,7 +99,7 @@ class TrustIsRisk {
     assert(changeAmount >= 0);
     if (changeAmount) {
       mtx.addOutput(new Output({
-        script: bcoin.script.fromPubkeyhash(bcoin.crypto.hash160(originPubKey)),
+        script: bcoin.Script.fromPubkeyhash(bcoin.crypto.hash160(originPubKey)),
         value: changeAmount
       }));
     }
@@ -172,7 +172,7 @@ class TrustIsRisk {
 
     var mtx = new MTX({
       outputs: [new Output({
-        script: bcoin.script.fromPubkeyhash(Address.fromString(payee).hash),
+        script: bcoin.Script.fromPubkeyhash(Address.fromString(payee).hash),
         value: ((decreaseAmount - fee) < 0) ? 0 : (decreaseAmount - fee)
       })] // TODO: do not add this output if its value is 0
     });
@@ -180,7 +180,7 @@ class TrustIsRisk {
     var remainingTrustAmount = directTrust.amount - decreaseAmount;
     if (remainingTrustAmount > 0) {
       mtx.addOutput(new Output({
-        script: bcoin.script.fromMultisig(1, 3, [directTrust.origin, directTrust.dest, tag]),
+        script: bcoin.Script.fromMultisig(1, 3, [directTrust.origin, directTrust.dest, tag]),
         value: remainingTrustAmount
       }));
     }

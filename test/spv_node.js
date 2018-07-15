@@ -34,7 +34,7 @@ describe("SPVNode", () => {
 
   beforeEach("create SPV node", async () => {
     spvNode = new Trust.SPVNode({
-      network: bcoin.network.get().toString(),
+      network: bcoin.Network.get().toString(),
       httpPort: 48445,
       passphrase: "secret",
       // logConsole: true,
@@ -54,7 +54,7 @@ describe("SPVNode", () => {
 
   beforeEach("create full node", async () => {
     miner = new Trust.FullNode({
-      network: bcoin.network.get().toString(),
+      network: bcoin.Network.get().toString(),
       httpPort: 48448,
       bip37: true,
       listen: true,

@@ -184,7 +184,7 @@ declare module 'bcoin' {
     },
     FullNode : Class<bcoin$FullNode>,
     SPVNode : Class<bcoin$SPVNode>,
-    script : Class<bcoin$Script>,
+    Script : Class<bcoin$Script>,
     pool : Class<bcoin$Pool>,
     wallet : {
       Wallet : Class<bcoin$Wallet>,

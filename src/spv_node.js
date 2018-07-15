@@ -4,7 +4,7 @@ var walletPlugin = bcoin.wallet.plugin;
 var TrustIsRisk = require("./trust_is_risk");
 var tag = require("./tag");
 
-class SPVNode extends bcoin.spvnode {
+class SPVNode extends bcoin.SPVNode {
   trust : TrustIsRisk
 
   constructor(options : Object) {

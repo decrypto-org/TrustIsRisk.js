@@ -56,7 +56,7 @@ var testHelpers = {
 
   getP2PKHOutput: (dest, value) => {
     var address = bcoin.primitives.Address.fromString(dest);
-    var script = bcoin.script.fromPubkeyhash(address.hash);
+    var script = bcoin.Script.fromPubkeyhash(address.hash);
 
     return new bcoin.primitives.Output({script, value});
   },
@@ -71,7 +71,7 @@ var testHelpers = {
 
     return new bcoin.primitives.Input({
       prevout,
-      script: bcoin.script.fromString(
+      script: bcoin.Script.fromString(
           // Don't care about the signature
           "0x47 0x3044022035e32834c6ee4db1696cc06762feca2809d865ca12a3b98c801f3f451341a2570220573bf3ffef55f2651e1563acc0a22f8056222f277f5ddf17dd583d4edd40fa6001 "
           + testHelpers.bufferToScript(pubKey))
@@ -80,7 +80,7 @@ var testHelpers = {
 
   getOneOfThreeMultisigOutput: (originPubKey, destPubKey, value) => {
     return new bcoin.primitives.Output({
-      script: bcoin.script.fromMultisig(1, 3, [originPubKey, destPubKey, tag]),
+      script: bcoin.Script.fromMultisig(1, 3, [originPubKey, destPubKey, tag]),
       value
     });
   },

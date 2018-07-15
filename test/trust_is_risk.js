@@ -41,8 +41,8 @@ var node, tir, walletDB, wallet,
   trustIncreasingMTX, trustDecreasingMTX, trustIncreasingTX;
 
 setupTest = async (isFullNode) => {
-  const nodeClass = bcoin[isFullNode? "fullnode" : "spvnode"];
-  node = new nodeClass({network: bcoin.network.get().toString()});
+  const nodeClass = bcoin[isFullNode? "FullNode" : "SPVNode"];
+  node = new nodeClass({network: bcoin.Network.get().toString()});
   node.use(walletPlugin);
   tir = new Trust.TrustIsRisk(node);
   walletDB = node.require("walletdb");
@@ -57,7 +57,7 @@ setupTest = async (isFullNode) => {
       hash: trustIncreasingTX.hash().toString("hex"),
       index: 0
     },
-    script: bcoin.script.fromString(
+    script: bcoin.Script.fromString(
       // 17P8kCbDBPmqLDCCe9dYwbfiEDaRb5xDYE
       "0x47 0x3044022035e32834c6ee4db1696cc06762feca2809d865ca12a3b98c801f3f451341a2570220573bf3ffef55f2651e1563acc0a22f8056222f277f5ddf17dd583d4edd40fa6001 0x21 0x02b8f07a401eca4888039b1898f94db44c43ccc6d3aa8b27e9b6ed7b377b24c083")
   });

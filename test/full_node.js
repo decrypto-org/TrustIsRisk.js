@@ -34,11 +34,11 @@ describe("FullNode", () => {
 
   beforeEach("prepare node", async () => {
     for (let name in fixtures.keyRings) {
-      fixtures.keyRings[name].network = bcoin.network.get();
+      fixtures.keyRings[name].network = bcoin.Network.get();
     }
 
     node = new Trust.FullNode({
-      network: bcoin.network.get().toString(),
+      network: bcoin.Network.get().toString(),
       passphrase: "secret"
     });
 
