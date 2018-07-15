@@ -1,6 +1,8 @@
 // @flow
 import type {Entity, TXHash, Key} from "./types";
 var bcoin = require("bcoin");
+var bcrypto = require("bcrypto");
+var hash160 = bcrypto.Hash160;
 var Address = bcoin.primitives.Address;
 
 class NodeWatcher {
@@ -105,7 +107,7 @@ var helpers = {
   NodeWatcher : NodeWatcher,
 
   pubKeyToEntity: (key : Key, network : bcoin$Network) : Entity => {
-    return Address.fromHash(bcoin.crypto.hash160(key),
+    return Address.fromHash(hash160.digest(key),
         Address.types.PUBKEYHASH, -1, network).toString();
   },
 

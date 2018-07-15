@@ -1,6 +1,7 @@
 // @flow
 import type {Entity, TXHash, Key} from "./types";
 var bcoin = require("bcoin");
+var bcrypto = require("bcrypto");
 var Address = bcoin.primitives.Address;
 var KeyRing = bcoin.primitives.KeyRing;
 var WalletDB = bcoin.wallet.WalletDB;
@@ -99,7 +100,7 @@ class TrustIsRisk {
     assert(changeAmount >= 0);
     if (changeAmount) {
       mtx.addOutput(new Output({
-        script: bcoin.Script.fromPubkeyhash(bcoin.crypto.hash160(originPubKey)),
+        script: bcoin.Script.fromPubkeyhash(bcrypto.Hash160.digest(originPubKey)),
         value: changeAmount
       }));
     }

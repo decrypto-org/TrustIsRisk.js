@@ -201,10 +201,6 @@ declare module 'bcoin' {
       KeyRing : Class<bcoin$KeyRing>,
       Coin : Class<bcoin$Coin>
     },
-    crypto : {
-      hash160(str : (string | Buffer)) : Hash,
-      hash256(str : (string | Buffer)) : Hash
-    },
     base58 : {
       encode(str : (string | Buffer)) : Buffer
     },

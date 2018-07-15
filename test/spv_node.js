@@ -1,6 +1,7 @@
 var Trust = require("../");
 var helpers = require("../lib/helpers.js");
 var bcoin = require("bcoin").set("regtest");
+var bcrypto = require("bcrypto");
 var Script = bcoin.script;
 var Address = bcoin.primitives.Address;
 var KeyRing = bcoin.primitives.KeyRing;
@@ -8,7 +9,7 @@ var MTX = bcoin.primitives.MTX;
 var Input = bcoin.primitives.Input;
 var Output = bcoin.primitives.Output;
 var Outpoint = bcoin.primitives.Outpoint;
-var secp256k1 = bcoin.crypto.secp256k1;
+var secp256k1 = bcrypto.secp256k1;
 var tag = require("../lib/tag");
 var testHelpers = require("./helpers");
 var consensus = require("bcoin/lib/protocol/consensus");

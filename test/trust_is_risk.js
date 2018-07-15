@@ -1,6 +1,8 @@
 var Trust = require("../");
 var helpers = require("../lib/helpers.js");
 var bcoin = require("bcoin");
+var bcrypto = require("bcrypto");
+var secp256k1 = bcrypto.secp256k1;
 var Coin = bcoin.primitives.Coin;
 var Address = bcoin.primitives.Address;
 var Input = bcoin.primitives.Input;
@@ -11,7 +13,6 @@ var TXRecord = bcoin.wallet.records.TXRecord;
 var testHelpers = require("./helpers");
 var tag = require("../lib/tag");
 var consensus = require("bcoin/lib/protocol/consensus");
-var secp256k1 = require("bcoin/lib/crypto/secp256k1");
 var sinon = require("sinon");
 var should = require("should");
 var fixtures = require("./fixtures");
@@ -34,7 +35,7 @@ for (let [name, keyRing] of Object.entries(fixtures.keyRings)) {
 // Add base58 address variables to scope.
 for (name in fixtures.keyRings) {
   var keyRing = fixtures.keyRings[name];
-  eval(`var ${name} = "${bcoin.primitives.Address.fromHash(bcoin.crypto.hash160(keyRing.getPublicKey())).toString()}";`);
+  eval(`var ${name} = "${bcoin.primitives.Address.fromHash(bcrypto.Hash160.digest(keyRing.getPublicKey())).toString()}";`);
 }
 
 var node, tir, walletDB, wallet,
@@ -80,7 +81,7 @@ tearDownTest = async () => {
 describe("tag", () => {
   it("corresponds to a valid public key", () => {
     Buffer.isBuffer(tag).should.be.true();
-    secp256k1.publicKeyVerify(tag).result.should.be.true();
+    secp256k1.publicKeyVerify(tag).should.be.true();
   });
 
   it("is a valid bitcoin address", () => {
