@@ -182,8 +182,8 @@ declare module 'bcoin' {
     node : {
       NodeClient : Class<bcoin$NodeClient>
     },
-    fullnode : Class<bcoin$FullNode>,
-    spvnode : Class<bcoin$SPVNode>,
+    FullNode : Class<bcoin$FullNode>,
+    SPVNode : Class<bcoin$SPVNode>,
     script : Class<bcoin$Script>,
     pool : Class<bcoin$Pool>,
     wallet : {
