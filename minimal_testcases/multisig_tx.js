@@ -2,6 +2,7 @@
   var Trust = require("../");
   var helpers = require("../lib/helpers.js");
   var bcoin = require("bcoin").set("regtest");
+  var bcrypto = require("bcrypto");
   var Script = bcoin.script;
   var Address = bcoin.primitives.Address;
   var KeyRing = bcoin.primitives.KeyRing;
@@ -9,7 +10,7 @@
   var Input = bcoin.primitives.Input;
   var Output = bcoin.primitives.Output;
   var Outpoint = bcoin.primitives.Outpoint;
-  var secp256k1 = bcoin.crypto.secp256k1;
+  var secp256k1 = bcrypto.secp256k1;
   var tag = require("../lib/tag");
   var testHelpers = require("../test/helpers");
   var consensus = require("bcoin/lib/protocol/consensus");
@@ -31,7 +32,7 @@
   consensus.COINBASE_MATURITY = 0;
 
   spvNode = new Trust.SPVNode({
-    network: bcoin.network.get().toString(),
+    network: bcoin.Network.get().toString(),
     httpPort: 48445,
     passphrase: "secret",
     // logConsole: true,
@@ -43,7 +44,7 @@
   spvWalletDB = spvNode.require("walletdb");
 
   miner = new Trust.FullNode({
-    network: bcoin.network.get().toString(),
+    network: bcoin.Network.get().toString(),
     httpPort: 48448,
     bip37: true,
     listen: true,
