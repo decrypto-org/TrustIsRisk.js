@@ -41,7 +41,7 @@
   });
 
   await spvNode.initialize();
-  spvWalletDB = spvNode.require("walletdb");
+  spvWalletDB = spvNode.require("walletdb").wdb;
 
   miner = new Trust.FullNode({
     network: bcoin.Network.get().toString(),
@@ -51,8 +51,9 @@
     passphrase: "secret"
   });
 
+debugger;
   await miner.initialize();
-  minerWalletDB = miner.require("walletdb");
+  minerWalletDB = miner.require("walletdb").wdb;
 
   miner.startSync();
   spvNode.startSync();
