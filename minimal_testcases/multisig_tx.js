@@ -34,6 +34,8 @@
   spvNode = new Trust.SPVNode({
     network: bcoin.Network.get().toString(),
     httpPort: 48445,
+    walletHttpPort: 48449, // works with PR
+    // https://github.com/bcoin-org/bcfg/pull/1
     passphrase: "secret",
     // logConsole: true,
     // logLevel: "debug",
