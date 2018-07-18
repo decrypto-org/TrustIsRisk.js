@@ -3,6 +3,8 @@
   var helpers = require("../lib/helpers.js");
   var bcoin = require("bcoin").set("regtest");
   var bcrypto = require("bcrypto");
+  var WalletDB = bcoin.wallet.WalletDB;
+  var NodeClient = bcoin.wallet.NodeClient;
   var Script = bcoin.script;
   var Address = bcoin.primitives.Address;
   var KeyRing = bcoin.primitives.KeyRing;
@@ -43,7 +45,12 @@
   });
 
   await spvNode.initialize();
-  spvWalletDB = spvNode.require("walletdb").wdb;
+
+  spvWalletDB = new WalletDB({
+    network: bcoin.Network.get().toString(),
+    client: new NodeClient(spvNode)
+  });
+  await spvWalletDB.open();
 
   miner = new Trust.FullNode({
     network: bcoin.Network.get().toString(),
@@ -53,9 +60,13 @@
     passphrase: "secret"
   });
 
-debugger;
   await miner.initialize();
-  minerWalletDB = miner.require("walletdb").wdb;
+
+  minerWalletDB = new WalletDB({
+    network: bcoin.Network.get().toString(),
+    client: new NodeClient(miner)
+  });
+  await minerWalletDB.open();
 
   miner.startSync();
   spvNode.startSync();
