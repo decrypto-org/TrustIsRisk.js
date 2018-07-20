@@ -5,7 +5,7 @@
   var bcrypto = require("bcrypto");
   var WalletDB = bcoin.wallet.WalletDB;
   var NodeClient = bcoin.wallet.NodeClient;
-  var Script = bcoin.script;
+  var Script = bcoin.script.Script;
   var Address = bcoin.primitives.Address;
   var KeyRing = bcoin.primitives.KeyRing;
   var MTX = bcoin.primitives.MTX;
@@ -157,7 +157,7 @@
      (Object.keys(minerNames).length + Object.keys(spvNames).length) - fee;
   if (changeAmount >= 0.01) {
     outputs.push(new Output({
-      script: Script.fromPubkeyhash(bcoin.crypto.hash160(
+      script: Script.fromPubkeyhash(bcrypto.Hash160.digest(
           rings["alice"].publicKey)),
       value: changeAmount * consensus.COIN
     }));
