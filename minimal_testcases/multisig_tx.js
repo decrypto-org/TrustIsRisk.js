@@ -97,8 +97,10 @@
     minerWallets[name] = await testHelpers.createWallet(
         minerWalletDB, name
     );
+    account = await minerWallets[name].getAccount('default');
+
     rings[name] = await minerWallets[name].getPrivateKey(
-        minerWallets[name].getAddress("base58"), "secret"
+        account.receiveAddress(), "secret"
     );
     addresses[name] = helpers.pubKeyToEntity(
         rings[name].getPublicKey(), miner.network
@@ -110,8 +112,10 @@
     spvWallets[name] = await testHelpers.createWallet(
         spvWalletDB, name
     );
+    account = await spvWallets[name].getAccount('default');
+
     rings[name] = await spvWallets[name].getPrivateKey(
-        spvWallets[name].getAddress("base58"), "secret"
+        account.receiveAddress(), "secret"
     );
     addresses[name] = helpers.pubKeyToEntity(
         rings[name].getPublicKey(), spvNode.network
