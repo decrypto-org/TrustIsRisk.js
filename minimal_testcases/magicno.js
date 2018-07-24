@@ -19,19 +19,13 @@ const two = new bcoin.FullNode({
 });
 
 (async () => {
-if (one.pool.peers.head()) console.log("1",one.pool.peers.head().socket._events.drain);
   await one.open()
-if (one.pool.peers.head()) console.log("2",one.pool.peers.head().socket._events.drain);
   await one.connect();
-if (one.pool.peers.head()) console.log("3",one.pool.peers.head().socket._events.drain);
 
   await two.open();
-if (one.pool.peers.head()) console.log("4",one.pool.peers.head().socket._events.drain);
   await two.connect();
-if (one.pool.peers.head()) console.log("5",one.pool.peers.head().socket._events.drain);
 
   await delay(3000);
-if (one.pool.peers.head()) console.log("6",one.pool.peers.head().socket._events.drain);
 
   await two.disconnect();
   await two.close();
