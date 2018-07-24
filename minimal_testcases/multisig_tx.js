@@ -95,7 +95,7 @@
     minerWallets[name] = await testHelpers.createWallet(
         minerWalletDB, name
     );
-    account = await minerWallets[name].getAccount('default');
+    let account = await minerWallets[name].getAccount('default');
 
     rings[name] = await minerWallets[name].getPrivateKey(
         account.receiveAddress(), "secret"
@@ -110,7 +110,7 @@
     spvWallets[name] = await testHelpers.createWallet(
         spvWalletDB, name
     );
-    account = await spvWallets[name].getAccount('default');
+    let account = await spvWallets[name].getAccount('default');
 
     rings[name] = await spvWallets[name].getPrivateKey(
         account.receiveAddress(), "secret"
