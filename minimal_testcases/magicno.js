@@ -1,5 +1,5 @@
 const bcoin = require("bcoin").set("regtest");
-const NetAddress = require("bcoin/lib/net/netaddress");
+const NetAddress = bcoin.net.NetAddress;
 
 async function delay(ms) {
   return new Promise(resolve => {
