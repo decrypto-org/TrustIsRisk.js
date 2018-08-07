@@ -8,7 +8,7 @@ class FullNode extends bcoin.FullNode {
 
   constructor(options : Object) {
     super(options);
-    this.use(walletPlugin);
+//    this.use(walletPlugin);
     this.trust = new TrustIsRisk(this);
   }
 

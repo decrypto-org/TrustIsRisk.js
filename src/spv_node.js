@@ -9,7 +9,7 @@ class SPVNode extends bcoin.SPVNode {
 
   constructor(options : Object) {
     super(options);
-    this.use(walletPlugin);
+//    this.use(walletPlugin);
     this.trust = new TrustIsRisk(this);
   }
 
