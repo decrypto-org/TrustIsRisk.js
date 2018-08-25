@@ -46,6 +46,7 @@ const two = new bcoin.FullNode({
 
   await two.close();
   await one.close();
+
   console.log("success!");
 })().catch((err) => {
   console.error(err);
