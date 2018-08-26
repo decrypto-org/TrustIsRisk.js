@@ -2,6 +2,8 @@ var Trust = require("../");
 var helpers = require("../lib/helpers.js");
 var bcoin = require("bcoin").set("regtest");
 var bcrypto = require("bcrypto");
+var WalletDB = bcoin.wallet.WalletDB;
+var NodeClient = bcoin.wallet.NodeClient;
 var Script = bcoin.script;
 var Address = bcoin.primitives.Address;
 var KeyRing = bcoin.primitives.KeyRing;
@@ -49,8 +51,12 @@ describe("SPVNode", () => {
   });
 
   beforeEach("connect SPV node, create walletDB", async () => {
+    spvWalletDB = new WalletDB({
+      network: bcoin.Network.get().toString(),
+      client: new NodeClient(spvNode)
+    });
     await spvNode.initialize();
-    spvWalletDB = spvNode.require("walletdb").wdb;
+    await spvWalletDB.open();
   });
 
   beforeEach("create full node", async () => {
@@ -68,8 +74,12 @@ describe("SPVNode", () => {
   });
 
   beforeEach("connect full node, create walletDB", async () => {
+    minerWalletDB = new WalletDB({
+      network: bcoin.Network.get().toString(),
+      client: new NodeClient(miner)
+    });
     await miner.initialize();
-    minerWalletDB = miner.require("walletdb").wdb;
+    await minerWalletDB.open();
   });
 
   beforeEach("start syncing", () => {

@@ -2,6 +2,8 @@ var Trust = require("../");
 var helpers = require("../lib/helpers.js");
 var bcoin = require("bcoin").set("regtest");
 var Script = bcoin.script;
+var WalletDB = bcoin.wallet.WalletDB;
+var NodeClient = bcoin.wallet.NodeClient;
 var Address = bcoin.primitives.Address;
 var KeyRing = bcoin.primitives.KeyRing;
 var MTX = bcoin.primitives.MTX;
@@ -41,9 +43,14 @@ describe("FullNode", () => {
       network: bcoin.Network.get().toString(),
       passphrase: "secret"
     });
-
+    walletDB = new WalletDB({
+      network: bcoin.Network.get().toString(),
+      client: new NodeClient(node)
+    });
     await node.initialize();
-    walletDB = node.require("walletdb").wdb;
+
+    await walletDB.open();
+
     node.startSync();
 
     wallet = await testHelpers.createWallet(walletDB, "wallet");
