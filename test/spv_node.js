@@ -3,8 +3,9 @@ var helpers = require("../lib/helpers.js");
 var bcoin = require("bcoin").set("regtest");
 var bcrypto = require("bcrypto");
 var WalletDB = bcoin.wallet.WalletDB;
+var WalletKey = bcoin.wallet.WalletKey;
 var NodeClient = bcoin.wallet.NodeClient;
-var Script = bcoin.script;
+var Script = bcoin.script.Script;
 var Address = bcoin.primitives.Address;
 var KeyRing = bcoin.primitives.KeyRing;
 var MTX = bcoin.primitives.MTX;
@@ -62,7 +63,7 @@ describe("SPVNode", () => {
   beforeEach("create full node", async () => {
     miner = new Trust.FullNode({
       network: bcoin.Network.get().toString(),
-      httpPort: 48448,
+      port: 48448,
       bip37: true,
       listen: true,
       passphrase: "secret"
@@ -111,18 +112,18 @@ describe("SPVNode", () => {
 
   it("should match a TIR transaction with the spv bloom filter", async function() {
     var wallet1 = await testHelpers.createWallet(minerWalletDB, "wallet1");
-    var privateKey1 = (await wallet1.getPrivateKey(
-        wallet1.getAddress("base58"), "secret")
-    ).privateKey;
-    var origin = secp256k1.publicKeyCreate(privateKey1, true);
+    var account1 = await wallet1.getAccount('default');
+    var type1 = account1.network.keyPrefix.coinType;
+    var hd1 = wallet1.master.key.deriveAccount(44, type1, account1.accountIndex);
+    var origin = WalletKey.fromHD(account1, hd1, 0, 0)
 
     var wallet2 = await testHelpers.createWallet(minerWalletDB, "wallet2");
-    var privateKey2 = (await wallet2.getPrivateKey(
-        wallet2.getAddress("base58"), "secret")
-    ).privateKey;
-    var dest = secp256k1.publicKeyCreate(privateKey2, true);
+    var account2 = await wallet2.getAccount('default');
+    var type2 = account2.network.keyPrefix.coinType;
+    var hd2 = wallet2.master.key.deriveAccount(44, type2, account2.accountIndex);
+    var dest = WalletKey.fromHD(account2, hd2, 0, 0)
 
-    var block = await testHelpers.mineBlock(miner, wallet1.getAddress("base58"));
+    var block = await testHelpers.mineBlock(miner, origin.getKeyAddress("base58"));
 
     // Make the coin spendable.
     consensus.COINBASE_MATURITY = 0;
@@ -130,11 +131,12 @@ describe("SPVNode", () => {
 
     var outputs = [
       new Output({ // 1-of-3 multisig trust
-        script: bcoin.script.fromMultisig(1, 3, [origin, dest, tag]),
+        script: Script.fromMultisig(1, 3, [origin.getPublicKey(), dest.getPublicKey(), tag]),
         value: 49 * consensus.COIN
       }),
       new Output({ // paytopubkeyhash change
-        script: bcoin.script.fromPubkeyhash(bcoin.crypto.hash160(origin)),
+        script: Script.fromPubkeyhash(
+          bcrypto.hash160.digest(origin.getPublicKey())),
         value: consensus.COIN - 100000 // leave a fee of 0.001 BTC
       })
     ];
@@ -142,7 +144,7 @@ describe("SPVNode", () => {
     var coinbaseCoin = await miner.getCoin(block.txs[0].hash().toString("hex"), 0);
     mtx.addCoin(coinbaseCoin);
 
-    mtx.sign(KeyRing.fromPrivate(privateKey1, true, "regtest"));
+    mtx.sign(origin);
     mtx.verify().should.be.true();
     var tx = mtx.toTX();
 
