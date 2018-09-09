@@ -155,10 +155,11 @@ describe("SPVNode", () => {
   it("should call trust.addTX() on transaction within a full node", async function() {
     var minerWallet1 = await testHelpers.createWallet(minerWalletDB, "minerWallet1");
     var minerWallet2 = await testHelpers.createWallet(minerWalletDB, "minerWallet2");
+    var account1 = await minerWallet1.getAccount("default");
 
     await testHelpers.delay(1000);
     // Produce a block and reward the minerWallet1, so that we have a coin to spend.
-    await testHelpers.mineBlock(miner, minerWallet1.getAddress("base58"));
+    await testHelpers.mineBlock(miner, account1.receiveAddress());
     await testHelpers.delay(100);
 
     var miner2TX = await testHelpers.circulateCoins(minerWallet1,

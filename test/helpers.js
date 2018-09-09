@@ -28,10 +28,11 @@ var testHelpers = {
 
   circulateCoins: async (fromWallet, fromWatcher,
       toWallet, toWatcher, coins) => {
+    const toAccount = await toWallet.getAccount("default");
     const tx = await fromWallet.send({
       outputs: [{
         value: coins * consensus.COIN,
-        address: toWallet.getAddress("base58")
+        address: toAccount.receiveAddress()
       }]
     });
     await fromWatcher.waitForTX(tx, fromWallet);
