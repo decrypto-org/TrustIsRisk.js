@@ -25,39 +25,54 @@ require("should-sinon");
 const COIN = consensus.COIN;
 
 describe("SPVNode", () => {
-  var spvNode = null;
+  var spvNode1 = null;
+  var spvNode2 = null;
   var miner = null;
-  var spvWalletDB = null;
+  var spvWalletDB1 = null;
+  var spvWalletDB2 = null;
   var minerWalletDB = null;
-  var spvWatcher = null;
+  var spvWatcher1 = null;
+  var spvWatcher2 = null;
   var minerWatcher = null;
 
   beforeEach("make mined coins immediately spendable", () => {
     consensus.COINBASE_MATURITY = 0;
   });
 
-  beforeEach("create SPV node", async () => {
-    spvNode = new Trust.SPVNode({
+  beforeEach("create SPV nodes", async () => {
+    spvNode1 = new Trust.SPVNode({
       network: bcoin.Network.get().toString(),
       httpPort: 48445,
       passphrase: "secret",
-      // logConsole: true,
-      // logLevel: "debug",
+      nodes: ["127.0.0.1:48448"]
+    });
+
+    spvNode2 = new Trust.SPVNode({
+      network: bcoin.Network.get().toString(),
+      httpPort: 48446,
+      passphrase: "secret",
       nodes: ["127.0.0.1:48448"]
     });
   });
 
   beforeEach("set up SPV addTX() spy", () => {
-    sinon.spy(spvNode.trust, "addTX");
+    sinon.spy(spvNode1.trust, "addTX");
+    sinon.spy(spvNode2.trust, "addTX");
   });
 
-  beforeEach("connect SPV node, create walletDB", async () => {
-    spvWalletDB = new WalletDB({
+  beforeEach("connect SPV node, create walletDBs", async () => {
+    spvWalletDB1 = new WalletDB({
       network: bcoin.Network.get().toString(),
-      client: new NodeClient(spvNode)
+      client: new NodeClient(spvNode1)
     });
-    await spvNode.initialize();
-    await spvWalletDB.open();
+    spvWalletDB2 = new WalletDB({
+      network: bcoin.Network.get().toString(),
+      client: new NodeClient(spvNode2)
+    });
+    await spvNode1.initialize();
+    await spvWalletDB1.open();
+    await spvNode2.initialize();
+    await spvWalletDB2.open();
   });
 
   beforeEach("create full node", async () => {
@@ -65,6 +80,8 @@ describe("SPVNode", () => {
       network: bcoin.Network.get().toString(),
       port: 48448,
       bip37: true,
+     //logConsole: true,
+     //logLevel: "debug",
       listen: true,
       passphrase: "secret"
     });
@@ -85,24 +102,33 @@ describe("SPVNode", () => {
 
   beforeEach("start syncing", () => {
     miner.startSync();
-    spvNode.startSync();
+    spvNode1.startSync();
+    spvNode2.startSync();
   });
 
   beforeEach("create watchers", async () => {
     minerWatcher = new testHelpers.NodeWatcher(miner);
-    spvWatcher = new testHelpers.NodeWatcher(spvNode);
+    spvWatcher1 = new testHelpers.NodeWatcher(spvNode1);
+    spvWatcher2 = new testHelpers.NodeWatcher(spvNode2);
   });
 
-  afterEach("tear nodes down", async () => {
-    spvNode.stopSync();
+  afterEach("tear nodes and walletDBs down", async () => {
+    spvNode1.stopSync();
+    spvNode2.stopSync();
     miner.stopSync();
 
-    await spvNode.tearDown();
+    await minerWalletDB.close();
+    await spvWalletDB1.close();
+    await spvWalletDB2.close();
+
+    await spvNode1.tearDown();
+    await spvNode2.tearDown();
     await miner.tearDown();
   });
 
   afterEach("remove addTX() spies", () => {
-    spvNode.trust.addTX.restore();
+    spvNode1.trust.addTX.restore();
+    spvNode2.trust.addTX.restore();
     miner.trust.addTX.restore();
   });
 
@@ -148,8 +174,10 @@ describe("SPVNode", () => {
     mtx.verify().should.be.true();
     var tx = mtx.toTX();
 
-    spvNode.pool.spvFilter.test(tag).should.be.true();
-    tx.isWatched(spvNode.pool.spvFilter).should.be.true();
+    spvNode1.pool.spvFilter.test(tag).should.be.true();
+    spvNode2.pool.spvFilter.test(tag).should.be.true();
+    tx.isWatched(spvNode1.pool.spvFilter).should.be.true();
+    tx.isWatched(spvNode2.pool.spvFilter).should.be.true();
   });
 
   it("should call trust.addTX() on transaction within a full node", async function() {
@@ -169,28 +197,33 @@ describe("SPVNode", () => {
   });
 
   it("should call trust.addTX() on transaction between full and spv node", async function() {
-    var spvWallet1 = await testHelpers.createWallet(spvWalletDB, "spvWallet1");
-    var spvWallet2 = await testHelpers.createWallet(spvWalletDB, "spvWallet2");
+    var spvWallet1 = await testHelpers.createWallet(spvWalletDB1, "spvWallet1");
+    var spvWallet2 = await testHelpers.createWallet(spvWalletDB2, "spvWallet2");
 
     var minerWallet = await testHelpers.createWallet(minerWalletDB, "minerWallet");
+    var minerAccount = await minerWallet.getAccount("default");
 
-    await testHelpers.delay(1000);
+    var spvAccount1 = await spvWallet1.getAccount("default");
+    var spvAccount2 = await spvWallet2.getAccount("default");
+
+    spvNode1.pool.spvFilter.add(spvAccount1.receiveAddress().getHash());
+    spvNode2.pool.spvFilter.add(spvAccount2.receiveAddress().getHash());
     // Produce a block and reward the minerWallet, so that we have a coin to spend.
-    await testHelpers.mineBlock(miner, minerWallet.getAddress("base58"));
+    await testHelpers.mineBlock(miner, minerAccount.receiveAddress());
     await testHelpers.delay(100);
 
     var minerSpvTX = await testHelpers.circulateCoins(minerWallet,
-      minerWatcher, spvWallet1, spvWatcher, 10);
+      minerWatcher, spvWallet1, spvWatcher1, 10);
 
-    spvNode.trust.addTX.should.have.been.calledOnce();
+    spvNode1.trust.addTX.should.have.been.calledOnce();
 
     var spv2TX = await testHelpers.circulateCoins(spvWallet1,
-      spvWatcher, spvWallet2, spvWatcher, 9);
+      spvWatcher1, spvWallet2, spvWatcher2, 9);
 
-    spvNode.trust.addTX.should.have.been.calledTwice();
+    spvNode2.trust.addTX.should.have.been.calledTwice();
 
     var spvMinerTX = await testHelpers.circulateCoins(spvWallet2,
-      spvWatcher, minerWallet, minerWatcher, 8);
+      spvWatcher2, minerWallet, minerWatcher, 8);
 
     var view = await miner.chain.db.getSpentView(minerSpvTX);
     var actualBalance = (await minerWallet.getBalance()).unconfirmed;
@@ -198,7 +231,7 @@ describe("SPVNode", () => {
         consensus.BASE_REWARD - 10 * COIN + 8 * COIN - minerSpvTX.getFee(view);
     actualBalance.should.equal(expectedBalance);
 
-    spvNode.trust.addTX.should.have.been.calledThrice();
+    spvNode2.trust.addTX.should.have.been.calledTwice();
     miner.trust.addTX.should.have.been.calledThrice();
   });
 
