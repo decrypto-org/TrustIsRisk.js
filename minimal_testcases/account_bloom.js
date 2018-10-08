@@ -15,6 +15,7 @@ const wdb = new WalletDB({
   const wallet = await wdb.create({});
   const account = await wallet.getAccount("default");
 
+  node.pool.spvFilter.add(account.receiveAddress().getHash())
   console.log(node.pool.spvFilter.test(account.receiveAddress().getHash()));
 
   await wdb.close();
