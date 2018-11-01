@@ -2,6 +2,7 @@ var TrustIsRisk = require("../");
 var tag = require("../lib/tag");
 var WalletDB = require("bcoin/lib/wallet/walletdb");
 var bcoin = require("bcoin");
+var Wallet = bcoin.wallet.Wallet;
 var fixtures = require("./fixtures");
 var assert = require("assert");
 const consensus = require("bcoin/lib/protocol/consensus");
@@ -171,6 +172,10 @@ class NodeWatcher {
       }
       return;
     }
+    while (!this.node.trust.db.isTrustTX(input.hash("hex"))) {
+      await testHelpers.delay(100);
+    }
+    return;
     var initialCount = null;
     switch (typeof input) {
     case "number":

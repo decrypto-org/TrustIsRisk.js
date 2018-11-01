@@ -1,4 +1,5 @@
 const bcoin = require("bcoin").set("regtest");
+const Trust = require("../");
 const WalletDB = bcoin.wallet.WalletDB;
 const NodeClient = bcoin.wallet.NodeClient;
 const MTX = bcoin.primitives.MTX;
@@ -20,7 +21,7 @@ const addresses = Array(2);
 let watcher = null;
 let tx = null;
 
-const node = new bcoin.FullNode({
+const node = new Trust.FullNode({
   network: regtest,
  // passphrase: "secret"
 });
@@ -60,10 +61,11 @@ async function tearDown() {
 async function wait() {
   for (let i = 0; i < 2; i++) {
     console.log(i + " before");
-    await watcher.waitForTX(tx, wallets[i]);
+    await watcher.waitForTX(tx/*, wallets[i]*/);
     console.log(i + " after");
   }
 }
+// TOUNDERSTAND: trustisrisk.addTX() is never called...
 
 async function buildTX() {
   // get coin
