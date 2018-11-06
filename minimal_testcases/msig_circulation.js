@@ -32,8 +32,7 @@ const wdb = new WalletDB({
 });
 
 async function setup() {
-  await node.open();
-  await node.connect();
+  await node.initialize();
   await wdb.open();
   node.startSync();
 
