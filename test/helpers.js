@@ -165,7 +165,7 @@ class NodeWatcher {
   }
 
   async waitForTX(input, wallet) {
-    if (wallet) {
+    if (wallet instanceof Wallet) {
       while (!(await wallet.getTX(input.hash("hex")))) {
         await testHelpers.delay(100);
         //await this.waitForSomeTX();
