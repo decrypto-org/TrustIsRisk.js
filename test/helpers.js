@@ -9,15 +9,15 @@ const consensus = require("bcoin/lib/protocol/consensus");
 
 var testHelpers = {
   isAllZeroes: (buf) => {
-    let flag = false
+    let flag = false;
     for (let i of buf) {
       if (i) {
-        console.log("there's an 1...")
-        flag = true
-        break
+        console.log("there's an 1...");
+        flag = true;
+        break;
       }
     }
-    if (!flag) console.log("it's all 0!")
+    if (!flag) console.log("it's all 0!");
   },
 
   createWallet: async (walletDB, id) => {

@@ -138,16 +138,16 @@ describe("SPVNode", () => {
 
   it("should match a TIR transaction with the spv bloom filter", async function() {
     var wallet1 = await testHelpers.createWallet(minerWalletDB, "wallet1");
-    var account1 = await wallet1.getAccount('default');
+    var account1 = await wallet1.getAccount("default");
     var type1 = account1.network.keyPrefix.coinType;
     var hd1 = wallet1.master.key.deriveAccount(44, type1, account1.accountIndex);
-    var origin = WalletKey.fromHD(account1, hd1, 0, 0)
+    var origin = WalletKey.fromHD(account1, hd1, 0, 0);
 
     var wallet2 = await testHelpers.createWallet(minerWalletDB, "wallet2");
-    var account2 = await wallet2.getAccount('default');
+    var account2 = await wallet2.getAccount("default");
     var type2 = account2.network.keyPrefix.coinType;
     var hd2 = wallet2.master.key.deriveAccount(44, type2, account2.accountIndex);
-    var dest = WalletKey.fromHD(account2, hd2, 0, 0)
+    var dest = WalletKey.fromHD(account2, hd2, 0, 0);
 
     var block = await testHelpers.mineBlock(miner, origin.getKeyAddress("base58"));
 
