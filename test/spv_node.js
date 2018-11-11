@@ -63,11 +63,13 @@ describe("SPVNode", () => {
   beforeEach("connect SPV node, create walletDBs", async () => {
     spvWalletDB1 = new WalletDB({
       network: bcoin.Network.get().toString(),
-      client: new NodeClient(spvNode1)
+      client: new NodeClient(spvNode1),
+      spv: true
     });
     spvWalletDB2 = new WalletDB({
       network: bcoin.Network.get().toString(),
-      client: new NodeClient(spvNode2)
+      client: new NodeClient(spvNode2),
+      spv: true
     });
     await spvNode1.initialize();
     await spvWalletDB1.open();
