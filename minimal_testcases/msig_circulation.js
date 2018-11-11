@@ -64,7 +64,6 @@ async function wait() {
     console.log(i + " after");
   }
 }
-// TOUNDERSTAND: trustisrisk.addTX() is never called...
 
 async function buildTX() {
   // get coin

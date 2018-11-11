@@ -164,6 +164,9 @@ class NodeWatcher {
     }
   }
 
+  // TODO:
+  // 1. Wait gracefully with waitForSomeTX() (avoid polling)
+  // 2. Automatically add msig to wallet, like p2pkh (Make bcoin PR)
   async waitForTX(input, wallet) {
     if (wallet instanceof Wallet) {
       while (!(await wallet.getTX(input.hash("hex")))) {
