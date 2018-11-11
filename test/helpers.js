@@ -1,5 +1,5 @@
 var TrustIsRisk = require("../");
-var tag = require("../lib/tag");
+var tag = TrustIsRisk.tag;
 var WalletDB = require("bcoin/lib/wallet/walletdb");
 var bcoin = require("bcoin");
 var Wallet = bcoin.wallet.Wallet;
