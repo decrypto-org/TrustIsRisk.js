@@ -2,7 +2,15 @@
 var bcoin = require("bcoin");
 var walletPlugin = bcoin.wallet.plugin;
 var TrustIsRisk = require("./trust_is_risk");
-var tag = require("./tag");
+
+// Usage:
+// const node = new Trust.SPVNode;
+// const wdb = new bcoin.wallet.WalletDB({
+//   client: new bcoin.wallet.NodeClient(node),
+//   spv: true
+// });
+// await node.initialize();
+// node.pool.spvFilter.add(Trust.tag);
 
 class SPVNode extends bcoin.SPVNode {
   trust : TrustIsRisk
@@ -17,7 +25,6 @@ class SPVNode extends bcoin.SPVNode {
     await this.trust.initialize();
     await this.open();
     await this.connect();
-    this.pool.spvFilter.add(tag);
   }
 
   async tearDown() {

@@ -73,8 +73,11 @@ describe("SPVNode", () => {
     });
     await spvNode1.initialize();
     await spvWalletDB1.open();
+    spvNode1.pool.spvFilter.add(tag);
+
     await spvNode2.initialize();
     await spvWalletDB2.open();
+    spvNode2.pool.spvFilter.add(tag);
   });
 
   beforeEach("create full node", async () => {
