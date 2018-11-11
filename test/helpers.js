@@ -179,31 +179,31 @@ class NodeWatcher {
       await testHelpers.delay(100);
     }
     return;
-    var initialCount = null;
-    switch (typeof input) {
-    case "number":
-      initialCount = input;
-      while (!(this.txCount > initialCount)) {
-        await this.waitForSomeTX();
-      }
-      break;
-
-    case "undefined":
-      await this.waitForTX(this.txCount);
-      break;
-
-    case "object":
-      var tx = input;
-      while ((this.node.spv ?
-          !(this.node.pool.txFilter.test(tx.hash().toString("hex"), "hex")) :
-          !(this.node.pool.hasTX(tx.hash().toString("hex"))))) {
-        await this.waitForSomeTX();
-      }
-      break;
-
-    default:
-      throw new Error("input cannot be " + typeof input); // TODO: throw correct error
-    }
+//    var initialCount = null;
+//    switch (typeof input) {
+//    case "number":
+//      initialCount = input;
+//      while (!(this.txCount > initialCount)) {
+//        await this.waitForSomeTX();
+//      }
+//      break;
+//
+//    case "undefined":
+//      await this.waitForTX(this.txCount);
+//      break;
+//
+//    case "object":
+//      var tx = input;
+//      while ((this.node.spv ?
+//          !(this.node.pool.txFilter.test(tx.hash().toString("hex"), "hex")) :
+//          !(this.node.pool.hasTX(tx.hash().toString("hex"))))) {
+//        await this.waitForSomeTX();
+//      }
+//      break;
+//
+//    default:
+//      throw new Error("input cannot be " + typeof input); // TODO: throw correct error
+//    }
   }
 
   async waitForTrustDB(tx) {
