@@ -55,7 +55,7 @@ describe("FullNode", () => {
 
     wallet = await testHelpers.createWallet(walletDB, "wallet");
     for (let name in fixtures.keyRings) {
-      await wallet.importKey(fixtures.keyRings[name], "secret");
+      await wallet.importKey("default", fixtures.keyRings[name], "secret");
     }
   });
 
@@ -74,7 +74,8 @@ describe("FullNode", () => {
 
     await testHelpers.delay(1000);
     // Produce a block and reward the sender, so that we have a coin to spend.
-    await testHelpers.mineBlock(node, sender.getAddress("base58"));
+    const sendAddr = await sender.receiveAddress();
+    await testHelpers.mineBlock(node, {hash: sendAddr.hash});
 
     // Make the coin spendable.
     consensus.COINBASE_MATURITY = 0;
@@ -83,10 +84,10 @@ describe("FullNode", () => {
     let tx = await sender.send({
       outputs: [{
         value: 10 * COIN,
-        address: receiver.getAddress("base58")
+        address: await receiver.receiveAddress();
       }]
     });
-    await watcher.waitForTX(tx);
+    await watcher.waitForTX(tx/*, wallet*/); // gets stuck here...
     await testHelpers.flushEvents(); // @dionyziz: needs @ least 3 ms...?
 
     node.trust.addTX.should.have.been.calledOnce();
