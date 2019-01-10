@@ -16,7 +16,7 @@ var assert = require("assert");
 var helpers = require("./helpers");
 var TrustDB = require("./trust_db");
 var DirectTrust = require("./direct_trust");
-var tag = require("./tag");
+var tag = require("./tag").publicKey;
 
 class TrustIsRisk {
   node : (bcoin$FullNode | bcoin$SPVNode)

@@ -66,6 +66,12 @@ declare class bcoin$Pool {
   hasTX(hash : Hash) : boolean;
 }
 
+declare class bcoin$HDPublicKey {
+  publicKey : Buffer;
+
+  fromOptions(options : Object) : bcoin$HDPublicKey;
+}
+
 declare class bcoin$Bloom {
   test(val : (Buffer | string), enc :
     (typeof undefined | string)) : boolean;
@@ -200,6 +206,11 @@ declare module 'bcoin' {
       Outpoint : Class<bcoin$Outpoint>,
       KeyRing : Class<bcoin$KeyRing>,
       Coin : Class<bcoin$Coin>
+    },
+    hd : {
+      HD : {
+        HDPublicKey : bcoin$HDPublicKey;
+      }
     },
     base58 : {
       encode(str : (string | Buffer)) : Buffer

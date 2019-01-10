@@ -1,6 +1,6 @@
 //@flow
 
-// base58 bitcoin address: 
+// base58 bitcoin address:
 export type Entity = string;
 
 export type TXHash = string;
