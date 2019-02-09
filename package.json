@@ -29,7 +29,7 @@
   "devDependencies": {
     "babel-eslint": "^7.2.3",
     "eslint": "^3.19.0",
-    "eslint-plugin-flowtype": "^2.50.0",
+    "eslint-plugin-flowtype": "^2.50.3",
     "flow-bin": "^0.45.0",
     "flow-remove-types": "^1.2.0",
     "mocha": "^5.2.0",
