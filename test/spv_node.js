@@ -365,13 +365,14 @@ describe("SPVNode", () => {
       var tx = mtx.toTX();
 
       miner.sendTX(tx);
-      //TODO: use Promise.all
+      const promises = [];
       for (name in minerNames) {
-        await minerWatcher.waitForTX(tx, minerWallets[name]);
+        promises.push(minerWatcher.waitForTX(tx, minerWallets[name]));
       }
       for (name in spvNames) {
-        await spvWatcher1.waitForTX(tx, spvWallets[name]);
+        promises.push(spvWatcher1.waitForTX(tx, spvWallets[name]));
       }
+      await Promise.all(promises);
 
       var prevout = {};
       var counter = 0;
