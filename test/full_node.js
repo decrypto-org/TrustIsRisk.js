@@ -1,7 +1,8 @@
 var Trust = require("../");
 var helpers = require("../lib/helpers.js");
 var bcoin = require("bcoin").set("regtest");
-var Script = bcoin.script;
+var bcrypto = require("bcrypto");
+var Script = bcoin.script.Script;
 var WalletDB = bcoin.wallet.WalletDB;
 var NodeClient = bcoin.wallet.NodeClient;
 var Address = bcoin.primitives.Address;
@@ -84,11 +85,11 @@ describe("FullNode", () => {
     let tx = await sender.send({
       outputs: [{
         value: 10 * COIN,
-        address: await receiver.receiveAddress();
+        address: await receiver.receiveAddress()
       }]
     });
-    await watcher.waitForTX(tx/*, wallet*/); // gets stuck here...
-    await testHelpers.flushEvents(); // @dionyziz: needs @ least 3 ms...?
+    await watcher.waitForTX(tx, receiver);
+    await testHelpers.flushEvents();
 
     node.trust.addTX.should.have.been.calledOnce();
   });
@@ -128,7 +129,7 @@ describe("FullNode", () => {
       var changeAmount = 50 * blockCount - sendAmount * fixtures.names.length - fee;
       if (changeAmount >= 0.01) {
         outputs.push(new Output({
-          script: Script.fromPubkeyhash(bcoin.crypto.hash160(
+          script: Script.fromPubkeyhash(bcrypto.Hash160.digest(
               fixtures.keyRings.alice.getPublicKey())),
           value: changeAmount * consensus.COIN
         }));
@@ -147,7 +148,7 @@ describe("FullNode", () => {
 
       let tx = mtx.toTX();
       node.sendTX(tx);
-      await watcher.waitForTX(tx); // @dionyziz: does not work with wallet
+      await watcher.waitForTX(tx, wallet);
       await testHelpers.flushEvents();
 
       prevout = {};
