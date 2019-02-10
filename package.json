@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "flow-remove-types -d lib/ src/",
-    "test": "npm run build && mocha -t 30000",
+    "test": "npm run build && mocha -t 60000",
     "prepublish": "npm run build",
     "typecheck": "flow check",
     "lint": "./node_modules/.bin/eslint --fix src/ test/",
