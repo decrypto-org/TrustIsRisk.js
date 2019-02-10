@@ -23,6 +23,7 @@ var fixtures = require("./fixtures");
 require("should-sinon");
 
 const COIN = consensus.COIN;
+const regtest = bcoin.Network.get().toString();
 
 describe("SPVNode", () => {
   var spvNode1 = null;
@@ -41,14 +42,14 @@ describe("SPVNode", () => {
 
   beforeEach("create SPV nodes", async () => {
     spvNode1 = new Trust.SPVNode({
-      network: bcoin.Network.get().toString(),
+      network: regtest,
       httpPort: 48445,
       passphrase: "secret",
       nodes: ["127.0.0.1:48448"]
     });
 
     spvNode2 = new Trust.SPVNode({
-      network: bcoin.Network.get().toString(),
+      network: regtest,
       httpPort: 48446,
       passphrase: "secret",
       nodes: ["127.0.0.1:48448"]
@@ -62,12 +63,12 @@ describe("SPVNode", () => {
 
   beforeEach("connect SPV node, create walletDBs", async () => {
     spvWalletDB1 = new WalletDB({
-      network: bcoin.Network.get().toString(),
+      network: regtest,
       client: new NodeClient(spvNode1),
       spv: true
     });
     spvWalletDB2 = new WalletDB({
-      network: bcoin.Network.get().toString(),
+      network: regtest,
       client: new NodeClient(spvNode2),
       spv: true
     });
@@ -82,7 +83,7 @@ describe("SPVNode", () => {
 
   beforeEach("create full node", async () => {
     miner = new Trust.FullNode({
-      network: bcoin.Network.get().toString(),
+      network: regtest,
       port: 48448,
       bip37: true,
      //logConsole: true,
@@ -98,7 +99,7 @@ describe("SPVNode", () => {
 
   beforeEach("connect full node, create walletDB", async () => {
     minerWalletDB = new WalletDB({
-      network: bcoin.Network.get().toString(),
+      network: regtest,
       client: new NodeClient(miner)
     });
     await miner.initialize();
@@ -254,40 +255,65 @@ describe("SPVNode", () => {
       "dave": "dave"
     };
 
+    const names = Object.assign({}, minerNames, spvNames);
+
     var minerWallets = {};
     var spvWallets = {};
 
-    var addresses = {}, rings = {}, name = null;
+    const addresses = {}, accounts = {}, rings = {};
 
     beforeEach("apply graph transactions", async () => {
-      for (name in minerNames) {
+      for (const name in minerNames) {
         minerWallets[name] = await testHelpers.createWallet(
             minerWalletDB, name
         );
-        rings[name] = await minerWallets[name].getPrivateKey(
-            minerWallets[name].getAddress("base58"), "secret"
+        accounts[name] = await minerWallets[name].getAccount("default");
+        rings[name] = accounts[name].deriveReceive(
+          accounts[name].receiveDepth - 1, minerWallets[name].master
         );
-        addresses[name] = helpers.pubKeyToEntity(
-            rings[name].getPublicKey(), miner.network
-        );
-        spvNode.pool.watchAddress(addresses[name]);
+        spvNode1.pool.watch(rings[name].getPublicKey(null, regtest));
+        addresses[name] = rings[name].getAddress(null, regtest);
+        spvNode1.pool.watchAddress(addresses[name]);
+
+        const wid = minerWallets[name].wid;
+        const unlock = await minerWallets[name].writeLock.lock();
+        try {
+          const batch = minerWallets[name].db.batch();
+          await minerWalletDB.addPathMap(batch, bcoin.primitives.KeyRing.fromPublic(
+            tag).getHash('hex'), wid);
+          batch.write();
+        } finally {
+          unlock();
+        }
       }
 
-      for (name in spvNames) {
+      const layout = require('bcoin/lib/wallet/layout').wdb;
+      for (const name in spvNames) {
         spvWallets[name] = await testHelpers.createWallet(
-            spvWalletDB, name
+            spvWalletDB1, name
         );
-        rings[name] = await spvWallets[name].getPrivateKey(
-            spvWallets[name].getAddress("base58"), "secret"
+        accounts[name] = await spvWallets[name].getAccount("default");
+        rings[name] = accounts[name].deriveReceive(
+          accounts[name].receiveDepth - 1, spvWallets[name].master
         );
-        addresses[name] = helpers.pubKeyToEntity(
-            rings[name].getPublicKey(), spvNode.network
-        );
-        spvNode.pool.watchAddress(addresses[name]);
+        spvNode1.pool.watch(rings[name].getPublicKey("hex", regtest));
+        addresses[name] = rings[name].getAddress(null, regtest);
+        spvNode1.pool.watchAddress(addresses[name]);
+
+        const wid = spvWallets[name].wid;
+        const unlock = await spvWallets[name].writeLock.lock();
+        try {
+          const batch = spvWallets[name].db.batch();
+          await spvWalletDB1.addPathMap(batch, bcoin.primitives.KeyRing.fromPublic(
+            tag).getHash('hex'), wid);
+          batch.write();
+        } finally {
+          unlock();
+        }
       }
 
       // Alice mines three blocks, each rewards her with 50 spendable BTC
-      consensus.COINBASE_MATURITY = 0;
+      //consensus.COINBASE_MATURITY = 0;
       var blockCount = 3;
       var coinbaseHashes = [];
       for(let i = 0; i < blockCount; i++) {
@@ -320,8 +346,8 @@ describe("SPVNode", () => {
          (Object.keys(minerNames).length + Object.keys(spvNames).length) - fee;
       if (changeAmount >= 0.01) {
         outputs.push(new Output({
-          script: Script.fromPubkeyhash(bcoin.crypto.hash160(
-              rings["alice"].publicKey)),
+          script: Script.fromPubkeyhash(bcrypto.Hash160.digest(
+              rings["alice"].getPublicKey())),
           value: changeAmount * consensus.COIN
         }));
       }
@@ -332,7 +358,6 @@ describe("SPVNode", () => {
       }));
       var mtx = new MTX({outputs});
       coinbaseCoins.forEach((coin) => mtx.addCoin(coin));
-
       var signedCount = mtx.sign(rings["alice"]);
       assert(signedCount === blockCount);
       assert(mtx.verify());
@@ -340,28 +365,18 @@ describe("SPVNode", () => {
       var tx = mtx.toTX();
 
       miner.sendTX(tx);
-      await minerWatcher.waitForTX(tx);
-      await spvWatcher.waitForTX(tx);
-
+      //TODO: use Promise.all
       for (name in minerNames) {
-        minerWallets[name].db.addTX(tx);
+        await minerWatcher.waitForTX(tx, minerWallets[name]);
       }
-
       for (name in spvNames) {
-        spvWallets[name].db.addTX(tx);
+        await spvWatcher1.waitForTX(tx, spvWallets[name]);
       }
 
       var prevout = {};
       var counter = 0;
 
-      for (name in minerNames) {
-        prevout[name] = {
-          hash: tx.hash().toString("hex"),
-          index: counter++
-        };
-      }
-
-      for (name in spvNames) {
+      for (const name in names) {
         prevout[name] = {
           hash: tx.hash().toString("hex"),
           index: counter++
@@ -376,7 +391,7 @@ describe("SPVNode", () => {
 
       function buildVars(player) {
         return (spvNames[player]) ?
-          [spvNode, spvWatcher, spvWallets[player]] :
+          [spvNode1, spvWatcher1, spvWallets[player]] :
           [miner, minerWatcher, minerWallets[player]];
       }
 
@@ -405,7 +420,6 @@ describe("SPVNode", () => {
 
           [node.dest, watcher.dest, wallet.dest] = buildVars(dest);
 
-
           let outpoint = new Outpoint(prevout[origin].hash,
               prevout[origin].index);
 
@@ -419,24 +433,10 @@ describe("SPVNode", () => {
           assert(mtx.verify());
 
           let tx = mtx.toTX();
-          console.log("ignore above");
-          console.log("origin", origin, "accepts tx?", (await wallet.origin.add(tx)) ? true : false);
-          console.log("out and between");
-          console.log("dest", dest, "accepts tx?", (await wallet.dest.add(tx)) ? true : false);
 
           node.origin.sendTX(tx);
-          console.log(origin, dest, "aaa");
           await watcher.origin.waitForTX(tx, wallet.origin);
-          console.log("origin has tx");
-          await watcher.dest.waitForTX(tx, wallet.dest); // TODO: dest doesn't get tx
-          //await spvWatcher.waitForTX(); // it worked one time! race condition
-          console.log("both sides have tx");
-          // spv node accepts inv, but does not put tx in the spvNode.txFilter; this is
-          // reserved for *sent*, not *received* txs
-
-          console.log(origin, dest, "bbb");
-          await wallet.origin.db.addTX();
-          await wallet.dest.db.addTX();
+          await watcher.dest.waitForTX(tx, wallet.dest);
 
           prevout[origin] = {hash: tx.hash().toString("hex"), index: 1};
         }
@@ -471,16 +471,16 @@ describe("SPVNode", () => {
         eval(`var ${name} = "${addresses[name]}";`);
       }
 
-      spvNode.trust.getIndirectTrust(alice, alice).should.equal(Infinity);
-      spvNode.trust.getIndirectTrust(alice, bob).should.equal(10 * COIN);
-      spvNode.trust.getIndirectTrust(alice, charlie).should.equal(1 * COIN);
-      spvNode.trust.getIndirectTrust(alice, frank).should.equal(0);
-      spvNode.trust.getIndirectTrust(alice, eve).should.equal(6 * COIN);
+      spvNode1.trust.getIndirectTrust(alice, alice).should.equal(Infinity);
+      spvNode1.trust.getIndirectTrust(alice, bob).should.equal(10 * COIN);
+      spvNode1.trust.getIndirectTrust(alice, charlie).should.equal(1 * COIN);
+      spvNode1.trust.getIndirectTrust(alice, frank).should.equal(0);
+      spvNode1.trust.getIndirectTrust(alice, eve).should.equal(6 * COIN);
 
-      spvNode.trust.getIndirectTrust(bob, alice).should.equal(1 * COIN);
-      spvNode.trust.getIndirectTrust(bob, eve).should.equal(3 * COIN);
-      spvNode.trust.getIndirectTrust(dave, eve).should.equal(12 * COIN);
-      spvNode.trust.getIndirectTrust(george, eve).should.equal(0);
+      spvNode1.trust.getIndirectTrust(bob, alice).should.equal(1 * COIN);
+      spvNode1.trust.getIndirectTrust(bob, eve).should.equal(3 * COIN);
+      spvNode1.trust.getIndirectTrust(dave, eve).should.equal(12 * COIN);
+      spvNode1.trust.getIndirectTrust(george, eve).should.equal(0);
     });
 
     it("after decreasing some trusts lets both nodes compute trusts correctly", async () => {
@@ -497,19 +497,18 @@ describe("SPVNode", () => {
       miner.sendTX(tx);
 
       await testHelpers.delay(3000); // combine with next promises with race
-      for (name in minerNames) {
-        console.log(name,"aaa"); // see why spv node doesn't accept inv
+      for (const name in minerNames) {
         await minerWatcher.waitForTX(tx);
       }
       for (name in spvNames) {
-        await spvWatcher.waitForTX(tx);
+        await spvWatcher1.waitForTX(tx);
       }
       miner.trust.getIndirectTrust(addresses["alice"],
           addresses["bob"]).should.equal(7 * COIN);
-      spvNode.trust.getIndirectTrust(addresses["alice"],
+      spvNode1.trust.getIndirectTrust(addresses["alice"],
           addresses["bob"]).should.equal(7 * COIN);
 
-      mtxs = await spvNode.trust.createTrustDecreasingMTXs(
+      mtxs = await spvNode1.trust.createTrustDecreasingMTXs(
           rings["dave"].getPrivateKey(),
           rings["eve"].getPublicKey(), 2 * COIN,
           spvWallets["dave"]
@@ -519,13 +518,13 @@ describe("SPVNode", () => {
 
       mtx.verify().should.be.true();
       tx = mtx.toTX();
-      spvNode.sendTX(tx);
+      spvNode1.sendTX(tx);
 
       await minerWatcher.waitForTX(tx);
-      await spvWatcher.waitForTX(tx);
+      await spvWatcher1.waitForTX(tx);
       miner.trust.getIndirectTrust(addresses["dave"],
           addresses["eve"]).should.equal(10 * COIN);
-      spvNode.trust.getIndirectTrust(addresses["dave"],
+      spvNode1.trust.getIndirectTrust(addresses["dave"],
           addresses["eve"]).should.equal(10 * COIN);
     });
   });
