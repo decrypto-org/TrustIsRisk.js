@@ -119,7 +119,6 @@ var testHelpers = {
 
 class NodeWatcher {
   constructor(node) {
-    this.txCount = 0;
     this.blockCount = 0;
     this.node = node;
     this.node.on("tx", this.onTX.bind(this));
@@ -128,7 +127,6 @@ class NodeWatcher {
   }
 
   onTX() {
-    this.txCount++;
     for (const resolve of this.waitForSomeTxPromiseResolve) {
       resolve();
     }
@@ -171,6 +169,34 @@ class NodeWatcher {
   }
 }
 
+class WalletWatcher {
+  constructor(wallet) {
+    this.wallet = wallet;
+    this.wallet.on("tx", this.onTX.bind(this));
+    this.waitForSomeTxPromiseResolve = [];
+  }
+
+  onTX() {
+    for (const resolve of this.waitForSomeTxPromiseResolve) {
+      resolve();
+    }
+    this.waitForSomeTxPromiseResolve = [];
+  }
+
+  waitForSomeTX() {
+    return new Promise((resolve, reject) => {
+      this.waitForSomeTxPromiseResolve.push(resolve);
+    });
+  }
+
+  async waitForTX(input) {
+    while (!(await this.wallet.getTX(input.hash("hex")))) {
+      await this.waitForSomeTX();
+    }
+  }
+}
+
 testHelpers.NodeWatcher = NodeWatcher;
+testHelpers.WalletWatcher = WalletWatcher;
 
 module.exports = testHelpers;

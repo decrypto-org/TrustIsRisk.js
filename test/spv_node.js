@@ -188,7 +188,9 @@ describe("SPVNode", () => {
 
   it("should call trust.addTX() on transaction within a full node", async function() {
     var minerWallet1 = await testHelpers.createWallet(minerWalletDB, "minerWallet1");
+    const watcher1 = new testHelpers.WalletWatcher(minerWallet1);
     var minerWallet2 = await testHelpers.createWallet(minerWalletDB, "minerWallet2");
+    const watcher2 = new testHelpers.WalletWatcher(minerWallet2);
     var account1 = await minerWallet1.getAccount("default");
 
     await testHelpers.delay(1000);
@@ -197,16 +199,19 @@ describe("SPVNode", () => {
     await testHelpers.delay(100);
 
     var miner2TX = await testHelpers.circulateCoins(minerWallet1,
-        minerWatcher, minerWallet2, minerWatcher, 10);
+        watcher1, minerWallet2, watcher2, 10);
 
     miner.trust.addTX.should.have.been.calledOnce();
   });
 
   it("should call trust.addTX() on transaction between full and spv node", async function() {
     var spvWallet1 = await testHelpers.createWallet(spvWalletDB1, "spvWallet1");
+    const watcher1 = new testHelpers.WalletWatcher(spvWallet1);
     var spvWallet2 = await testHelpers.createWallet(spvWalletDB2, "spvWallet2");
+    const watcher2 = new testHelpers.WalletWatcher(spvWallet2);
 
     var minerWallet = await testHelpers.createWallet(minerWalletDB, "minerWallet");
+    const minerWatcher = new testHelpers.WalletWatcher(minerWallet);
     var minerAccount = await minerWallet.getAccount("default");
 
     var spvAccount1 = await spvWallet1.getAccount("default");
@@ -219,17 +224,17 @@ describe("SPVNode", () => {
     await testHelpers.delay(100);
 
     var minerSpvTX = await testHelpers.circulateCoins(minerWallet,
-      minerWatcher, spvWallet1, spvWatcher1, 10);
+      minerWatcher, spvWallet1, watcher1, 10);
 
     spvNode1.trust.addTX.should.have.been.calledOnce();
 
     var spv2TX = await testHelpers.circulateCoins(spvWallet1,
-      spvWatcher1, spvWallet2, spvWatcher2, 9);
+      spvWatcher1, spvWallet2, watcher2, 9);
 
     spvNode2.trust.addTX.should.have.been.calledTwice();
 
     var spvMinerTX = await testHelpers.circulateCoins(spvWallet2,
-      spvWatcher2, minerWallet, minerWatcher, 8);
+      watcher2, minerWallet, minerWatcher, 8);
 
     var view = await miner.chain.db.getSpentView(minerSpvTX);
     var actualBalance = (await minerWallet.getBalance()).unconfirmed;
@@ -257,8 +262,8 @@ describe("SPVNode", () => {
 
     const names = Object.assign({}, minerNames, spvNames);
 
-
-    const wallets = {}, addresses = {}, accounts = {}, rings = {};
+    const wallets = {}, addresses = {}, accounts = {};
+    const rings = {}, watchers = {};
 
     beforeEach("apply graph transactions", async () => {
       const wdb = (spvNames[name]) ? minerWalletDB : spvWalletDB1;
@@ -266,6 +271,7 @@ describe("SPVNode", () => {
         wallets[name] = await testHelpers.createWallet(
             wdb, name
         );
+        watchers[name] = new testHelpers.WalletWatcher(wallets[name]);
         accounts[name] = await wallets[name].getAccount("default");
         rings[name] = accounts[name].deriveReceive(
           accounts[name].receiveDepth - 1, wallets[name].master
@@ -333,8 +339,7 @@ describe("SPVNode", () => {
       miner.sendTX(tx);
       const promises = [];
       for (name in names) {
-        const watcher = (spvNames[name]) ? minerWatcher : spvWatcher1;
-        promises.push(watcher.waitForTX(tx, wallets[name]));
+        promises.push(watchers[name].waitForTX(tx, wallets[name]));
       }
       await Promise.all(promises);
 
@@ -356,8 +361,8 @@ describe("SPVNode", () => {
 
       function buildVars(player) {
         return (spvNames[player]) ?
-          [spvNode1, spvWatcher1, wallets[player]] :
-          [miner, minerWatcher, wallets[player]];
+          [spvNode1, watchers[player], wallets[player]] :
+          [miner, watchers[player], wallets[player]];
       }
 
       let node = {
@@ -400,8 +405,8 @@ describe("SPVNode", () => {
           let tx = mtx.toTX();
 
           node.origin.sendTX(tx);
-          await watcher.origin.waitForTX(tx, wallet.origin);
-          await watcher.dest.waitForTX(tx, wallet.dest);
+          await watcher.origin.waitForTX(tx);
+          await watcher.dest.waitForTX(tx);
 
           prevout[origin] = {hash: tx.hash().toString("hex"), index: 1};
         }
@@ -462,12 +467,16 @@ describe("SPVNode", () => {
       miner.sendTX(tx);
 
       await testHelpers.delay(3000); // combine with next promises with race
+      //for (const name in names) {
+      //  await watchers[name].waitForTX(tx);
+      //}
       for (const name in minerNames) {
         await minerWatcher.waitForTX(tx);
       }
       for (name in spvNames) {
         await spvWatcher1.waitForTX(tx);
       }
+
       miner.trust.getIndirectTrust(addresses["alice"],
           addresses["bob"]).should.equal(7 * COIN);
       spvNode1.trust.getIndirectTrust(addresses["alice"],

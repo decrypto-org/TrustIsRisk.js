@@ -61,7 +61,7 @@ describe("FullNode", () => {
   });
 
   beforeEach("get watcher", async () => {
-    watcher = new testHelpers.NodeWatcher(node);
+    watcher = new testHelpers.WalletWatcher(wallet);
   });
 
   afterEach("tear node down", async () => {
@@ -72,6 +72,7 @@ describe("FullNode", () => {
   it("should call trust.addTX() on every transaction", async function() {
     var sender = await testHelpers.createWallet(walletDB, "sender");
     var receiver = await testHelpers.createWallet(walletDB, "receiver");
+    const recvWatcher = new testHelpers.WalletWatcher(receiver);
 
     await testHelpers.delay(1000);
     // Produce a block and reward the sender, so that we have a coin to spend.
@@ -88,7 +89,7 @@ describe("FullNode", () => {
         address: await receiver.receiveAddress()
       }]
     });
-    await watcher.waitForTX(tx, receiver);
+    await recvWatcher.waitForTX(tx);
     await testHelpers.flushEvents();
 
     node.trust.addTX.should.have.been.calledOnce();
@@ -148,7 +149,7 @@ describe("FullNode", () => {
 
       let tx = mtx.toTX();
       node.sendTX(tx);
-      await watcher.waitForTX(tx, wallet);
+      await watcher.waitForTX(tx);
       await testHelpers.flushEvents();
 
       prevout = {};
