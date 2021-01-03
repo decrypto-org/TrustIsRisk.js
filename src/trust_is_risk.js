@@ -45,7 +45,7 @@ class TrustIsRisk {
   // network, false otherwise.
   // Throws an error if the transaction was processed earlier.
   addTX(tx : bcoin$TX) : boolean {
-    var txHash = tx.hash().toString("hex");
+    var txHash = tx.hash();
     if (this.db.isTrustTX(txHash)) {
       throw new Error(`Transaction already processed: Transaction ${txHash} already carries trust`);
     }
@@ -202,7 +202,7 @@ class TrustIsRisk {
     if (tx.inputs.length !== 1) return null;
     var input = tx.inputs[0];
     if (input.getType() !== "pubkeyhash") return null; // TODO: This is unreliable
-    if (this.db.isTrustOutput(input.prevout.hash.toString("hex"), input.prevout.index)) return null;
+    if (this.db.isTrustOutput(input.prevout.hash, input.prevout.index)) return null;
     var origin = tx.inputs[0].getAddress().toString();
 
     if (tx.outputs.length === 0 || tx.outputs.length > 2) return null;
@@ -228,7 +228,7 @@ class TrustIsRisk {
   }
 
   getTrustDecrease(tx : bcoin$TX, prevTrust : DirectTrust) : DirectTrust {
-    var txHash = tx.hash().toString("hex");
+    var txHash = tx.hash();
     var nullTrust = prevTrust.getNullifying(txHash);
 
     if (tx.inputs.length !== 1) return nullTrust;
@@ -269,7 +269,7 @@ class TrustIsRisk {
 
   parseOutputAsDirectTrust(tx : bcoin$TX, outputIndex : number,
       origin : Entity) : (DirectTrust | null) {
-    var txHash = tx.hash().toString("hex");
+    var txHash = tx.hash();
     var output = tx.outputs[outputIndex];
     if (output.getType() !== "multisig") return null;
 

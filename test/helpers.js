@@ -72,7 +72,7 @@ var testHelpers = {
   getP2PKHInput: (pubKey, prevout) => {
     if (!prevout) {
       prevout = { // Don't care
-        hash: "v0pnhphaf4r5wz63j60vnh27s1bftl260qq621y458tn0g4x64u64yqz6d7qi6i8",
+        hash: Buffer.from("v0pnhphaf4r5wz63j60vnh27s1bftl26"),
         index: 2
       };
     }
@@ -152,12 +152,12 @@ class NodeWatcher {
 
   async waitForTX(input, wallet) {
     if (wallet instanceof Wallet) {
-      while (!(await wallet.getTX(input.hash("hex")))) {
+      while (!(await wallet.getTX(input.hash()))) {
         await this.waitForSomeTX();
       }
       return;
     }
-    while (!this.node.trust.db.isTrustTX(input.hash("hex"))) {
+    while (!this.node.trust.db.isTrustTX(input.hash())) {
       await testHelpers.delay(100);
     }
   }
@@ -190,7 +190,7 @@ class WalletWatcher {
   }
 
   async waitForTX(input) {
-    while (!(await this.wallet.getTX(input.hash("hex")))) {
+    while (!(await this.wallet.getTX(input.hash()))) {
       await this.waitForSomeTX();
     }
   }

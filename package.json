@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "flow-remove-types -d lib/ src/",
-    "test": "npm run build && mocha -t 60000",
+    "test": "npm run build && mocha -t 100000",
     "prepublish": "npm run build",
     "typecheck": "flow check",
     "lint": "./node_modules/.bin/eslint --fix src/ test/",
@@ -31,14 +31,15 @@
     "eslint": "^3.19.0",
     "eslint-plugin-flowtype": "^2.50.3",
     "flow-bin": "^0.45.0",
-    "flow-remove-types": "^1.2.0",
-    "mocha": "^5.2.0",
+    "flow-remove-types": "^1.2.3",
+    "mocha": "^8.2.1",
     "should": "^11.2.1",
     "should-sinon": "0.0.5",
     "sinon": "^5.1.1"
   },
   "dependencies": {
-    "bcoin": "^1.0.2",
+    "bcoin": "git+https://github.com/bcoin-org/bcoin.git#semver:^2.1.2",
+    "bcrypto": "^5.3.0",
     "graph-theory-ford-fulkerson": "^1.0.0",
     "sorted-set": "^0.3.0"
   }

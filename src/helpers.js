@@ -61,7 +61,7 @@ class NodeWatcher {
       await new Promise((resolve, reject) => {
         var check = (() => {
             // This breaks node.pool.on("tx", ...)
-          if (this.node.pool.hasTX(tx.hash().toString("hex")))
+          if (this.node.pool.hasTX(tx.hash()))
             resolve();
           else setTimeout(check, 100);
         }).bind(this);

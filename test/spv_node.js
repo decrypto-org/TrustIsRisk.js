@@ -168,12 +168,12 @@ describe("SPVNode", () => {
       }),
       new Output({ // paytopubkeyhash change
         script: Script.fromPubkeyhash(
-          bcrypto.hash160.digest(origin.getPublicKey())),
+          bcrypto.Hash160.digest(origin.getPublicKey())),
         value: consensus.COIN - 100000 // leave a fee of 0.001 BTC
       })
     ];
     var mtx = new MTX({outputs});
-    var coinbaseCoin = await miner.getCoin(block.txs[0].hash().toString("hex"), 0);
+    var coinbaseCoin = await miner.getCoin(block.txs[0].hash(), 0);
     mtx.addCoin(coinbaseCoin);
 
     mtx.sign(origin);
@@ -236,7 +236,7 @@ describe("SPVNode", () => {
     var spvMinerTX = await testHelpers.circulateCoins(spvWallet2,
       watcher2, minerWallet, minerWatcher, 8);
 
-    var view = await miner.chain.db.getSpentView(minerSpvTX);
+    var view = await miner.chain.db.getCoinView(minerSpvTX);
     var actualBalance = (await minerWallet.getBalance()).unconfirmed;
     var expectedBalance =
         consensus.BASE_REWARD - 10 * COIN + 8 * COIN - minerSpvTX.getFee(view);
@@ -266,8 +266,8 @@ describe("SPVNode", () => {
     const rings = {}, watchers = {};
 
     beforeEach("apply graph transactions", async () => {
-      const wdb = (spvNames[name]) ? minerWalletDB : spvWalletDB1;
       for (const name in names) {
+        const wdb = (spvNames[name]) ? minerWalletDB : spvWalletDB1;
         wallets[name] = await testHelpers.createWallet(
             wdb, name
         );
@@ -283,7 +283,7 @@ describe("SPVNode", () => {
         try {
           const batch = wallets[name].db.batch();
           await wdb.addPathMap(batch, bcoin.primitives.KeyRing.fromPublic(
-            tag).getHash('hex'), wid);
+            tag).getHash(), wid);
           batch.write();
         } finally {
           unlock();
@@ -326,7 +326,7 @@ describe("SPVNode", () => {
 
       // Use the coinbase coins as inputs
       var coinbaseCoins = await Promise.all(coinbaseHashes.map((hash) => {
-        return miner.getCoin(hash.toString("hex"), 0);
+        return miner.getCoin(hash, 0);
       }));
       var mtx = new MTX({outputs});
       coinbaseCoins.forEach((coin) => mtx.addCoin(coin));
@@ -348,7 +348,7 @@ describe("SPVNode", () => {
 
       for (const name in names) {
         prevout[name] = {
-          hash: tx.hash().toString("hex"),
+          hash: tx.hash(),
           index: counter++
         };
       }
@@ -408,7 +408,7 @@ describe("SPVNode", () => {
           await watcher.origin.waitForTX(tx);
           await watcher.dest.waitForTX(tx);
 
-          prevout[origin] = {hash: tx.hash().toString("hex"), index: 1};
+          prevout[origin] = {hash: tx.hash(), index: 1};
         }
       }
 

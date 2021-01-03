@@ -55,7 +55,7 @@ setupTest = async (isFullNode) => {
 
   var inputOneOfThreeMultisig = new Input({
     prevout: {
-      hash: trustIncreasingTX.hash().toString("hex"),
+      hash: trustIncreasingTX.hash(),
       index: 0
     },
     script: bcoin.Script.fromString(
@@ -275,14 +275,14 @@ testEach = (isFullNode) => {
       trustTXs.push(tx);
       tir.addTX(tx);
 
-      getTXStub.withArgs(tx.hash("hex")).returns(TXRecord.fromTX(tx));
+      getTXStub.withArgs(tx.hash()).returns(TXRecord.fromTX(tx));
 
       trustIncreasingMTX.outputs[0].value = 100 * COIN;
       tx = trustIncreasingMTX.toTX();
       trustTXs.push(tx);
       tir.addTX(tx);
 
-      getTXStub.withArgs(tx.hash("hex")).returns(TXRecord.fromTX(tx));
+      getTXStub.withArgs(tx.hash()).returns(TXRecord.fromTX(tx));
 
       trustIncreasingMTX.outputs[0].value = 500 * COIN;
       tx = trustIncreasingMTX.toTX();
@@ -304,7 +304,7 @@ testEach = (isFullNode) => {
 
       mtx.inputs.length.should.equal(1);
       mtx.inputs[0].prevout.should.have.properties({
-        hash: trustTXs[0].hash().toString("hex"),
+        hash: trustTXs[0].hash(),
         index: 0
       });
 
@@ -317,7 +317,7 @@ testEach = (isFullNode) => {
 
       mtx.inputs.length.should.equal(1);
       mtx.inputs[0].prevout.should.have.properties({
-        hash: trustTXs[1].hash().toString("hex"),
+        hash: trustTXs[1].hash(),
         index: 0
       });
 

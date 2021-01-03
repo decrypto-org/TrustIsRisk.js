@@ -79,11 +79,11 @@ class TrustDB {
   }
 
   isTrustTX(txHash : string) : boolean {
-    return this.txToDirectTrust.has(txHash);
+    return this.txToDirectTrust.has(txHash.toString("hex"));
   }
 
   isTrustOutput(txHash : string, outputIndex : number) : boolean {
-    var trust = this.txToDirectTrust.get(txHash);
+    var trust = this.txToDirectTrust.get(txHash.toString("hex"));
     return trust !== undefined && trust.outputIndex === outputIndex;
   }
 
@@ -105,7 +105,7 @@ class TrustDB {
 
     assert(trust.valid);
     trusts.push(trust);
-    this.txToDirectTrust.set(trust.txHash, trust);
+    this.txToDirectTrust.set(trust.txHash.toString("hex"), trust);
 
     this.entities.add(origin);
     this.entities.add(dest);

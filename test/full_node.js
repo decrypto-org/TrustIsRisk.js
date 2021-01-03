@@ -138,7 +138,7 @@ describe("FullNode", () => {
 
       // Use the coinbase coins as inputs
       var coinbaseCoins = await Promise.all(coinbaseHashes.map((hash) => {
-        return node.getCoin(hash.toString("hex"), 0);
+        return node.getCoin(hash, 0);
       }));
       var mtx = new MTX({outputs});
       coinbaseCoins.forEach((coin) => mtx.addCoin(coin));
@@ -155,7 +155,7 @@ describe("FullNode", () => {
       prevout = {};
       fixtures.names.forEach((name) => {
         prevout[name] = {
-          hash: tx.hash().toString("hex"),
+          hash: tx.hash(),
           index: fixtures.names.indexOf(name)
         };
       });
@@ -186,7 +186,7 @@ describe("FullNode", () => {
           await watcher.waitForTX(tx);
           await testHelpers.flushEvents(); // @dionyziz: needs a long time
 
-          prevout[origin] = {hash: tx.hash().toString("hex"), index: 1};
+          prevout[origin] = {hash: tx.hash(), index: 1};
         }
       }
 
