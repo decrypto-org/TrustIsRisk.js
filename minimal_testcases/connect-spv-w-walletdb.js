@@ -17,6 +17,8 @@ const one = new bcoin.SPVNode({ // Full: OK | SPV: Fail
  // logConsole: true,  // try to see the logs of
  // logLevel: 'debug', // the Full node as well
   httpPort: 48445,
+  port: 48446,
+  nodes: ["127.0.0.1:48448"],
   passphrase: 'secret'
 });
 
@@ -27,6 +29,7 @@ const oneWalletDB = new WalletDB({
 
 const two = new bcoin.FullNode({
   network: regtest,
+  httpPort: 48446,
   port: 48448,
   bip37: true,
   listen: true,

@@ -14,15 +14,15 @@ const helpers = {
       throw Error("Wrong node type");
 
     const node = (type === "spv") ?
-      new bcoin.spvnode({
-        network: bcoin.network.get().toString(),
+      new bcoin.SPVNode({
+        network: bcoin.Network.get().toString(),
         port: 48445,
         passphrase: "secret",
         nodes: ["127.0.0.1:48448"]
       })
-    : // if type === "full"
-      new bcoin.fullnode({
-        network: bcoin.network.get().toString(),
+    : // type === "full"
+      new bcoin.FullNode({
+        network: bcoin.Network.get().toString(),
         port: 48448,
         bip37: true,
         listen: true,
@@ -34,12 +34,11 @@ const helpers = {
     const walletDB = new WalletDB({
       network: node.network,
       db: "memory",
-      client: new bcoin.node.NodeClient(node),
+      client: new bcoin.wallet.NodeClient(node),
       spv: node.spv
     });
 
     await walletDB.open();
-    await walletDB.connect();
     await node.connect();
     node.startSync();
 
@@ -59,7 +58,7 @@ const helpers = {
 
   mineAndPaySPV: async (fullNode, fullWallet, spvWallet) => {
     const block = await fullNode.miner.mineBlock(
-      fullNode.chain.tip, fullWallet.getAddress("base58")
+      fullNode.chain.tip, await fullWallet.receiveAddress()
     );
     await fullNode.chain.add(block);
 
@@ -70,7 +69,7 @@ const helpers = {
     const ret = await fullWallet.send({
       outputs: [{ // give 25 coins to SPV
         value: 25 * consensus.COIN,
-        address: spvWallet.getAddress("base58")
+        address: await spvWallet.receiveAddress()
       }]
     });
     return ret;
@@ -85,7 +84,7 @@ const helpers = {
           else setTimeout(check, 100);
         }
         else { // this is not an SPV node
-          if (node.pool.hasTX(tx.hash().toString("hex")))
+          if (node.pool.hasTX(tx.hash()))
             resolve();
           else setTimeout(check, 100);
         }

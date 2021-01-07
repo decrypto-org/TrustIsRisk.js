@@ -28,9 +28,10 @@ let fullWalletDB;
   const TXtoSPV = await spvWallet1.send({
     outputs: [{
       value: 10 * consensus.COIN,
-      address: spvWallet2.getAddress("base58")
+      address: await spvWallet2.receiveAddress()
     }]
   });
+
   await helpers.waitForTX(spvNode, TXtoSPV);
   console.log("success!");
   process.exit();
