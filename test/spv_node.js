@@ -246,7 +246,7 @@ describe("SPVNode", () => {
     miner.trust.addTX.should.have.been.calledThrice();
   });
 
-  describe("with the nobodyLikesFrank.json example", () => {
+  describe.skip("with the nobodyLikesFrank.json example", () => {
     var minerNames = {
       "alice": "alice",
       "bob": "bob",
