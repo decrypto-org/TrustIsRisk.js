@@ -3,6 +3,7 @@
 .*/test/*
 .*/minimal_testcases/*
 .*/lib/*
+.*/scripts/*
 
 [include]
 ./src
