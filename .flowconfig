@@ -1,7 +1,9 @@
 [ignore]
 .*/node_modules/*
 .*/test/*
+.*/minimal_testcases/*
 .*/lib/*
+.*/scripts/*
 
 [include]
 ./src
@@ -10,3 +12,4 @@
 
 [options]
 all=true
+unsafe.enable_getters_and_setters=true
