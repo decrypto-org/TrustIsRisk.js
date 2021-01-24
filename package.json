@@ -9,7 +9,8 @@
     "prepublish": "npm run build",
     "typecheck": "flow check",
     "lint": "./node_modules/.bin/eslint --fix src/ test/",
-    "check": "npm run lint && npm run typecheck && npm run test"
+    "check": "npm run lint && npm run typecheck && npm run test",
+    "postinstall": "scripts/postinstall.sh"
   },
   "repository": {
     "type": "git",
