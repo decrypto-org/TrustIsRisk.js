@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/decrypto-org/TrustIsRisk.js#readme",
   "devDependencies": {
-    "babel-eslint": "^7.2.3",
+    "@babel/eslint-parser": "^7.21.8",
     "eslint": "^8.40.0",
     "eslint-plugin-flowtype": "^2.50.3",
     "flow-bin": "^0.45.0",
