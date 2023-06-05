@@ -19,6 +19,10 @@ var testHelpers = {
     return walletDB.create(options);
   },
 
+  removeWallet: async (walletDB, id) => {
+    walletDB.remove(id);
+  },
+
   mineBlock: async (node, rewardAddress) => {
     var block = await node.miner.mineBlock(node.chain.tip, rewardAddress);
     await node.chain.add(block);

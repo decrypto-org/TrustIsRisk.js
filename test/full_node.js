@@ -65,6 +65,7 @@ describe("FullNode", () => {
   });
 
   afterEach("tear node down", async () => {
+    await testHelpers.removeWallet(walletDB, "wallet");
     node.stopSync();
     await node.tearDown();
   });
@@ -93,6 +94,8 @@ describe("FullNode", () => {
     await testHelpers.flushEvents();
 
     node.trust.addTX.should.have.been.calledOnce();
+    await testHelpers.removeWallet(walletDB, "sender");
+    await testHelpers.removeWallet(walletDB, "receiver");
   });
 
   describe("with the nobodyLikesFrank.json example", () => {
